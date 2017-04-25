@@ -1,0 +1,38 @@
+DatumStructure:
+  - StoreName: AllNodes
+    StoreProvider: Datum::File
+    ItemType: Datum.Node
+    StoreOptions:
+      DataDir: "./DSC_Configuration/AllNodes"
+ 
+  - StoreName: Sites
+    StoreProvider: Datum::File
+    ItemType: Datum.Site
+    StoreOptions:
+      DataDir: "./DSC_Configuration/SiteData"
+
+  - StoreName: Roles
+    StoreProvider: Datum::File
+    ItemType: Datum.Role
+    StoreOptions:
+      DataDir: "./DSC_Configuration/Roles"
+
+  #- StoreName: Credentials
+  #  StoreProvider: Datum::File
+  #  StoreFormat: Datum::PSD1
+  #  ItemType: Datum.Credential
+  #  StoreOptions:
+  #    - DataDir: "./DSC_Configuration/Credentials"
+  #      Recurse: true
+  #      ValueConverter: Datum::Credential
+
+ResolutionPrecedence:
+  - 'AllNodes\<%= $CurrentNode.PSObject.Properties.where{$_.Name -eq $Node.Name}.Value%>'
+  - 'AllNodes\<%= $CurrentNode.PSObject.Properties.where{$_.Name -eq "All"}.Value%>'
+  - 'Sites\<%= $CurrentNode.PSObject.Properties.($Node.Location)%>'
+  - 'Sites\All\Services'
+  - 'Roles'
+  - 'Roles\All'
+
+#If $ConfigurationData.AllNodes can stay a tree of OBject instead of hashtable[]
+# the Precedence can take the form 'AllNodes\${Node.Name}'
