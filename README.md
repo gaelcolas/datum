@@ -2,7 +2,7 @@
 
 `A datum is a piece of information.`
 
-This project is mainly aimed at managing hiearchical configuration data for DSC, based on multiple storage medium and format.
+This project is mainly aimed at managing hierarchical configuration data for DSC, based on multiple storage medium and format.
 
 It does so by abstracting the underlying storage (i.e. files in folders) and format (json, yaml, PSD1), and representing the data as a structured object, walkable using the '.' notation: 
 
