@@ -17,6 +17,26 @@ For instance, one could compose like so:
  - Database Data
  - File Data
 
+## Usage
+
+For now, this is only a prototype, and the best documentation is the Demo:
+- [Datum Structure](./Datum/examples/demo1/datum.yml) by combining provider
+- [example file]((./Datum/examples/demo1/demo1.ps1) that loads structure and execute some search in different modes
+- [the root]((./Datum/examples/demo1/DSC_Configuration) of the config data
+
+```PowerShell
+Resolve-Datum -searchPaths $yml.ResolutionPrecedence `
+              -DatumStructure $datum `
+              -PropertyPath 'ExampleProperty1' `
+              -SearchBehavior 'AllValues'
+
+#Searching all Properties 'ExampleProperty1' for FileServer01:
+#From Node
+#From Site
+#From All SiteData
+#From Role
+#From All Roles
+```
 
 ## TODO
 
