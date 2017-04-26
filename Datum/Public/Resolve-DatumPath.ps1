@@ -3,7 +3,7 @@ function Resolve-DatumPath {
     param(
         $Node,
 
-        $DatabagNode,
+        $DatumStructure,
 
         [string[]]
         $PathStack,
@@ -15,7 +15,7 @@ function Resolve-DatumPath {
         $Value
     )
     
-    $currentNode = $DatabagNode
+    $currentNode = $DatumStructure
     
     foreach ($StackItem in $PathStack) {
         $RelativePath = $PathStack[0..$PathStack.IndexOf($StackItem)]
@@ -23,13 +23,13 @@ function Resolve-DatumPath {
         $LeftOfStack = $PathStack[$PathStack.IndexOf($StackItem)..($PathStack.Count-1)]
         Write-Verbose "Left Path to search: $($LeftOfStack -join '\')"
         if ( $StackItem -match '\{\d+\}') {
-            Write-Verbose -Message "Replacing expression $StackItem"
+            Write-Debug -Message "Replacing expression $StackItem"
             $StackItem = [scriptblock]::Create( ($StackItem -f ([string[]]$PathVariables)) ).Invoke()
-            Write-Verbose -Message ($StackItem | FL * | Out-String)
+            Write-Debug -Message ($StackItem | Format-List * | Out-String)
             $PathItem = $stackItem
         }
         else {
-            $PathItem = $CurrentNode.($StackItem)
+            $PathItem = $CurrentNode.($ExecutionContext.InvokeCommand.ExpandString($StackItem))
         }
 
         switch ($PathItem) {
@@ -37,8 +37,7 @@ function Resolve-DatumPath {
                 Write-Verbose -Message "NULL FOUND AT PATH: $(($RelativePath -join '\') -f [string[]]$PathVariables) before reaching $($LeftOfStack -join '\')"
                 Return $null
             }
-            {$_.GetType() -eq [hashtable]} { $CurrentNode = $PathItem; Break}
-            #{$_.GetType() -eq [string[]]}  { $_.Foreach{Resolve-ObjectPath @PSBoundParameters -DatabagNode $currentNode.($_) -PathStack $LeftOfStack}; break}
+            {$_.GetType() -eq [hashtable]} { $CurrentNode = $PathItem; Break }
             default                        { $CurrentNode = $PathItem; break }
         }
 

@@ -1,32 +1,40 @@
 Function Resolve-Datum {
     [cmdletBinding()]
     Param(
+        [Parameter(
+            Mandatory
+        )]
         [string]
-        $PropertyPath = 'DSCPULLSRV\ConfigurationPath',
+        $PropertyPath,
         
+        [Parameter(
+            Mandatory
+        )]
         [string[]]
-        $searchPaths = @(
-            'AllNodes\<%= $CurrentNode.where{$_.Name -eq $Node.Name}%>\Services', #AllNodes is Array of Nodes
-            'AllNodes\<%= $CurrentNode.where{$_.Name -eq "All"}%>\Services',
-            'SiteData\<%= $CurrentNode.($Node.Location)%>\Services', #SiteData is an Object (key/val)
-            'SiteData\All\Services',
-            'Services',
-            'Services\All'
-                        ),
+        $searchPaths,
 
-        $Databag = $ConfigurationData,
+        [Parameter(
+            Mandatory
+        )]
+        $DatumStructure = $DatumStructure,
 
-        [hashtable]
-        $Node = $Node,
+        [PSObject]
+        $InputObject,
 
-        [switch]
-        $AllValues
+        $MaxDepth,
+
+        [ValidateSet('MostSpecific','AllValues')]
+        $SearchBehavior = 'MostSpecific'
     )
 
     $Pattern = '(?<opening><%=)(?<sb>.*?)(?<closure>%>)'
+    $Depth = 0
+    $MergeResult = $null
+    # Walk every search path in listed order, and return datum when found at end of path
     foreach ($SearchPath in $searchPaths) {
         $ArraySb = [System.Collections.ArrayList]@()
         $CurrentSearch = Join-Path $searchPath $PropertyPath
+        #extract script block for execution
         $newSearch = [regex]::Replace($CurrentSearch, $Pattern, {
                     param($match)
                     $expr = $match.groups['sb'].value
@@ -35,6 +43,16 @@ Function Resolve-Datum {
                 },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
         
         $PathStack = $newSearch -split '\\'
-        Resolve-DatumPath -Node $Node -DatabagNode $Databag -PathStack $PathStack -PathVariables $ArraySb
+        $DatumFound = Resolve-DatumPath -Node $Node -DatumStructure $DatumStructure -PathStack $PathStack -PathVariables $ArraySb
+        #Stop processing further path when the Max depth is reached
+        # or when you found the first value
+        if ($Depth -eq $MaxDepth -or ($SearchBehavior -eq 'MostSpecific')) {
+            Write-Debug "Depth: $depth; Search Behavior: $SearchBehavior"
+            $DatumFound
+            break
+        }
+        elseif($SearchBehavior -eq 'AllValues') {
+            $DatumFound
+        }
     }
 }

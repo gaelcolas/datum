@@ -1,19 +1,16 @@
 DatumStructure:
   - StoreName: AllNodes
     StoreProvider: Datum::File
-    ItemType: Datum.Node
     StoreOptions:
       DataDir: "./DSC_Configuration/AllNodes"
  
   - StoreName: SiteData
     StoreProvider: Datum::File
-    ItemType: Datum.Site
     StoreOptions:
       DataDir: "./DSC_Configuration/SiteData"
 
   - StoreName: Roles
     StoreProvider: Datum::File
-    ItemType: Datum.Role
     StoreOptions:
       DataDir: "./DSC_Configuration/Roles"
 
@@ -27,12 +24,13 @@ DatumStructure:
   #      ValueConverter: Datum::Credential
 
 ResolutionPrecedence:
-  - 'AllNodes\<%= $CurrentNode.PSObject.Properties.where{$_.Name -eq $Node.Name}.Value%>'
-  - 'AllNodes\<%= $CurrentNode.All%>'
-  - 'SiteData\<%= $CurrentNode.($Node.Location)%>'
-  - 'Sites\All\Services'
+  - 'AllNodes\$($Node.Name)'
+  - 'AllNodes\<%= $CurrentNode.PSObject.Properties.where{$_.Name -eq $Node.Name}.Value%>\Roles' #script block execution
+  - 'AllNodes\All\Roles'
+  - 'SiteData\$($Node.Location)'
+  - 'SiteData\$($Node.Location)\Roles' #variable expansion
+  - 'SiteData\All'
+  - 'SiteData\All\Roles'
   - 'Roles'
+  - 'Roles\$($Node.Role)' #if Node has unique role, otherwise use <%= $CurrentNode.PSObject.Properties.where{$_.Name -in $Node.Role}.Value %>
   - 'Roles\All'
-
-#If $ConfigurationData.AllNodes can stay a tree of OBject instead of hashtable[]
-# the Precedence can take the form 'AllNodes\${Node.Name}'

@@ -1,8 +1,10 @@
 @{
-    Nodes = 'FileServer01'
-
     BaseServerSettings = @{
         PowerPlan = 'Balanced'
+    }
+    
+    datum = @{
+        mergeMe = @{Role = 'From Role';}
     }
 
     FileServerSettings = @{
@@ -16,6 +18,6 @@
         )
     }
 
-    ExampleProperty1 = 'From Service'
+    ExampleProperty1 = 'From Role'
 }
 
