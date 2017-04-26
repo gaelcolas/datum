@@ -2,7 +2,7 @@
 
 `A datum is a piece of information.`
 
-This project is mainly aimed at managing hierarchical configuration data for DSC, based on multiple storage medium and format.
+This project is mainly aimed at managing hierarchical configuration data for DSC, based on multiple storage mediums and format.
 
 It does so by abstracting the underlying storage (i.e. files in folders) and format (json, yaml, PSD1), and representing the data as a structured object, walkable using the '.' notation: 
 
@@ -21,8 +21,8 @@ For instance, one could compose like so:
 
 For now, this is only a prototype, and the best documentation is the Demo:
 - [Datum Structure](./Datum/examples/demo1/datum.yml) by combining provider
-- [example file]((./Datum/examples/demo1/demo1.ps1) that loads structure and execute some search in different modes
-- [the root]((./Datum/examples/demo1/DSC_Configuration) of the config data
+- [example file](./Datum/examples/demo1/demo1.ps1) that loads structure and execute some search in different modes
+- [the root](./Datum/examples/demo1/DSC_Configuration) of the config data
 
 ```PowerShell
 Resolve-Datum -searchPaths $yml.ResolutionPrecedence `
