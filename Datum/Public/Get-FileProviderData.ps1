@@ -6,7 +6,7 @@ function Get-FileProviderData {
     Param(
         $Path
     )
-
+    Write-Verbose "Getting File Provider Data for Path: $Path"
     $File = Get-Item -Path $Path
     switch ($File.Extension) {
         '.psd1' { Import-PowerShellDataFile $File }

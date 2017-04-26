@@ -43,6 +43,7 @@ Copyright = '(c) 2017 Gael Colas. All rights reserved.'
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
     @{ ModuleName = 'ProtectedData'; ModuleVersion = '4.1.0' }
+    ,'powershell-yaml'
 )
 
 # Assemblies that must be loaded prior to importing this module

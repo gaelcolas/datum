@@ -5,7 +5,7 @@ DatumStructure:
     StoreOptions:
       DataDir: "./DSC_Configuration/AllNodes"
  
-  - StoreName: Sites
+  - StoreName: SiteData
     StoreProvider: Datum::File
     ItemType: Datum.Site
     StoreOptions:
@@ -28,8 +28,8 @@ DatumStructure:
 
 ResolutionPrecedence:
   - 'AllNodes\<%= $CurrentNode.PSObject.Properties.where{$_.Name -eq $Node.Name}.Value%>'
-  - 'AllNodes\<%= $CurrentNode.PSObject.Properties.where{$_.Name -eq "All"}.Value%>'
-  - 'Sites\<%= $CurrentNode.PSObject.Properties.($Node.Location)%>'
+  - 'AllNodes\<%= $CurrentNode.All%>'
+  - 'SiteData\<%= $CurrentNode.($Node.Location)%>'
   - 'Sites\All\Services'
   - 'Roles'
   - 'Roles\All'

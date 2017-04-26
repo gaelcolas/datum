@@ -1,7 +1,16 @@
-Import-Module ..\..\Datum.psd1 -force
+Import-Module $PSScriptRoot\..\..\Datum.psd1 -force
 
-$yml = Get-Content -raw .\datum.yml | ConvertFrom-Yaml
+pushd $PSScriptRoot
+
+$yml = Get-Content -raw $PSScriptRoot\datum.yml | ConvertFrom-Yaml
 
 $datum = New-DatumStructure $yml
-$Node = @{Name='FileServer01'}
+$ConfigurationData = @{
+    AllNodes = $Datum.AllNodes.psobject.Properties | % { $Datum.AllNodes.($_.Name) }
+    Datum = $Datum
+}
+$Node = $Configurationdata.Allnodes[1]
 Resolve-Datum -searchPaths $yml.ResolutionPrecedence -Databag $datum -PropertyPath 'ExampleProperty1' -Node $node
+#Resolve-Datum -searchPaths $yml.ResolutionPrecedence -Databag $datum -PropertyPath 'ExampleProperty1' -Node $node
+
+popd
