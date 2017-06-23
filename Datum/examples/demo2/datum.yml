@@ -1,0 +1,7 @@
+DatumStructure:
+  - StoreName: Secured
+    StoreProvider: Datum::File
+    StoreOptions:
+      DataDir: "./secured"
+      Password: P@ssw0rd
+      #Certificate: ### THUMBPRINT ###
