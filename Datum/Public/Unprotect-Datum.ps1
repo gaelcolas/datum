@@ -54,17 +54,17 @@ function Unprotect-Datum {
             ValueFromPipelineByPropertyName
         )]
         [Switch]
-        $Encapsulated
+        $NoEncapsulation
     )
     
     begin {
     }
     
     process {
-        if ($Encapsulated) {
+        if (!$NoEncapsulation) {
+            Write-Verbose "Removing $header DATA $footer "
             $Base64Data = $Base64Data -replace "^$([regex]::Escape($Header))" -replace "$([regex]::Escape($Footer))$"
         }
-        Write-Verbose "Removing $header DATA $footer "
         
         Write-Verbose "Deserializing the Object from Base64"
         $bytes = [System.Convert]::FromBase64String($Base64Data)

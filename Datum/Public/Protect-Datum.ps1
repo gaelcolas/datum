@@ -61,7 +61,7 @@ function Protect-Datum {
             ValueFromPipelineByPropertyName
         )]
         [Switch]
-        $Encapsulate
+        $NoEncapsulation
         
     )
     
@@ -91,7 +91,7 @@ function Protect-Datum {
         else {
             $Base64DataBlock = $Base64String
         }
-        if($Encapsulate) {
+        if(!$NoEncapsulation) {
             $Header,$Base64DataBlock,$Footer -join ''
         }
         else {
