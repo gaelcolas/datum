@@ -2,6 +2,7 @@ DatumStructure:
   - StoreName: Secured
     StoreProvider: Datum::File
     StoreOptions:
-      DataDir: "./secured"
-      Password: P@ssw0rd
-      #Certificate: ### THUMBPRINT ###
+      DataDir: "./ConfigData"
+      DataOptions:
+        ClearTextPassword: P@ssw0rd
+        #Certificate: ### THUMBPRINT ###

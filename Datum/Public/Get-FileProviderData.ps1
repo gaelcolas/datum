@@ -4,7 +4,10 @@
 function Get-FileProviderData {
     [CmdletBinding()]
     Param(
-        $Path
+        $Path,
+
+        [AllowNull()]
+        $DataOptions
     )
     Write-Verbose "Getting File Provider Data for Path: $Path"
     $File = Get-Item -Path $Path
@@ -12,8 +15,8 @@ function Get-FileProviderData {
         '.psd1' { Import-PowerShellDataFile $File }
         '.json' { Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-Hashtable }
         '.yml'  { convertfrom-yaml (Get-Content -raw $Path) | ConvertTo-Hashtable }
-        '.ejson'{ Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-ProtectedDatum }
-        '.eyaml'{ ConvertFrom-Yaml (Get-Content -Raw $Path) | ConvertTo-ProtectedDatum }
-        '.epsd1'{ Import-PowerShellDatafile $File | ConvertTo-ProtectedDatum }
+        '.ejson'{ Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
+        '.eyaml'{ ConvertFrom-Yaml (Get-Content -Raw $Path) | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
+        '.epsd1'{ Import-PowerShellDatafile $File | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
     }
 }

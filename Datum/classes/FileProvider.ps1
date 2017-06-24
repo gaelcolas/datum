@@ -1,8 +1,9 @@
 Class FileProvider {
     hidden $Path
-
-    FileProvider ($Path)
+    hidden [hashtable] $DataOptions
+    FileProvider ($Path,$DataOptions)
     {
+        $this.DataOptions = $DataOptions
         $this.Path = Get-Item $Path
         
         $Result = Get-ChildItem $path | ForEach-Object {
@@ -11,7 +12,7 @@ Class FileProvider {
                 $this | Add-Member -MemberType ScriptProperty -Name $_.BaseName -Value $val
             }
             else {
-                $val = [scriptblock]::Create("Get-FileProviderData -Path  `"$($_.FullName)`"")
+                $val = [scriptblock]::Create("Get-FileProviderData -Path  `"$($_.FullName)`" -DataOptions `$this.DataOptions")
                 $this | Add-Member -MemberType ScriptProperty -Name $_.BaseName -Value $val
             }
         }

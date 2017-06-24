@@ -2,8 +2,11 @@
 function New-DatumFileProvider {
     Param(
         [alias('DataDir')]
-        $Path
+        $Path,
+
+        [AllowNull()]
+        $DataOptions
     )
 
-    [FileProvider]::new($Path)
+    [FileProvider]::new($Path,$DataOptions)
 }
