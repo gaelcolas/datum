@@ -14,14 +14,13 @@ DatumStructure:
     StoreOptions:
       DataDir: "./DSC_Configuration/Roles"
 
-  #- StoreName: Credentials
-  #  StoreProvider: Datum::File
-  #  StoreFormat: Datum::PSD1
-  #  ItemType: Datum.Credential
-  #  StoreOptions:
-  #    - DataDir: "./DSC_Configuration/Credentials"
-  #      Recurse: true
-  #      ValueConverter: Datum::Credential
+# - StoreName: Credentials
+#   StoreProvider: Datum::File
+#   StoreOptions:
+#     DataDir: "./DSC_ConfigurationData/Credentials"
+#     DataOptions:
+#       ClearTextPassword: P@ssw0rd
+      #Certificate: ### THUMBPRINT ###
 
 ResolutionPrecedence:
   - 'AllNodes\$($Node.Name)'

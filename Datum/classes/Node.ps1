@@ -1,29 +1,33 @@
-Class Node {
-    Node()
+Class Node : hashtable {
+    Node([hashtable]$NodeData)
     {
-        $this | Add-member -MemberType ScriptProperty -Name HERE -Value {
-            
+        $NodeData.keys | % {
+            $This[$_] = $NodeData[$_]
+        }
+        
+        $this | Add-member -MemberType ScriptProperty -Name Roles -Value {
+            Write-host ((Get-PSCallStack)[1]|FL|out-string)
             $PathArray = (Get-PSCallStack)[1].Position.text -split '\.'
-            $PropertyPath =  $PathArray[1..($PathArray.count-1)] -join '\'
+            $PropertyPath =  $PathArray[2..($PathArray.count-1)] -join '\'
             
-            write-host "Resolve-DscProperty '$PropertyPath'"
+            write-Verbose "Resolve-DscProperty '$PropertyPath'"
+            $obj = [PSCustomObject]@{}
+            $currentNode = $obj
+            if($PathArray.Count -gt 3) {
+                foreach ($property in $PathArray[2..($PathArray.count-2)]) {
+                    Write-Debug "Adding $Property property"
+                    $currentNode | Add-member -MemberType NoteProperty -Name $property -Value ([PSCustomObject]@{})
+                    $currentNode = $currentNode.$property
+                }    
+            }
+            Write-Debug "Adding Resolved property to last object's property $($PathArray[-1])"
+            $currentNode | Add-member -MemberType NoteProperty -Name $PathArray[-1] -Value ($PropertyPath)
+
+            return $obj
         }
     }
-}
-
-$node = [Node]::new()
-$node.HERE.There.is.nothing.here.anyway
-
-$node = @{
-    Roles = @{
-        Web = @{
-            Property1 = [Node]::new()
-
-            Property2 = [Node]::new()
-        }
-
-        PullSrv = @{
-            Prop = [Node]::new()
-        }
+    static ResolveDscProperty($Path)
+    {
+        "Resolve-DscProperty $Path"
     }
 }
