@@ -6,9 +6,9 @@ Class Node : hashtable {
         }
         
         $this | Add-member -MemberType ScriptProperty -Name Roles -Value {
-            Write-host ((Get-PSCallStack)[1]|FL|out-string)
-            $PathArray = (Get-PSCallStack)[1].Position.text -split '\.'
+            $PathArray = $ExecutionContext.InvokeCommand.InvokeScript('Get-PSCallStack')[2].Position.text -split '\.'
             $PropertyPath =  $PathArray[2..($PathArray.count-1)] -join '\'
+            Write-warning "ExecutionContext! $PropertyPath"
             
             write-Verbose "Resolve-DscProperty '$PropertyPath'"
             $obj = [PSCustomObject]@{}

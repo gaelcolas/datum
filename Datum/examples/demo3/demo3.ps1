@@ -1,10 +1,10 @@
 . $PSScriptRoot\..\..\classes\Node.ps1
 
 $Node1Data = @{
-    Name = 'FileServer01'
+    Name = 'localhost'
     Role = 'FileServer'
     Location = 'Site01'
-    NodeName = '718aec80-e8fe-41b5-ac31-fbcd5d0186b1'
+    NodeName = 'localhost'
     ExampleProperty1 = 'From Node'
 }
 
@@ -16,10 +16,6 @@ $Node2Data = @{
     ExampleProperty1 = 'From second Node'
 }
 
-$Node = [Node]::new($Node1Data)
-#$Node.Roles.Test
-#$Node.Roles.Test.This.Is.Awesome
-
 $MyData = @{
     AllNodes = @(
         [Node]::new($Node1Data)
@@ -27,20 +23,20 @@ $MyData = @{
     )
 }
 
+
 configuration MyConfiguration
 {
-
-    node $AllNodes.NodeName
+    node localhost #$AllNodes.NodeName
     {
-        $Node.PSTypeNames -join '; ' | Write-Host
-
-        $Value = $Node.Roles.Test.Data.Path
+        #$Value = $Node.Roles.Test.Data.Path
         File ConfigFile
         {
             DestinationPath = 'C:\Configurations\Test.txt'
-            Contents = ((Get-PSCallStack)[5].Position|FL|out-string)
+            Contents = $($Node.Roles.Test.Data.Path)
         }
     }
 }
 
-MyConfiguration -ConfigurationData $MyData -verbose
+MyConfiguration -ConfigurationData $mydata -verbose
+
+(cat -raw .\MyConfiguration\localhost.mof) -replace '\\n',"`r`n"
