@@ -8,9 +8,8 @@ Class Node : hashtable {
         $this | Add-member -MemberType ScriptProperty -Name Roles -Value {
             $PathArray = $ExecutionContext.InvokeCommand.InvokeScript('Get-PSCallStack')[2].Position.text -split '\.'
             $PropertyPath =  $PathArray[2..($PathArray.count-1)] -join '\'
-            Write-warning "ExecutionContext! $PropertyPath"
+            Write-warning "Resolve $PropertyPath"
             
-            write-Verbose "Resolve-DscProperty '$PropertyPath'"
             $obj = [PSCustomObject]@{}
             $currentNode = $obj
             if($PathArray.Count -gt 3) {
@@ -31,3 +30,4 @@ Class Node : hashtable {
         "Resolve-DscProperty $Path"
     }
 }
+ 

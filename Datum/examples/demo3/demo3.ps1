@@ -1,4 +1,11 @@
-. $PSScriptRoot\..\..\classes\Node.ps1
+if($PSScriptRoot) {
+    $here = $PSScriptRoot
+} else {
+    $here = 'C:\src\Datum\Datum\examples\demo3'
+}
+pushd $here
+
+. $here\..\..\classes\Node.ps1
 
 $Node1Data = @{
     Name = 'localhost'
@@ -37,6 +44,8 @@ configuration MyConfiguration
     }
 }
 
-MyConfiguration -ConfigurationData $mydata -verbose
+#MyConfiguration -ConfigurationData $mydata -verbose
 
-(cat -raw .\MyConfiguration\localhost.mof) -replace '\\n',"`r`n"
+#(cat -raw .\MyConfiguration\localhost.mof) -replace '\\n',"`r`n"
+
+#popd
