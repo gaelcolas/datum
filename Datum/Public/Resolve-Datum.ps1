@@ -6,6 +6,10 @@ Function Resolve-Datum {
         )]
         [string]
         $PropertyPath,
+
+        $Node,
+
+        $Default,
         
         [Parameter(
             Mandatory
@@ -17,9 +21,6 @@ Function Resolve-Datum {
             Mandatory
         )]
         $DatumStructure = $DatumStructure,
-
-        [PSObject]
-        $InputObject,
 
         $MaxDepth,
 
@@ -46,13 +47,22 @@ Function Resolve-Datum {
         $DatumFound = Resolve-DatumPath -Node $Node -DatumStructure $DatumStructure -PathStack $PathStack -PathVariables $ArraySb
         #Stop processing further path when the Max depth is reached
         # or when you found the first value
-        if ($Depth -eq $MaxDepth -or ($SearchBehavior -eq 'MostSpecific')) {
+        if (($DatumFound -and ($SearchBehavior -eq 'MostSpecific')) -or ($Depth -eq $MaxDepth)) {
             Write-Debug "Depth: $depth; Search Behavior: $SearchBehavior"
             $DatumFound
-            break
+            return
         }
-        elseif($SearchBehavior -eq 'AllValues') {
+        elseif($DatumFound -and ($SearchBehavior -eq 'AllValues')) {
             $DatumFound
         }
+        #Add Those merge Behaviour:
+        # Unique
+        # Hash
+        # Deep merge
+        
+        # https://docs.puppet.com/puppet/5.0/hiera_merging.html
+
+        # Configure Merge Behaviour in the Datum structure (as per Puppet hiera)
+
     }
 }

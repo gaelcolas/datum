@@ -9,10 +9,7 @@ function Resolve-DatumPath {
         $PathStack,
 
         [System.Collections.ArrayList]
-        $PathVariables,
-
-        [ref]
-        $Value
+        $PathVariables
     )
     
     $currentNode = $DatumStructure
