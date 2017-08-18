@@ -30,12 +30,12 @@ $MyData = @{
     )
 }
 
-
 configuration MyConfiguration
 {
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
     node localhost #$AllNodes.NodeName
     {
-        #$Value = $Node.Roles.Test.Data.Path
+        $Value = $Node.Roles.Test.Data.Path
         File ConfigFile
         {
             DestinationPath = 'C:\Configurations\Test.txt'
