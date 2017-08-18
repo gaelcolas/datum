@@ -1,4 +1,4 @@
-# The dot object notation resolving a path
+# The object dot notation resolving to a path
 
 This demo shows how I resolve a call to subproperties of an $Node object, into the path.
 
