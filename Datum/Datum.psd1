@@ -53,6 +53,7 @@ RequiredModules = @(
 ScriptsToProcess = @(
     './classes/FileProvider.ps1'
     ,'./ScriptsToProcess/Get-DscSplattedResource.ps1'
+    ,'./ScriptsToProcess/Resolve-NodeProperty.ps1'
 )
 
 # Type files (.ps1xml) to be loaded when importing this module

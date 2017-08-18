@@ -44,7 +44,7 @@ configuration MyConfiguration
     }
 }
 
-#MyConfiguration -ConfigurationData $mydata -verbose
+MyConfiguration -ConfigurationData $mydata -verbose
 
 #(cat -raw .\MyConfiguration\localhost.mof) -replace '\\n',"`r`n"
 
