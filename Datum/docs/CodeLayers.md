@@ -79,24 +79,24 @@ The configuration will have to merge the package list from all layers, and retur
 
 ## The Resources: [DSC Resources + DSC Composite Resources]
 
-Although the DSC Resources and Composite Resource can be used in different ways, we're defining the following as our best practice. We make a slight difference between what we call `Resources` and the `DSC Resources` or `DSC Composite Resources`. The former defines the logical function of the code constructs in our solution, while the latter are the code construct types of the DSC Framework.
+Although the **DSC Resources** and **DSC Composite Resources** can be used in different ways, we're defining the following as our best practice: We make a slight difference between what we call `Resources` from the `DSC Resources` or `DSC Composite Resources`. The former defines usage of the code constructs in our solution, while the latter are the code construct types of the DSC Framework.
 
-A **DSC Resource Module** should aim to manage one particular technology or stack (think Hyper-V, Jenkins, or Network). The individual **DSC Resources** within that module should focus on controlling features _atomically_. It is important to note that this code is running on the **Managed Node** (by the LCM), during the DSC Run, and its parameters are populated by the Configuration Generated during MOF compilation, on the _build_ server (the node that ran the DSC configuration to generate the MOF).
+A **DSC Resource Module** (That is a PowerShell module with DSC Resources and Composites) should aim to manage one particular technology or stack (think Hyper-V, Jenkins, or Firewall). The individual **DSC Resources** within that module should focus on controlling features _atomically_. It is important to note that this code is running on the **Managed Node** (by the LCM), during the DSC Run, and its parameters are populated by the DSC Configuration during MOF compilation, on the _build_ server (the node that ran the DSC configuration to generate the MOF).
 
-Sometimes, along with the DSC Resources we bundle those atomic features together in a **DSC Composite Resource**, to create a slightly higher level of abstraction of that technology: think of bundling a list of Jenkins feature of Jenkins to provide a simple base install as a simpler interface. It is worth bearing in mind that those DSC composite Resources are just interfaces to the bundled DSC Resources, and are _decomposed_ during the MOF compilation process, on the **build server**. On the managed Node side, there is no understanding or execution of **DSC Composite Resources**, only their inner DSC Resources.
+Sometimes, along with the **DSC Resources** we bundle those atomic features together in a **DSC Composite Resource**, to create a slightly higher level of abstraction of that technology: think of bundling a list of Jenkins features together to provide a simple base install as a simpler interface. It is worth bearing in mind that those DSC composite Resources are just interfaces to the bundled DSC Resources, and are _decomposed_ during the MOF compilation process, on the **build server**. On the managed Node side, there is no understanding or execution of **DSC Composite Resources**, only their inner DSC Resources.
 
 Those **DSC Resources** and **DSC Composite Resources** should be packaged in functionally coherent **modules** (the PowerShell Module kind) managing a single stack or technology. The goal of those constructs is to abstract the code and provide an Interface by exposing parameters.
 
 
 ## The Configurations: [Configuration + Composite Resources]
 
-When assembling different technologies together to solve a specific use case (or story --> hint to the method to use), such as Java + Jenkins for a Build server, we assemble them in a **DSC Composite Resource**, that wrap the technologies into a re-usable unit, creating a simpler, cohesive, interface, with a higher level of abstraction to interact with. The **DSC composite Resource** is executed at MOF Compilation Time when generating the MOF.
+When assembling different technologies together to solve a specific use case (or story --> hint to the method to use), such as Java + Jenkins for a Build server, we assemble them in a **DSC Composite Resource**, that wrap the technologies into a re-usable unit, creating a simpler & cohesive interface, with a higher level of abstraction to interact with. The **DSC composite Resource** is executed at MOF Compilation Time when generating the MOF.
 
-In our logical segmentation, those **DSC composite Resources** serve as _Configuration blocks_, because there can be only one **DSC Configuration** Block, that is if we want to keep the code manageable (managing the configuration's Config Data, keeping Configuration blocks in separate file, and benefiting from the DSL syntax for readability).
+In our logical segmentation, those **DSC composite Resources** serve as _Configuration blocks_, because there can be only one **DSC Configuration** construct instance, that is if we want to keep the code manageable (managing the configuration's Config Data, keeping Configuration blocks in separate file, and benefiting from the DSL syntax for readability).
 
-As the DSC `Configuration` block can only be unique for the reasons above, we sometime call it `root configuration` to differentiate it from the other configuration components, the **DSC Composite Resources**. The reason for that naming is (to try) to disambiguate the confusion induced by the name of the Code Constructs.
+As the `DSC Configuration` block can only be unique for the reasons above, we sometime call it `root configuration` to differentiate it from the other code construct, the **DSC Composite Resources**. The reason for that naming is (to try) to disambiguate the confusion induced by the names of the Code Constructs. Ideally, you'd have little direct interaction with the root configuration.
 
-One of the great advantage of **DSC Composite Resource** as a configuration block, is that they can be shared in a familiar versioned artifact, the **PowerShell module**.
+One of the great advantage of **DSC Composite Resource** as a configuration block, is that they can be shared in a familiar versioned artifact, the **PowerShell module**, while specifying dependencies and so on.
 
 
 ## The Roles: [Data]
