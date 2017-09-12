@@ -1,0 +1,8 @@
+DatumStructure:
+  - StoreName: common
+    StoreProvider: Datum::File
+    StoreOptions:
+      DataDir: "./common"
+
+ResolutionPrecedence:
+  - 'common'
