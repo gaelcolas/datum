@@ -27,11 +27,13 @@ C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │       │
 │       └───DscResources
 │           ├───Base
-│           │   │   Config1.psd1
-│           │   │   Config1.schema.psm1
+│           │   │   Base.psd1
+│           │   │   Base.schema.psm1
 │           │   │
 │           │   ├───ConfigData
 │           │   │   └───common
+│           │   │           Base.psd1
+│           │   │
 │           │   └───Validation
 │           └───Config1
 │               │   Config1.psd1
@@ -44,8 +46,7 @@ C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │               │           Config1.yml
 │               │
 │               └───Validation
-├───Roles
-│       MyRole.yml
-│
-└───RootConfiguration
+├───Resources
+└───Roles
+        MyRole.yml
 ```
