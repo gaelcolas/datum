@@ -9,7 +9,6 @@ function Resolve-NodeProperty {
     )
     $NullAllowed = $false
     if($result = Resolve-Datum -PropertyPath $PropertyPath -Node $Node -SearchPaths $SearchPaths -DatumStructure $DatumStructure) {
-        $result
         Write-Verbose "Result found for $PropertyPath"
     }
     elseif($DefaultValue) {

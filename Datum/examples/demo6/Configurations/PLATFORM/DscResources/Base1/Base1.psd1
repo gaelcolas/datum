@@ -1,11 +1,11 @@
 @{
-RootModule = 'Config1.schema.psm1'
+RootModule = 'Base1.schema.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.0.1'
 
 # ID used to uniquely identify this module
-GUID = 'd34017f7-5c0f-451a-a200-50ac22439efb'
+GUID = 'd06f3acb-c484-4818-9714-3530e0532d60'
 
 # Author of this module
 Author = 'Gael Colas'

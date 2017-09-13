@@ -15,10 +15,11 @@ function Get-DscSplattedResource {
     $null = $stringBuilder.AppendLine("Param([hashtable]`$Parameters)")
     $null = $stringBuilder.AppendLine(" $ResourceName $ExecutionName { ")
     foreach($PropertyName in $Properties.keys) {
-        $null = $stringBuilder.AppendLine("$PropertyName = `$Parameters['$PropertyName']")
+        $null = $stringBuilder.AppendLine("$PropertyName = `$(`$Parameters['$PropertyName'])")
     }
     $null = $stringBuilder.AppendLine("}")
     Write-Debug ("Generated Resource Block = {0}" -f $stringBuilder.ToString())
+    
     [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
 }
 Set-Alias -Name x -Value Get-DscSplattedResource

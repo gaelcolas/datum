@@ -1,10 +1,11 @@
 Configuration Config1 {
     Param(
-        $Param1 = $(Lookup $Node 'Path\to\data')
+        $Config1Param1 = 'blahblah' #$(Lookup $Node 'Path\to\data')
     )
 
     File 'Config1' {
+        Ensure = 'present'
         DestinationPath = 'C:\blah.txt'
-        Contents = $Param1
+        Contents = $Config1Param1
     }
 }

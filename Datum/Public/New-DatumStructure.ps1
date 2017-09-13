@@ -6,6 +6,7 @@
 #>
 
 function New-DatumStructure {
+    [CmdletBinding()]
     Param (
         $Structure
     )
