@@ -8,7 +8,6 @@ It will also allow for a second Datum lookup to a DSC Composite Resource's Confi
 C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │   datum.yml
 │   demo6.ps1
-│   LoadConfigData.ps1
 │   README.md
 │
 ├───ConfigData
@@ -45,6 +44,8 @@ C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │               │           Config1.yml
 │               │
 │               └───Validation
-└───Roles
-        MyRole.yml
+├───Roles
+│       MyRole.yml
+│
+└───RootConfiguration
 ```

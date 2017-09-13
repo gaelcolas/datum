@@ -9,3 +9,5 @@
 ## [Demo4 -> Splatting DSC Resource](./demo4/)
 
 ## [Demo5 -> Light property Lookup (And Composite Resource Default)](./demo5/)
+
+## [Demo6 -> Composite Resource for configuration with Datum](./demo6/)
