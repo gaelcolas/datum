@@ -4,7 +4,7 @@ Class FileProvider {
     FileProvider ($Path,$DataOptions)
     {
         $this.DataOptions = $DataOptions
-        $this.Path = Get-Item $Path
+        $this.Path = Get-Item $Path -ErrorAction SilentlyContinue
         
         $Result = Get-ChildItem $path | ForEach-Object {
             if($_.PSisContainer) {

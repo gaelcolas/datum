@@ -19,29 +19,31 @@ $ConfigurationData = @{
 
 $Node = $Configurationdata.Allnodes[0]
 
-"Node is $($Node|FL *|Out-String)" | Write-Warning
+#"Node is $($Node|FL *|Out-String)" | Write-Warning
 
 Lookup -Node $Node -PropertyPath 'Profiles' <#'AllValues'#> -Verbose -Debug | Write-Warning
 
+$Env:PSModulePath += ';C:\src\Datum\Datum\examples\demo6\Configurations'
 
 
-break
-<#
 configuration RootConfiguration
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName PLATFORM
     node $AllNodes.NodeName {
-        (Lookup $Node 'Profiles' 'AllValues') | % {
+        (Lookup $Node 'Profiles') | % {
+            $(Write-Warning "Looking up $_")
             #Include $_
-            lookup $Node $_ | % { x ($_.keys[0]) }
+            $Includes = $(lookup $Node $_)
+            $(Write-Warning "Including")
+            $Includes | % { x ($_.keys[0]) } #auto lookup
         }
     }
 }
 
-MyConfiguration -ConfigurationData $ConfigurationData
+RootConfiguration -ConfigurationData $ConfigurationData
 
-(cat -raw .\MyConfiguration\blah.mof) -replace '\\n',"`r`n"
+(cat -raw .\MyConfiguration\SRV01.mof) -replace '\\n',"`r`n"
 
 #popd
 
