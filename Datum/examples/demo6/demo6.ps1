@@ -4,6 +4,8 @@ if($PSScriptRoot) {
     $here = 'C:\src\Datum\Datum\examples\demo6'
 }
 pushd $here
+remove-item function:\Resolve-NodeProperty
+remove-item Alias:\Lookup
 
 ipmo $here\..\..\Datum.psd1 -force
 
@@ -25,18 +27,19 @@ Lookup -Node $Node -PropertyPath 'Profiles' <#'AllValues'#> -Verbose -Debug | Wr
 
 $Env:PSModulePath += ';C:\src\Datum\Datum\examples\demo6\Configurations'
 
-
+Write-Warning "---------->> Starting Configuration"
 configuration RootConfiguration
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName PLATFORM
-    node $AllNodes.NodeName {
+
+    node $ConfigurationData.AllNodes.NodeName {
         (Lookup $Node 'Profiles') | % {
             $(Write-Warning "Looking up $_")
             #Include $_
-            $Includes = $(lookup $Node $_)
-            $(Write-Warning "Including")
-            $Includes | % { x ($_.keys[0]) } #auto lookup
+            $Includes = $(lookup $Node $_ -Verbose -DefaultValue $null)
+            $(Write-Warning "Including $($Includes | Convertto-json)")
+            #$Includes | % { x ($_.keys[0]) } #auto lookup
         }
     }
 }
