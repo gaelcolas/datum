@@ -16,6 +16,11 @@ C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │   │   │       SRV01.yml
 │   │   │
 │   │   └───PROD
+│   │           SRV01.yml
+│   │
+│   ├───Roles
+│   │       FileServer.yml
+│   │
 │   └───SiteData
 │           All.psd1
 │           Site01.psd1
@@ -26,9 +31,9 @@ C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │       │   PLATFORM.psd1
 │       │
 │       └───DscResources
-│           ├───Base
-│           │   │   Base.psd1
-│           │   │   Base.schema.psm1
+│           ├───Base1
+│           │   │   Base1.psd1
+│           │   │   Base1.schema.psm1
 │           │   │
 │           │   ├───ConfigData
 │           │   │   └───common
@@ -47,6 +52,6 @@ C:\SRC\DATUM\DATUM\EXAMPLES\DEMO6
 │               │
 │               └───Validation
 ├───Resources
-└───Roles
-        MyRole.yml
+└───RootConfiguration
+        SRV01.mof
 ```
