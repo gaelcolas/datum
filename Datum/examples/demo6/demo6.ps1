@@ -3,7 +3,7 @@ if($PSScriptRoot) {
 } else {
     $here = 'C:\src\Datum\Datum\examples\demo6'
 }
-$Env:PSModulePath = $Env:PSModulePath+';'+"$here\Configurations\"
+$Env:PSModulePath += ';'+"$here\Configurations\"
 
 pushd $here
 remove-item function:\Resolve-NodeProperty
@@ -11,13 +11,14 @@ remove-item Alias:\Lookup
 
 ipmo $here\..\..\Datum.psd1 -force
 
-$yml = Get-Content -raw $PSScriptRoot\datum.yml | ConvertFrom-Yaml
+$yml = Get-Content -raw $here\datum.yml | ConvertFrom-Yaml
 
 $datum = New-DatumStructure $yml
 
+$Environment = 'DEV'
 
 $ConfigurationData = @{
-    AllNodes = @($Datum.AllNodes.psobject.Properties | % { $Datum.AllNodes.($_.Name) })
+    AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | % { $Datum.AllNodes.($_.Name) })
     Datum = $Datum
 }
 

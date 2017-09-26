@@ -2,7 +2,7 @@ DatumStructure:
   - StoreName: AllNodes
     StoreProvider: Datum::File
     StoreOptions:
-      DataDir: "./ConfigData/Environments/DEV"
+      DataDir: "./ConfigData/AllNodes"
  
   - StoreName: SiteData
     StoreProvider: Datum::File
