@@ -22,7 +22,7 @@ function Resolve-NodeProperty {
     }
     else { #This is when the Lookup is initiated from a Composite Resource, for itself
         Write-Debug "Attempting to load datum from $($MyInvocation.PSScriptRoot)."
-
+        
         Push-Location $MyInvocation.PSScriptRoot
         $ResourceConfigDataPath = (Join-Path $MyInvocation.PSScriptRoot 'ConfigData')
         if(Test-Path $ResourceConfigDataPath) {
