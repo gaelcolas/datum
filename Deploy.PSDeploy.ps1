@@ -15,6 +15,17 @@ if ($env:BuildSystem -eq 'AppVeyor') {
             Tagged Appveyor
         }
     }
+    if($Env:CommitMessage -match 'ReleaseMe' -and $ENV:NugetApiKey -and $Env:ProjectName) {
+        Deploy Module {
+            By PSGalleryModule {
+                FromSource ".\BuildOutput\$Env:ProjectName"
+                To PSGallery
+                WithOptions @{
+                    ApiKey = $ENV:NugetApiKey
+                }
+            }
+        }
+    }
 }
 else {
     Write-Host "Not In AppVeyor. Skipped"
