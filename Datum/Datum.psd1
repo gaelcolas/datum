@@ -83,7 +83,30 @@ AliasesToExport =   '*'
 # FileList = @()
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess
-# PrivateData = ''
+PrivateData = @{
+    
+        PSData = @{
+    
+            # Tags applied to this module. These help with module discovery in online galleries.
+             Tags = @('Datum', 'Hiera', 'DSC', 'Desired State Configuration', 'hierarchical')
+    
+            # A URL to the license for this module.
+             LicenseUri = 'https://github.com/gaelcolas/Datum/blob/master/LICENSE'
+    
+            # A URL to the main website for this project.
+             ProjectUri = 'https://github.com/gaelcolas/Datum/'
+    
+            # A URL to an icon representing this module.
+            # IconUri = ''
+    
+            # ReleaseNotes of this module
+            # ReleaseNotes = ''
+
+            ExternalModuleDependencies = @('powershell-yaml','ProtectedData')
+    
+        } # End of PSData hashtable
+    
+    } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''
