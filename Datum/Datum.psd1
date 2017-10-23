@@ -102,6 +102,7 @@ PrivateData = @{
             # ReleaseNotes of this module
             # ReleaseNotes = ''
 
+            # Dependencies managed outside this module
             ExternalModuleDependencies = @('powershell-yaml','ProtectedData')
     
         } # End of PSData hashtable
