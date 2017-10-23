@@ -3,5 +3,9 @@ os: WMF 5
 
 build: false
 
+environment:
+  NugetApiKey:
+    secure: Wt2Q6bJg+ozZ24LUyGSlYaj1RDpfh+A4s7JhKfqhY2KfbU30rv5EmgnJptiRlXWL
+
 build_script:
   - ps: . .\.build.ps1 -ResolveDependency
