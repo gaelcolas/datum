@@ -13,6 +13,7 @@ function Get-DscSplattedResource {
     
     $stringBuilder = [System.Text.StringBuilder]::new()
     $null = $stringBuilder.AppendLine("Param([hashtable]`$Parameters)")
+    $null = $stringBuilder.AppendLine()
     $null = $stringBuilder.AppendLine(" $ResourceName $ExecutionName { ")
     foreach($PropertyName in $Properties.keys) {
         $null = $stringBuilder.AppendLine("$PropertyName = `$(`$Parameters['$PropertyName'])")
