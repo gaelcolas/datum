@@ -1,4 +1,4 @@
-function Resolve-NodeProperty {
+function Global:Resolve-NodeProperty {
     [CmdletBinding()]
     Param(
         $Node,
@@ -75,4 +75,4 @@ function Resolve-NodeProperty {
         throw "The lookup returned a Null value, but Null is not specified as Default. This is not allowed."
     }
 }
-Set-Alias -Name Lookup -Value Resolve-NodeProperty
+Set-Alias -Name Lookup -Value Resolve-NodeProperty -scope Global

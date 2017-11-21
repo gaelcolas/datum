@@ -2,7 +2,9 @@
 
 `A datum is a piece of information.`
 
-This project is mainly aimed at managing hierarchical configuration data for DSC, based on multiple storage mediums and format.
+This project is an attempt at managing hierarchical configuration data for Desired State Configuration (DSC).
+
+It expose the data
 
 It does so by abstracting the underlying storage (i.e. files in folders) and format (json, yaml, PSD1), and representing the data as a structured object, walkable using the '.' notation: 
 
@@ -44,9 +46,9 @@ Resolve-Datum -searchPaths $yml.ResolutionPrecedence `
     - [x] FileSystem Provider
     - [x] Yaml, JSON, PSD1 Formats
     - [x] Hierachical data with order of precedence
-    - [ ] Throw exception when a Value is null
-    - [ ] Allow Default value (like Invoke-BUild's property)
-    - [ ] Credentials/Encrypted data via Protected-Data
+    - [x] Throw exception when a Value is null
+    - [x] Allow Default value (like Invoke-BUild's property)
+    - [x] Credentials/Encrypted data via Protected-Data
     - [ ] Merge behaviour of the datum when type is hashtable/Array
 
 ## Lack of Tooling around DSC

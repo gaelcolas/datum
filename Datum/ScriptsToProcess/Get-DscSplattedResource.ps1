@@ -1,4 +1,4 @@
-function Get-DscSplattedResource {
+function Global:Get-DscSplattedResource {
     [CmdletBinding()]
     Param(
         [String]
@@ -23,7 +23,7 @@ function Get-DscSplattedResource {
     
     [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
 }
-Set-Alias -Name x -Value Get-DscSplattedResource
+Set-Alias -Name x -Value Get-DscSplattedResource -scope Global
 #Export-ModuleMember -Alias x
 
 <#
