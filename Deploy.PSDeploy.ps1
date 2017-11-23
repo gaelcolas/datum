@@ -12,7 +12,7 @@ if(
             if($ReqModuleVersion = ([Microsoft.PowerShell.Commands.ModuleSpecification]$_).RequiredVersion) {
                 $InstallModuleParams.Add('RequiredVersion',$ReqModuleVersion)
             }
-            Install-Module @InstallModuleParams -Force -WhatIf
+            Install-Module @InstallModuleParams -Force
         }
 
         Deploy Module {
