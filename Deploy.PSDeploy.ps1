@@ -1,24 +1,12 @@
-if ($env:BuildSystem -eq 'AppVeyor') {
-
-    Deploy AppveyorDeployment {
-
-        By AppVeyorModule {
-            FromSource .\BuildOutput\$Env:ProjectName
-            To AppVeyor
-            WithOptions @{
-                Version = $Env:APPVEYOR_BUILD_VERSION
-                Description = 'Sample Module with integrated Build process'
-                Author = "Gael Colas"
-                Owners = "Gael Colas"
-                destinationPath = ".\BuildOutput\$Env:ProjectName"
-            }
-            Tagged Appveyor
-        }
-    }
-    if($Env:CommitMessage -match 'ReleaseMe' -and $ENV:NugetApiKey -and $Env:ProjectName) {
+if(
+    $env:ProjectName -and $ENV:ProjectName.Count -eq 1 -and
+    $env:BuildSystem -eq 'AppVeyor'
+   )
+{
+    if ($Env:BuildSystem -eq 'AppVeyor' -and $Env:BranchName -eq 'master') {
         Deploy Module {
             By PSGalleryModule {
-                FromSource ".\BuildOutput\$Env:ProjectName"
+                FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName")
                 To PSGallery
                 WithOptions @{
                     ApiKey = $ENV:NugetApiKey
@@ -26,8 +14,16 @@ if ($env:BuildSystem -eq 'AppVeyor') {
             }
         }
     }
-}
-else {
-    Write-Host "Not In AppVeyor. Skipped"
-}
 
+    Deploy DeveloperBuild {
+        By AppVeyorModule {
+            FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName\$Env:ProjectName.psd1")
+            To AppVeyor
+            WithOptions @{
+                Version = $env:APPVEYOR_BUILD_VERSION
+            }
+        }
+    }
+
+   
+}
