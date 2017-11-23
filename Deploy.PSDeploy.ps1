@@ -5,6 +5,16 @@ if(
 {
     Write-Host "PR: $Env:APPVEYOR_PULL_REQUEST_NUMBER"
     if (!$Env:APPVEYOR_PULL_REQUEST_NUMBER -and $Env:BuildSystem -eq 'AppVeyor' -and $Env:BranchName -eq 'master' -and $Env:NuGetApiKey) {
+        $manifest = Import-PowerShellDataFile -Path ".\$Env:ProjectName\$Env:ProjectName.psd1"
+        $manifest.RequiredModules|%{
+            $ReqModuleName = ([Microsoft.PowerShell.Commands.ModuleSpecification]$_).Name
+            $InstallModuleParams = @{Name = $ReqModuleName}
+            if($ReqModuleVersion = ([Microsoft.PowerShell.Commands.ModuleSpecification]$_).RequiredVersion) {
+                $InstallModuleParams.Add('RequiredVersion',$ReqModuleVersion)
+            }
+            Install-Module @InstallModuleParams -Force -WhatIf
+        }
+
         Deploy Module {
             By PSGalleryModule {
                 FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName")

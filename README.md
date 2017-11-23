@@ -1,5 +1,7 @@
 # Datum
 
+[![Build status](https://ci.appveyor.com/api/projects/status/twbfc16g6w68ub8m/branch/master?svg=true)](https://ci.appveyor.com/project/gaelcolas/datum/branch/master)
+
 `A datum is a piece of information.`
 
 This project is an attempt at managing hierarchical configuration data for Desired State Configuration (DSC).
