@@ -9,6 +9,8 @@ Param (
     [String]
     $BuildOutput = "BuildOutput",
 
+    $ModuleVersion = $(if($Env:APPVEYOR_BUILD_VERSION) {$ENV:APPVEYOR_BUILD_VERSION} else { Get-NextNugetPackageVersion -Name 'Chocolatey'} ),
+    
     [String[]]
     $GalleryRepository,
 
@@ -33,6 +35,15 @@ Process {
         return
     }
 
+    Write-Warning $ModuleVersion
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
+    }
+
+    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
+        $Env:PSModulePath += ';' + (Join-Path $BuildOutput 'modules')
+    }
+
     Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
         Foreach-Object {
             "Importing file $($_.BaseName)" | Write-Verbose
@@ -45,13 +56,14 @@ Process {
             CopySourceToModuleOut,
             MergeFilesToPSM1,
             CleanOutputEmptyFolders,
+            UpdateModuleManifest,
             UnitTests,
             UploadUnitTestResultsToAppVeyor,
             FailBuildIfFailedUnitTest, 
             FailIfLastCodeConverageUnderThreshold,
             IntegrationTests,
             DeployAll
-
+            
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 
 
