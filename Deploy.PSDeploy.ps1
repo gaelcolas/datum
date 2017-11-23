@@ -3,13 +3,14 @@ if(
     $env:BuildSystem -eq 'AppVeyor'
    )
 {
-    if ($Env:BuildSystem -eq 'AppVeyor' -and $Env:BranchName -eq 'master') {
+    Write-Host "PR: $Env:APPVEYOR_PULL_REQUEST_NUMBER"
+    if (!$Env:APPVEYOR_PULL_REQUEST_NUMBER -and $Env:BuildSystem -eq 'AppVeyor' -and $Env:BranchName -eq 'master' -and $Env:NuGetApiKey) {
         Deploy Module {
             By PSGalleryModule {
                 FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName")
                 To PSGallery
                 WithOptions @{
-                    ApiKey = $ENV:NugetApiKey
+                    ApiKey = $Env:NuGetApiKey
                 }
             }
         }
