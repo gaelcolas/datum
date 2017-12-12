@@ -20,7 +20,7 @@ CompanyName = 'SynEdgy Limited'
 Copyright = '(c) 2017 Gael Colas. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'Experimental Module to manage Hierachical Configuration Data for DSC.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -65,7 +65,7 @@ ScriptsToProcess = @(
 # NestedModules = @()
 
 # Functions to export from this module
-#FunctionsToExport = ''
+FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 #CmdletsToExport = '*'
@@ -88,7 +88,7 @@ PrivateData = @{
         PSData = @{
     
             # Tags applied to this module. These help with module discovery in online galleries.
-             Tags = @('Datum', 'Hiera', 'DSC', 'Desired State Configuration', 'hierarchical')
+             Tags = @('Datum', 'Hiera', 'DSC', 'DesiredStateConfiguration', 'hierarchical', 'ConfigurationData', 'ConfigData')
     
             # A URL to the license for this module.
              LicenseUri = 'https://github.com/gaelcolas/Datum/blob/master/LICENSE'
@@ -100,7 +100,7 @@ PrivateData = @{
             # IconUri = ''
     
             # ReleaseNotes of this module
-            # ReleaseNotes = ''
+            ReleaseNotes = 'Experimental'
 
             # Dependencies managed outside this module
             ExternalModuleDependencies = @('powershell-yaml','ProtectedData')

@@ -3,9 +3,16 @@ os: WMF 5
 
 build: false
 
+test_script:
+  - ps: . .\.build.ps1 -ResolveDependency
+
 environment:
-  NugetApiKey:
+  NuGetApiKey:
     secure: Wt2Q6bJg+ozZ24LUyGSlYaj1RDpfh+A4s7JhKfqhY2KfbU30rv5EmgnJptiRlXWL
 
-build_script:
-  - ps: . .\.build.ps1 -ResolveDependency
+skip_commits:
+  message: /updated doc.*|update doc.*s/
+
+version: 0.0.{build}
+pull_requests:
+  do_not_increment_build_number: true

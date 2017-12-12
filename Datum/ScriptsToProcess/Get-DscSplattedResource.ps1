@@ -1,4 +1,4 @@
-function Get-DscSplattedResource {
+function Global:Get-DscSplattedResource {
     [CmdletBinding()]
     Param(
         [String]
@@ -13,6 +13,7 @@ function Get-DscSplattedResource {
     
     $stringBuilder = [System.Text.StringBuilder]::new()
     $null = $stringBuilder.AppendLine("Param([hashtable]`$Parameters)")
+    $null = $stringBuilder.AppendLine()
     $null = $stringBuilder.AppendLine(" $ResourceName $ExecutionName { ")
     foreach($PropertyName in $Properties.keys) {
         $null = $stringBuilder.AppendLine("$PropertyName = `$(`$Parameters['$PropertyName'])")
@@ -22,7 +23,7 @@ function Get-DscSplattedResource {
     
     [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
 }
-Set-Alias -Name x -Value Get-DscSplattedResource
+Set-Alias -Name x -Value Get-DscSplattedResource -scope Global
 #Export-ModuleMember -Alias x
 
 <#

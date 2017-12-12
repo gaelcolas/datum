@@ -1,4 +1,4 @@
-function Resolve-NodeProperty {
+function Global:Resolve-NodeProperty {
     [CmdletBinding()]
     Param(
         $Node,
@@ -8,6 +8,9 @@ function Resolve-NodeProperty {
         $DatumStructure = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum')
     )
     $NullAllowed = $false
+    if(-not ($here = $MyInvocation.PSScriptRoot)) {
+        $here = $Pwd.Path
+    }
     if($result = Resolve-Datum -PropertyPath $PropertyPath -Node $Node -SearchPaths $SearchPaths -DatumStructure $DatumStructure) {
         Write-Verbose "Result found for $PropertyPath"
     }
@@ -21,10 +24,10 @@ function Resolve-NodeProperty {
         Write-Debug "Default NULL found"
     }
     else { #This is when the Lookup is initiated from a Composite Resource, for itself
-        Write-Debug "Attempting to load datum from $($MyInvocation.PSScriptRoot)."
+        Write-Debug "Attempting to load datum from $($here)."
         
-        Push-Location $MyInvocation.PSScriptRoot
-        $ResourceConfigDataPath = (Join-Path $MyInvocation.PSScriptRoot 'ConfigData')
+        Push-Location $here
+        $ResourceConfigDataPath = (Join-Path $here 'ConfigData')
         if(Test-Path $ResourceConfigDataPath) {
             $DatumDefinitionFile = Join-Path $ResourceConfigDataPath 'Datum.yml'
             if(Test-Path $DatumDefinitionFile) {
@@ -33,8 +36,8 @@ function Resolve-NodeProperty {
                 Write-Debug "Datum Definition: $($DatumDefinition | Convertto-Json)"
                 $ResourceDatum = New-DatumStructure $DatumDefinition 
             }
-            elseif((Test-Path ([io.path]::combine($MyInvocation.PSScriptRoot,'ConfigData','common')))) { #Loading Default Datum structure
-                Write-Debug "Loading common data store from $($MyInvocation.PSScriptRoot)\ConfigData."
+            elseif((Test-Path ([io.path]::combine($here,'ConfigData','common')))) { #Loading Default Datum structure
+                Write-Debug "Loading common data store from $($here)\ConfigData."
                 $DatumDefinition = @{
                     DatumStructure = @{
                         StoreName = "common"
@@ -49,7 +52,7 @@ function Resolve-NodeProperty {
                 }
             }
             else {
-                Write-Debug "No common Datum Store found in $($MyInvocation.PSScriptRoot)\ConfigData. Skipping"
+                Write-Debug "No common Datum Store found in $here\ConfigData. Skipping"
             }
 
             if($DatumDefinition) {
@@ -72,4 +75,4 @@ function Resolve-NodeProperty {
         throw "The lookup returned a Null value, but Null is not specified as Default. This is not allowed."
     }
 }
-Set-Alias -Name Lookup -Value Resolve-NodeProperty
+Set-Alias -Name Lookup -Value Resolve-NodeProperty -scope Global
