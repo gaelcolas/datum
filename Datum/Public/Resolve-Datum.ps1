@@ -29,6 +29,7 @@ Function Resolve-Datum {
     )
 
     $Pattern = '(?<opening><%=)(?<sb>.*?)(?<closure>%>)'
+    $splitPattern = '\' + [IO.Path]::DirectorySeparatorChar
     $Depth = 0
     $MergeResult = $null
     # Walk every search path in listed order, and return datum when found at end of path
@@ -43,7 +44,7 @@ Function Resolve-Datum {
                     "`$({$index})"
                 },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
         
-        $PathStack = $newSearch -split '\\'
+        $PathStack = $newSearch -split $splitPattern
         $DatumFound = Resolve-DatumPath -Node $Node -DatumStructure $DatumStructure -PathStack $PathStack -PathVariables $ArraySb
         #Stop processing further path when the Max depth is reached
         # or when you found the first value
