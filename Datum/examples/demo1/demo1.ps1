@@ -5,6 +5,7 @@ pushd $PSScriptRoot
 $yml = Get-Content -raw $PSScriptRoot\datum.yml | ConvertFrom-Yaml
 
 $datum = New-DatumStructure $yml
+Write-Host "DEMO 1" -ForegroundColor DarkMagenta
 break
 ###############
 $ConfigurationData = @{
@@ -14,14 +15,14 @@ $ConfigurationData = @{
 
 $Node = $Configurationdata.Allnodes[1]
 "`r`nSearching most specific Property 'ExampleProperty1' for $($Node.Name):"
-Resolve-Datum -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -PropertyPath 'ExampleProperty1'
+Resolve-Datum -Node $Node -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -PropertyPath 'ExampleProperty1'
 
 #Searching most specific Property 'ExampleProperty1' for FileServer01:
 #From Node
 
 
 "`r`nSearching all Properties 'ExampleProperty1' for $($Node.Name):"
-Resolve-Datum -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -PropertyPath 'ExampleProperty1' -SearchBehavior 'AllValues'
+Resolve-Datum -Node $Node -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -PropertyPath 'ExampleProperty1' -SearchBehavior 'AllValues'
 
 #Searching all Properties 'ExampleProperty1' for FileServer01:
 #From Node
@@ -31,6 +32,6 @@ Resolve-Datum -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -Pro
 #From All Roles
 
 "`r`nAll Property 'FileServer\datum\mergeMe' for $($Node.Name):"
-Resolve-Datum -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -PropertyPath 'FileServer\datum\mergeMe' -SearchBehavior 'AllValues'
+Resolve-Datum -Node $Node -searchPaths $yml.ResolutionPrecedence -DatumStructure $datum -PropertyPath 'FileServer\datum\mergeMe' -SearchBehavior 'AllValues'
 
 popd
