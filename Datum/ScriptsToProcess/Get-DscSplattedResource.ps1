@@ -8,7 +8,10 @@ function Global:Get-DscSplattedResource {
         $ExecutionName,
 
         [hashtable]
-        $Properties
+        $Properties,
+
+        [switch]
+        $NoInvoke
     )
     
     $stringBuilder = [System.Text.StringBuilder]::new()
@@ -21,7 +24,12 @@ function Global:Get-DscSplattedResource {
     $null = $stringBuilder.AppendLine("}")
     Write-Debug ("Generated Resource Block = {0}" -f $stringBuilder.ToString())
     
-    [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+    if($NoInvoke) {
+        [scriptblock]::Create($stringBuilder.ToString())
+    }
+    else {
+        [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+    }
 }
 Set-Alias -Name x -Value Get-DscSplattedResource -scope Global
 #Export-ModuleMember -Alias x

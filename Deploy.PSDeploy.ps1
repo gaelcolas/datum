@@ -4,9 +4,14 @@ if(
    )
 {
     Write-Host "PR: $Env:APPVEYOR_PULL_REQUEST_NUMBER"
-    if (!$Env:APPVEYOR_PULL_REQUEST_NUMBER -and $Env:BuildSystem -eq 'AppVeyor' -and $Env:BranchName -eq 'master' -and $Env:NuGetApiKey) {
+    if (!$Env:APPVEYOR_PULL_REQUEST_NUMBER -and 
+        $Env:BuildSystem -eq 'AppVeyor' -and 
+        $Env:BranchName -eq 'master' -and 
+        $Env:NuGetApiKey -and
+        $Env:CommitMessage -match '!Deploy'
+    ) {
         $manifest = Import-PowerShellDataFile -Path ".\$Env:ProjectName\$Env:ProjectName.psd1"
-        $manifest.RequiredModules|%{
+        $manifest.RequiredModules|ForEach-Object {
             $ReqModuleName = ([Microsoft.PowerShell.Commands.ModuleSpecification]$_).Name
             $InstallModuleParams = @{Name = $ReqModuleName}
             if($ReqModuleVersion = ([Microsoft.PowerShell.Commands.ModuleSpecification]$_).RequiredVersion) {

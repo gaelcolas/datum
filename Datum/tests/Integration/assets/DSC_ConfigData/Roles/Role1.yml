@@ -1,0 +1,6 @@
+Configurations:
+  - Shared1
+
+Shared1:
+  DestinationPath: C:\MyRoleParam.txt
+  Param1: This is the Role override!
