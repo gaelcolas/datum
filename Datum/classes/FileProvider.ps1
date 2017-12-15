@@ -1,6 +1,8 @@
 Class FileProvider {
     hidden $Path
     hidden [hashtable] $DataOptions
+    hidden [io.fileInfo]$DatumConfig
+    
     FileProvider ($Path,$DataOptions)
     {
         $this.DataOptions = $DataOptions
