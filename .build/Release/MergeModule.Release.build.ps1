@@ -12,7 +12,9 @@
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
     
     [string]
-    $ModuleVersion = (property ModuleVersion $env:APPVEYOR_BUILD_VERSION),
+    $ModuleVersion = (property ModuleVersion $(
+        if($ModuleVersion = Get-NextPSGalleryVersion -Name $ProjectName -ea 0) { $ModuleVersion } else { '0.0.1' }
+        )),
 
     $MergeList = (property MergeList @('enum*','class*','priv*','pub*') ),
     
@@ -31,17 +33,19 @@ Task CopySourceToModuleOut {
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
     "Copying $ProjectPath\$SourceFolder To $BuiltModuleFolder\"
-    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse
+    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse -Force -Exclude '*.bak'
 }
 
 Task MergeFilesToPSM1 {
     $LineSeparation
     "`t`t`t MERGE TO PSM1"
     $LineSeparation
+    "`tORDER: $($MergeList.ToString())"
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
+    if(!$MergeList) {$MergeList = @('enum*','class*','priv*','pub*') }
 
     # Merge individual PS1 files into a single PSM1, and delete merged files
     $OutModulePSM1 = [io.path]::Combine($BuiltModuleFolder,"$ProjectName.psm1")
@@ -73,11 +77,12 @@ Task UpdateModuleManifest {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     $BuiltModule = [io.path]::Combine($BuildOutput,$ProjectName,"$ProjectName.psd1")
+    #Set-ModuleFunctions -Path $BuiltModule
     "`tBuilt Module PSD1: $BuiltModule"
-
-    $ModuleFunctions = (gci "$ProjectPath\$ProjectName\Public\").BaseName
-    Update-Metadata -path $BuiltModule -PropertyName FunctionsToExport  -Value $ModuleFunctions
-
+    
+        $ModuleFunctions = (gci "$ProjectPath\$ProjectName\Public\").BaseName
+        Update-Metadata -path $BuiltModule -PropertyName FunctionsToExport  -Value $ModuleFunctions
+    
     if($ModuleVersion) {
         Update-Metadata -path $BuiltModule -PropertyName ModuleVersion -Value $ModuleVersion
     }

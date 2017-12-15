@@ -1,0 +1,5 @@
+NodeName: 93a58ace-8629-4b2a-ada1-c7894c4a69f0
+Description: PROD version of SRV01 (PRODSRV01)
+role: Role1
+Location: LON
+ExampleProperty1: 'From Node'

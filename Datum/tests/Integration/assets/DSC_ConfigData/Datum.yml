@@ -1,0 +1,29 @@
+DatumStructure:
+  - StoreName: AllNodes
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./AllNodes"
+ 
+  - StoreName: SiteData
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./SiteData"
+
+  - StoreName: Environments
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Environments"
+
+  - StoreName: Roles
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Roles"
+      ### THUMBPRINT ###
+
+ResolutionPrecedence:
+  - 'AllNodes\$($Node.Environment)\$($Node.Name)'
+  - 'AllNodes\$($Node.Environment)\All'
+  - 'Environments\$($Node.Environment)'
+  - 'SiteData\$($Node.Location)'
+  - 'Roles\$($Node.Role)' 
+  - 'Roles\All'
