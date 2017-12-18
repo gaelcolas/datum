@@ -62,6 +62,8 @@ Process {
             FailBuildIfFailedUnitTest, 
             FailIfLastCodeConverageUnderThreshold,
             IntegrationTests,
+            UploadIntegrationTestResultsToAppVeyor,
+            FailBuildIfFailedIntegrationTest,
             DeployAll
             
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail

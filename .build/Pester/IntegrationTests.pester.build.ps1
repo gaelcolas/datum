@@ -94,9 +94,14 @@ task IntegrationTests {
     }
 
     $script:IntegrationTestResults = Invoke-Pester @PesterParams
-    $null = $script:UnitTestResults | Export-Clixml -Path $PesterOutFilePath -Force
+    $null = $script:IntegrationTestResults | Export-Clixml -Path $PesterOutFilePath -Force
     Pop-Location
 
     Pop-Location
    
+}
+
+
+task FailBuildIfFailedIntegrationTest -If ($CodeCoverageThreshold -ne 0) {
+    assert ($script:IntegrationTestResults.FailedCount -eq 0) ('Failed {0} Integration tests. Aborting Build' -f $script:IntegrationTestResults.FailedCount)
 }
