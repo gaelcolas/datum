@@ -66,7 +66,6 @@ Process {
             
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 
-
 }
 
 
