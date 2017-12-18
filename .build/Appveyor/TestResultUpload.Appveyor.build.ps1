@@ -17,7 +17,7 @@ Param (
 
 task UploadUnitTestResultsToAppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
     $LineSeparation
-    "`t`t`UPLOAD TEST RESULT TO APPVEYOR"
+    "`t`t`UPLOAD TEST RESULTS TO APPVEYOR"
     $LineSeparation
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
@@ -25,6 +25,22 @@ task UploadUnitTestResultsToAppVeyor -If {(property BuildSystem 'unknown') -eq '
     }
 
     $TestOutputPath  = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputFormat)
+    if(Test-Path $TestOutputPath) {
+        $TestResultFiles = Get-ChildItem -Path $TestOutputPath -Filter *.xml
+        $TestResultFiles | Add-TestResultToAppveyor
+    }
+}
+
+task UploadIntegrationTestResultsToAppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
+    $LineSeparation
+    "`t`t`UPLOAD TEST RESULTS TO APPVEYOR"
+    $LineSeparation
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+
+    $TestOutputPath  = [system.io.path]::Combine($BuildOutput,'testResults','integration',$PesterOutputFormat)
     if(Test-Path $TestOutputPath) {
         $TestResultFiles = Get-ChildItem -Path $TestOutputPath -Filter *.xml
         $TestResultFiles | Add-TestResultToAppveyor
