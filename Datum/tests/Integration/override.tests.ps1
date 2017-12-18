@@ -10,10 +10,7 @@ Write-verbose "Here: $here"
 Describe 'Test Datum overrides' {
     Context 'Most specific Merge behavior' {
         BeforeAll {
-            Import-Module 'powershell-yaml'
-            #Import-Module (Join-path $here '..\..\Datum.psd1')
 
-            $yml   = Get-Content -Raw (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve) | ConvertFrom-Yaml 
             $Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve) 
             $Environment = 'DEV'
             $AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object { 
