@@ -1,10 +1,3 @@
-<#
-    Datum Structure is a PSCustomObject 
-     To that object we add DatumStores as Script Properties/Class instances
-      Those Properties embed the mechanism to call the container hierarchy and the RAW value of the items
-       The format of the item defines its method of conversion from raw to Object 
-#>
-
 function New-DatumStructure {
     [CmdletBinding(
         DefaultParameterSetName = 'FromConfigFile'
@@ -16,6 +9,7 @@ function New-DatumStructure {
             ParameterSetName = 'DatumHierarchyDefinition'
         )]
         [Alias('Structure')]
+        [hashtable]
         $DatumHierarchyDefinition,
 
         [Parameter(
@@ -23,14 +17,25 @@ function New-DatumStructure {
             ParameterSetName = 'FromConfigFile'
         )]
         [io.fileInfo]
-        $DefinitionFile = 'Datum.*'
+        $DefinitionFile
     )
 
     switch ($PSCmdlet.ParameterSetName) {
-        #'DatumHierarchyDefinition' {
-        #    $CallStack = Get-PSCallstack
-        #    $DatumHierarchyFolder = $CallStack[-1].psscritroot
-        #}
+        'DatumHierarchyDefinition' {
+            if ($DatumHierarchyDefinition.containsKey('DatumStructure')) {
+                Write-debug "Loading Datum from Parameter"
+            }
+            elseif($DatumHierarchyDefinition.Path) {
+                $DatumHierarchyFolder = $DatumHierarchyDefinition.Path
+                Write-Debug "Loading default Datum from given path $DatumHierarchyFolder"
+            }
+            else {
+                Write-Warning "Desperate attempt to load Datum from Invocation origin..."
+                $CallStack = Get-PSCallstack
+                $DatumHierarchyFolder = $CallStack[-1].psscritroot
+                Write-Warning " ---> $DatumHierarchyFolder"
+            }
+        }
 
         'FromConfigFile' {
             if((Test-Path $DefinitionFile)) {
@@ -61,12 +66,23 @@ function New-DatumStructure {
                }
            }
        }
+       
        if($DatumHierarchyDefinition.containsKey('DatumStructure')) {
            $DatumHierarchyDefinition['DatumStructure'] = $Structures
        }
        else {
            $DatumHierarchyDefinition.add('DatumStructure',$Structures)
        }
+    }
+
+    # Define the default hierachy to be the StoreNames, when nothing is specified
+    if ($DatumHierarchyFolder -and !$DatumHierarchyDefinition.ResolutionPrecedence) {
+        if($DatumHierarchyDefinition.containsKey('ResolutionPrecedence')) {
+            $DatumHierarchyDefinition['ResolutionPrecedence'] = $Structures.StoreName
+        }
+        else {
+            $DatumHierarchyDefinition.add('ResolutionPrecedence',$Structures.StoreName)
+        }
     }
 
     foreach ($store in $DatumHierarchyDefinition.DatumStructure){
