@@ -84,6 +84,8 @@ function New-DatumStructure {
             $DatumHierarchyDefinition.add('ResolutionPrecedence',$Structures.StoreName)
         }
     }
+    # Adding the Datum Definition to Root object
+    $root.add('__Definition',$DatumHierarchyDefinition)
 
     foreach ($store in $DatumHierarchyDefinition.DatumStructure){
         #$StoreParams = Convertto-hashtable $Store.StoreOptions
@@ -102,5 +104,6 @@ function New-DatumStructure {
         $root.Add($store.StoreName,$storeObject)
     }
     
-    ([PSCustomObject]$root) | Add-Member -PassThru -MemberType NoteProperty -Name __Definition -Value $DatumHierarchyDefinition
+    #return the Root Datum hashtable
+    $root
 }
