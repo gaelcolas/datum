@@ -27,3 +27,5 @@ ResolutionPrecedence:
   - 'SiteData\$($Node.Location)'
   - 'Roles\$($Node.Role)' 
   - 'Roles\All'
+
+default_lookup_options: MostSpecific
