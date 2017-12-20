@@ -1,9 +1,11 @@
 function Resolve-DatumPath {
     [CmdletBinding()]
     param(
+        [Alias('Variable')]
         $Node,
 
-        $DatumStructure,
+        [Alias('DatumStructure')]
+        $DatumTree,
 
         [string[]]
         $PathStack,
@@ -12,7 +14,7 @@ function Resolve-DatumPath {
         $PathVariables
     )
     
-    $currentNode = $DatumStructure
+    $currentNode = $DatumTree
     $PropertySeparator = '.' #[io.path]::DirectorySeparatorChar
     $index = -1
     Write-Debug "`t`t`t"
@@ -20,9 +22,9 @@ function Resolve-DatumPath {
     foreach ($StackItem in $PathStack) {
         $index++
         $RelativePath = $PathStack[0..$index]
-        Write-Debug "`t`t`tCurrent Path: `$Datum$PropertySeparator$($RelativePath -join '\')"
+        Write-Debug "`t`t`tCurrent Path: `$Datum$PropertySeparator$($RelativePath -join $PropertySeparator)"
         $RemainingStack = $PathStack[$index..($PathStack.Count-1)]
-        Write-Debug "`t`t`t`tbranch of path Left to walk: PropertySeparator$($RemainingStack[1..$RemainingStack.Length] -join $PropertySeparator)"
+        Write-Debug "`t`t`t`tbranch of path Left to walk: $PropertySeparator$($RemainingStack[1..$RemainingStack.Length] -join $PropertySeparator)"
         if ( $StackItem -match '\{\d+\}') {
             Write-Debug -Message "`t`t`t`t`tReplacing expression $StackItem"
             $StackItem = [scriptblock]::Create( ($StackItem -f ([string[]]$PathVariables)) ).Invoke()

@@ -1,23 +1,50 @@
 function Global:Resolve-NodeProperty {
-    [CmdletBinding()]
+    [CmdletBinding(
+        #DefaultParameterSetName = 'UseMergeOptions'
+    )]
     Param(
-
-        $Node,
-
+        [Parameter(
+            Mandatory,
+            Position = 0
+        )]
         $PropertyPath,
 
+        [Parameter(
+            Position = 1
+        )]
         [AllowNull()]
         $DefaultValue,
 
-        $DatumStructure = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
+        [Parameter(
+            Position = 3
+        )]
+        $Node = $ExecutionContext.InvokeCommand.InvokeScript('$Node'),
+
+        [Alias('DatumStructure')]
+        $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
+
+        [Alias('SearchBehavior')]
+        $options = $DatumTree.__Definition.default_lookup_options,
+
+        [string[]]
+        $SearchPaths = $DatumTree.__Definition.ResolutionPrecedence,
         
-        $SearchPaths = $DatumStructure.__Definition.ResolutionPrecedence
+        [Parameter(
+            Position = 5
+        )]
+        [int]
+        $MaxDepth = $(if($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth) { $MxdDpth } else { -1 })
     )
 
     # Null result should return an exception, unless defined as Default value
     $NullAllowed = $false
+    $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
+    foreach ($removeKey in $PSBoundParameters.keys.where{$_ -in @('DefaultValue')}) {
+        $ResolveDatumParams.remove($_)
+    }
+    
 
-    if($result = Resolve-Datum -PropertyPath $PropertyPath -Node $Node -SearchPaths $SearchPaths -DatumStructure $DatumStructure) {
+    if($result = Resolve-Datum @ResolveDatumParams) {
         Write-Verbose "`tResult found for $PropertyPath"
     }
     elseif($DefaultValue) {
@@ -70,3 +97,4 @@ function Global:Resolve-NodeProperty {
     }
 }
 Set-Alias -Name Lookup -Value Resolve-NodeProperty -scope Global
+Set-Alias -Name Resolve-DscProperty -Value Resolve-NodeProperty -scope Global

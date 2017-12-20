@@ -7,26 +7,40 @@ Function Resolve-Datum {
         [string]
         $PropertyPath,
 
-        $Node,
-        
         [Parameter(
-            Mandatory
+            Position = 1
         )]
-        [string[]]
-        $searchPaths,
+        [Alias('Node')]
+        $Variable = $ExecutionContext.InvokeCommand.InvokeScript('$Node'),
+
+        [Alias('DatumStructure')]
+        $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
 
         [Parameter(
-            Mandatory
+            ParameterSetName = 'UseMergeOptions'
         )]
-        $DatumStructure = $DatumStructure,
+        [Alias('SearchBehavior')]
+        $options = $DatumTree.__Definition.default_lookup_options,
+
+        [string[]]
+        [Alias('SearchPaths')]
+        $PathPrefixes = $DatumTree.__Definition.ResolutionPrecedence,
 
         [int]
-        $MaxDepth = -1, #infinite by default
-
-        #[ValidateSet('MostSpecific','AllValues','ArrayUnique','Deep')]
-        $SearchBehavior = 'MostSpecific'
-        
+        $MaxDepth = $(
+                if($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth) { 
+                    $MxdDpth 
+                } 
+                else {
+                    -1
+                })
     )
+
+    if(!$options) {
+        $options = @{
+            '.*' = 'MostSpecific'
+        }    
+    }
 
     # Scriptblock in path detection patterns
     $Pattern = '(?<opening><%=)(?<sb>.*?)(?<closure>%>)'
@@ -37,7 +51,7 @@ Function Resolve-Datum {
     $MergeResult = $null
 
     # Walk every search path in listed order, and return datum when found at end of path
-    foreach ($SearchPrefix in $searchPaths) { #through the hierarchy
+    foreach ($SearchPrefix in $PathPrefixes) { #through the hierarchy
 
         $ArraySb = [System.Collections.ArrayList]@()
         $CurrentSearch = Join-Path $SearchPrefix $PropertyPath
@@ -51,11 +65,11 @@ Function Resolve-Datum {
             },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
         
         $PathStack = $newSearch -split $splitPattern
-        $DatumFound = Resolve-DatumPath -Node $Node -DatumStructure $DatumStructure -PathStack $PathStack -PathVariables $ArraySb
+        $DatumFound = Resolve-DatumPath -Node $Node -DatumTree $DatumTree -PathStack $PathStack -PathVariables $ArraySb
         
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
-        if ($DatumFound -and ($SearchBehavior -eq 'MostSpecific')) {
-            Write-Debug "Depth: $depth; Search Behavior: $SearchBehavior"
+        Write-Debug "Depth: $depth; Merge Behavior: $($options|Convertto-Json|Out-String)"
+        if ($DatumFound -and ($options -eq 'MostSpecific' -or ($options.'.*' -eq 'MostSpecific'))) {
             return $DatumFound
         }
         elseif ( $DatumFound ) {
@@ -64,14 +78,14 @@ Function Resolve-Datum {
             $allParams = @{
                 PropertyPath = $PropertyPath
                 Node = $Node
-                DatumStructure = $DatumStructure
-                SearchPaths = $searchPaths
+                DatumTree = $DatumTree
+                PathPrefixes = $PathPrefixes
                 MaxDepth = $MaxDepth
                 PropertySeparator =$PropertySeparator
-                SearchBehavior = $SearchBehavior
+                options = $options
             }
 
-            switch ($SearchBehavior) {
+            switch ($options) {
                 'AllValues' {
                     $DatumFound
                     break
