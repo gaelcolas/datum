@@ -22,7 +22,7 @@ function New-DatumStructure {
 
     switch ($PSCmdlet.ParameterSetName) {
         'DatumHierarchyDefinition' {
-            if ($DatumHierarchyDefinition.containsKey('DatumStructure')) {
+            if ($DatumHierarchyDefinition.contains('DatumStructure')) {
                 Write-debug "Loading Datum from Parameter"
             }
             elseif($DatumHierarchyDefinition.Path) {
@@ -42,7 +42,7 @@ function New-DatumStructure {
                 $DefinitionFile = (Get-Item $DefinitionFile -ErrorAction Stop)
                 Write-Debug "File $DefinitionFile found. Loading..."
                 $DatumHierarchyDefinition = Get-FileProviderData $DefinitionFile.FullName
-                if(!$DatumHierarchyDefinition.ContainsKey('ResolutionPrecedence')) {
+                if(!$DatumHierarchyDefinition.contains('ResolutionPrecedence')) {
                     Throw 'Invalid Datum Hierarchy Definition'
                 }
                 $DatumHierarchyFolder = $DefinitionFile.directory.FullName
@@ -67,7 +67,7 @@ function New-DatumStructure {
            }
        }
        
-       if($DatumHierarchyDefinition.containsKey('DatumStructure')) {
+       if($DatumHierarchyDefinition.contains('DatumStructure')) {
            $DatumHierarchyDefinition['DatumStructure'] = $Structures
        }
        else {
@@ -77,7 +77,7 @@ function New-DatumStructure {
 
     # Define the default hierachy to be the StoreNames, when nothing is specified
     if ($DatumHierarchyFolder -and !$DatumHierarchyDefinition.ResolutionPrecedence) {
-        if($DatumHierarchyDefinition.containsKey('ResolutionPrecedence')) {
+        if($DatumHierarchyDefinition.contains('ResolutionPrecedence')) {
             $DatumHierarchyDefinition['ResolutionPrecedence'] = $Structures.StoreName
         }
         else {

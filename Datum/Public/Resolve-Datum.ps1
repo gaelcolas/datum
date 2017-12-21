@@ -13,6 +13,9 @@ Function Resolve-Datum {
         [Alias('Node')]
         $Variable = $ExecutionContext.InvokeCommand.InvokeScript('$Node'),
 
+        [string]
+        $VariableName = 'Node',
+
         [Alias('DatumStructure')]
         $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
 
@@ -38,8 +41,12 @@ Function Resolve-Datum {
 
     if(!$options) {
         $options = @{
-            '.*' = 'MostSpecific'
+            '' = 'MostSpecific'
         }    
+    }
+    
+    if($Variable -and $VariableName) {
+        Set-Variable -Name $VariableName -Value $Variable -Force
     }
 
     # Scriptblock in path detection patterns
@@ -55,7 +62,8 @@ Function Resolve-Datum {
 
         $ArraySb = [System.Collections.ArrayList]@()
         $CurrentSearch = Join-Path $SearchPrefix $PropertyPath
-
+        Write-Verbose ''
+        Write-Verbose "Searching: $CurrentSearch"
         #extract script block for execution into array, replace by substition strings {0},{1}...
         $newSearch = [regex]::Replace($CurrentSearch, $Pattern, {
                 param($match)
@@ -69,7 +77,7 @@ Function Resolve-Datum {
         
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
         Write-Debug "Depth: $depth; Merge Behavior: $($options|Convertto-Json|Out-String)"
-        if ($DatumFound -and ($options -eq 'MostSpecific' -or ($options.'.*' -eq 'MostSpecific'))) {
+        if ($DatumFound -and ($options -eq 'MostSpecific' -or ($options.'' -eq 'MostSpecific'))) {
             return $DatumFound
         }
         elseif ( $DatumFound ) {

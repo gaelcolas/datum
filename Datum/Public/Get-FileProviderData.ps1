@@ -14,9 +14,9 @@ function Get-FileProviderData {
     switch ($File.Extension) {
         '.psd1' { Import-PowerShellDataFile $File }
         '.json' { Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-Hashtable }
-        '.yml'  { convertfrom-yaml (Get-Content -raw $Path) | ConvertTo-Hashtable }
+        '.yml'  { convertfrom-yaml (Get-Content -raw $Path) -ordered | ConvertTo-Hashtable }
         '.ejson'{ Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
-        '.eyaml'{ ConvertFrom-Yaml (Get-Content -Raw $Path) | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
+        '.eyaml'{ ConvertFrom-Yaml (Get-Content -Raw $Path) -ordered | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
         '.epsd1'{ Import-PowerShellDatafile $File | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
         Default { Get-Content -Raw $Path }
     }
