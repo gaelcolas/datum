@@ -1,7 +1,5 @@
 function Global:Resolve-NodeProperty {
-    [CmdletBinding(
-        #DefaultParameterSetName = 'UseMergeOptions'
-    )]
+    [CmdletBinding()]
     Param(
         [Parameter(
             Mandatory,
@@ -24,7 +22,7 @@ function Global:Resolve-NodeProperty {
         $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
 
         [Alias('SearchBehavior')]
-        $options = $DatumTree.__Definition.default_lookup_options,
+        $options = $DatumTree.__Definition.lookup_options,
 
         [string[]]
         $SearchPaths = $DatumTree.__Definition.ResolutionPrecedence,
@@ -39,10 +37,14 @@ function Global:Resolve-NodeProperty {
     # Null result should return an exception, unless defined as Default value
     $NullAllowed = $false
     $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
-    foreach ($removeKey in $PSBoundParameters.keys.where{$_ -in @('DefaultValue')}) {
-        $ResolveDatumParams.remove($_)
+    foreach ($removeKey in $PSBoundParameters.keys.where{$_ -in @('DefaultValue','Node')}) {
+        $ResolveDatumParams.remove($removeKey)
     }
     
+    if($Node) {
+        $ResolveDatumParams.Add('Variable',$Node)
+        $ResolveDatumParams.Add('VariableName','Node')
+    }
 
     if($result = Resolve-Datum @ResolveDatumParams) {
         Write-Verbose "`tResult found for $PropertyPath"
@@ -51,7 +53,7 @@ function Global:Resolve-NodeProperty {
         $result = $DefaultValue
         Write-Debug "`t`tDefault Found"
     }
-    elseif($PSBoundParameters.ContainsKey('DefaultValue') -and $null -eq $DefaultValue) {
+    elseif($PSboundParameters.containsKey('DefaultValue') -and $null -eq $DefaultValue) {
         $result = $null
         $NullAllowed = $true
         Write-Debug "`t`tDefault NULL found"

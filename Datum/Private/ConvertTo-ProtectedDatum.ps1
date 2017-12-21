@@ -9,12 +9,12 @@ function ConvertTo-ProtectedDatum
 
     process
     {
-        if ($UnprotectOptions.ContainsKey('ClearTextPassword')) {
+        if ($UnprotectOptions.contains('ClearTextPassword')) {
             $UnprotectOptions['password'] = $UnprotectOptions.ClearTextPassword |
                 ConvertTo-SecureString -AsPlainText -force
             $null = $UnprotectOptions.remove('ClearTextPassword')
         }
-        elseif ($UnprotectOptions.ContainsKey('SecureStringPassword')) {
+        elseif ($UnprotectOptions.contains('SecureStringPassword')) {
             $UnprotectOptions['password'] = $UnprotectOptions.SecureStringPassword |
                 ConvertTo-SecureString
             $null = $UnprotectOptions.remove('SecureStringPassword')

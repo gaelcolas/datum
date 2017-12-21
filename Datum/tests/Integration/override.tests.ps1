@@ -16,7 +16,7 @@ Describe 'Test Datum overrides' {
             $AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object { 
                 $Node = $Datum.AllNodes.($Environment).($_.Name)
                 $null = $Node.Add('Environment',$Environment)
-                if(!$Node.containsKey('Name') ) {
+                if(!$Node.contains('Name') ) {
                     $null = $Node.Add('Name',$_.Name)
                 }
                 $Node
