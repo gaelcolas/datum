@@ -9,7 +9,9 @@ function ConvertTo-Hashtable
     {
         if ($null -eq $InputObject) { return $null }
 
-        if ($InputObject -is [System.Collections.Hashtable] -or ($InputObject -is [System.Collections.Specialized.OrderedDictionary])) {
+        if ($InputObject -is [System.Collections.Hashtable] -or
+           ($InputObject -is [System.Collections.Specialized.OrderedDictionary]) -or
+           ($InputObject -is [System.Management.Automation.PSCredential])) {
             return $InputObject
         }
         elseif ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string])
@@ -20,7 +22,7 @@ function ConvertTo-Hashtable
 
             Write-Output -NoEnumerate $collection
         }
-        elseif ($InputObject -is [psobject])
+        elseif ($InputObject -is [psobject] -or $InputObject -is [SecureDatum])
         {
             $hash = @{}
 
