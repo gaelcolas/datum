@@ -22,30 +22,35 @@ function Global:Resolve-NodeProperty {
         $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
 
         [Alias('SearchBehavior')]
-        $options = $DatumTree.__Definition.lookup_options,
+        [AllowNull()]
+        $options,
 
         [string[]]
-        $SearchPaths = $DatumTree.__Definition.ResolutionPrecedence,
+        $SearchPaths,
         
         [Parameter(
             Position = 5
         )]
+        [allowNull()]
         [int]
-        $MaxDepth = $(if($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth) { $MxdDpth } else { -1 })
+        $MaxDepth
     )
 
     # Null result should return an exception, unless defined as Default value
     $NullAllowed = $false
+
     $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
     foreach ($removeKey in $PSBoundParameters.keys.where{$_ -in @('DefaultValue','Node')}) {
         $ResolveDatumParams.remove($removeKey)
     }
     
+    # Translate the DSC specific Node into the 'Node' variable and Node name used by Resolve-Datum
     if($Node) {
         $ResolveDatumParams.Add('Variable',$Node)
         $ResolveDatumParams.Add('VariableName','Node')
     }
 
+    # Starting DSC Behaviour: Resolve-Datum || $DefaultValue || $null if specified as default || throw 
     if($result = Resolve-Datum @ResolveDatumParams) {
         Write-Verbose "`tResult found for $PropertyPath"
     }
@@ -56,7 +61,7 @@ function Global:Resolve-NodeProperty {
     elseif($PSboundParameters.containsKey('DefaultValue') -and $null -eq $DefaultValue) {
         $result = $null
         $NullAllowed = $true
-        Write-Debug "`t`tDefault NULL found"
+        Write-Debug "`t`tDefault NULL found and allowed."
     }
     else { 
         #This is when the Lookup is initiated from a Composite Resource, for itself
@@ -81,14 +86,13 @@ function Global:Resolve-NodeProperty {
                     Path = $ResourceConfigDataPath
                 }
             }
+            $ResolveDatumParams.remove('DatumTree')
 
-            $result = Resolve-Datum -PropertyPath $PropertyPath -Node $Node -searchPaths $DatumDefinition.ResolutionPrecedence -DatumStructure $ResourceDatum
+            $result = Resolve-Datum @ResolveDatumParams -DatumTree $ResourceDatum
         }
         else {
-            Write-Warning "`tNo Datum store found"
-            break
+            Write-Warning "`tNo Datum store found for DSC Resource"
         }
-        
     }
 
     if($result -or $NullAllowed) {
