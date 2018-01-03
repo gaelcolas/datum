@@ -29,19 +29,31 @@ ResolutionPrecedence:
   - 'Roles\All'
 
 # That's the default
-#lookup_options: MostSpecific
+# default_lookup_options: MostSpecific
+# default_lookup_options:
+#   strategy: MostSpecific
+#   MaxDepth: -1
+default_lookup_options: # equivalent to adding ^.* in lookup_option
+  strategy: first|unique|hash|deep
+  options:
+    knockout_prefix: --
+    sort_merged_arrays: false
+    merge_hash_arrays: false
+
 
 # Can override for all
 lookup_options:
-  a: 1
-  d: 4
-  c: 3
-  b: 2
+  a: first
+  d: unique
+  c: hash
+  b: deep
 
-  '':
-    merge: # deep merge with unique array merge and knockout prefix --
-      strategy: hash
-      knockoutPrefix: --
+  '^': 
+    strategy: deep
+    options:
+      knockout_prefix: --
+      sort_merged_arrays: false
+      merge_hash_arrays: false
 
 # lookup_options:
 #   lookup_options: #when a Configuration defines a merge behaviour, it can be overriden here
