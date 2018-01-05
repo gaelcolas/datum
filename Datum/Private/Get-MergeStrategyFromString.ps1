@@ -24,19 +24,19 @@ function Get-MergeStrategyFromString {
                 strategy = 'hash'
                 options = @{
                     knockout_prefix    = '--'
-                    sort_merged_arrays = false
-                    merge_hash_arrays  = false
+                    sort_merged_arrays = $false
+                    merge_hash_arrays  = $false
                 }
             }
         }
 
         '^deep$|^MergeRecursively$' {
             @{
-                strategy = 'hash'
+                strategy = 'deep'
                 options = @{
                     knockout_prefix    = '--'
-                    sort_merged_arrays = false
-                    merge_hash_arrays  = false
+                    sort_merged_arrays = $false
+                    merge_hash_arrays  = $false
                 }
             }
         }
