@@ -5,27 +5,28 @@ function Get-MergeStrategyFromPath {
 
         $PropertyPath
     )
-    
+    Write-debug ">>> MergeStrategyFromPath $PropertyPath"
     # Select Relevant strategy
     #   Use exact path match first
     #   or try Regex in order
-    if ($StrategyKey = $Strategies.keys.Where{$_ -eq $PropertyPath}) {
-        Write-Verbose "Strategy found for exact key $StrategyKey"
+    if ($Strategies[$PropertyPath]) {
+        $StrategyKey = $PropertyPath
+        Write-debug "`tStrategy found for exact key $StrategyKey"
     }
-    elseif($StrategyKey = $Strategies.keys.where{$_.StartsWith('^') -and $_ -as [regex] -and $PropertyPath -match $_} | Select-Object -First 1) {
-        Write-Verbose "Strategy matching regex $StrategyKey"
+    elseif($StrategyKey = [string]($Strategies.keys.where{$_.StartsWith('^') -and $_ -as [regex] -and $PropertyPath -match $_} | Select-Object -First 1)) {
+        Write-debug "`tStrategy matching regex $StrategyKey"
     }
     else {
-        Write-Verbose "No Strategy found"
+        Write-debug "`tNo Strategy found"
         return
     }
-
+    Write-Debug "`tStrategyKey: $StrategyKey. $($Strategies[$StrategyKey].getType())"
     if( $Strategies[$StrategyKey] -is [string]) {
-        Write-Verbose "Returning from String $($Strategies[$StrategyKey])"
+        Write-debug "`tReturning from String $($Strategies[$StrategyKey])"
         Get-MergeStrategyFromString $Strategies[$StrategyKey]
     }
     else {
-        Write-Debug "Returning $($Strategies[$StrategyKey]|ConvertTo-Json)"
+        Write-Debug "`tReturning $($Strategies[$StrategyKey]|ConvertTo-Json)"
         $Strategies[$StrategyKey]
     }
 }

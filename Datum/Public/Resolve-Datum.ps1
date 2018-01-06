@@ -188,4 +188,5 @@ Function Resolve-Datum {
             return $MergeResult
         }
     }
+    $MergeResult
 }

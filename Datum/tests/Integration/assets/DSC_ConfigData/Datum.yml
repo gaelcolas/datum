@@ -47,8 +47,9 @@ lookup_options:
   d: unique
   c: hash
   b: deep
+  configurations: Unique
 
-  '^': 
+  '^.*\\': 
     strategy: deep
     options:
       knockout_prefix: --
