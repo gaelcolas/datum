@@ -13,7 +13,8 @@ function Merge-Datum {
         }
     )
 
-    Write-Verbose "`r`nPATH: $StartingPath. Strategies : $($strategies|Convertto-Json)"
+    Write-verbose "`r`n######## MERGE DATUM`r`nPATH: $StartingPath.`r`n`r`n"
+    Write-Debug "`r`nStrategies : $($strategies|Convertto-Json)`r`n########"
     Write-Debug "REF $($ReferenceDatum|Convertto-JSon)"
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
@@ -66,6 +67,7 @@ function Merge-Datum {
 
         'deep' {
             if($ReferenceDatum -as [hashtable[]]) {
+                Write-Debug "array of hashtable. Should merge by position, property or uniqueness"
                 # it's an array of Hashtable, merge it by position, property, or uniqueness?
             }
             Write-Debug "adding Child Startegies: $($Strategies|ConvertTo-Json)"

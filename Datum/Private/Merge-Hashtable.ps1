@@ -65,16 +65,16 @@ function Merge-Hashtable {
             $clonedReference.add($currentKey,$DifferenceHashtable[$currentKey])
         }
         else { #the key exists, and it's not a knockout entry
-            if ($deepmerge -and $DifferenceHashtable[$currentKey] -as [hashtable] -and $ReferenceHashtable[$currentKey] -as [hashtable]) {
+            if ($deepmerge -and ($ReferenceHashtable[$currentKey] -as [hashtable] -or ($ReferenceHashtable[$currentKey] -is [System.Collections.IEnumerable] -and $ReferenceHashtable[$currentKey] -isnot [string]))) {
                 # both are hashtables and we're in Deepmerge mode
                 Write-Debug "`t .. Merging Datums at current path $ParentPath\$CurrentKey"
-                $subMerge= Merge-Datum -StartingPath (Join-Path  $ParentPath $currentKey) -ReferenceDatum $ReferenceHashtable[$currentKey] -DifferenceDatum $DifferenceHashtable[$currentKey] -Strategies $ChildStrategies
+                $subMerge = Merge-Datum -StartingPath (Join-Path  $ParentPath $currentKey) -ReferenceDatum $ReferenceHashtable[$currentKey] -DifferenceDatum $DifferenceHashtable[$currentKey] -Strategies $ChildStrategies
                 Write-Debug "# Submerge $($submerge|ConvertTo-Json)."
                 $clonedReference[$currentKey]  = $subMerge
             }  ####################### ---> add array merge and hashtable[] merge here (hashtable[] merge based on defined subkey)
             else {
                 #one is not an hashtable or we're not in deepmerge mode, leave the ClonedReference as-is
-                Write-Debug "Deepmerge: $deepmerge; Ref[$currentkey] type $($ReferenceHashtable[$currentKey].GetType());  Diff[$currentkey] type $($DifferenceHashtable[$currentKey].GetType())" 
+                Write-verbose "`tDeepmerge: $deepmerge; Ref[$currentkey] type $($ReferenceHashtable[$currentKey].GetType());  Diff[$currentkey] type $($DifferenceHashtable[$currentKey].GetType())" 
             }
         }
     }
@@ -184,3 +184,19 @@ $f = [ordered]@{
         )
     }
 }
+
+$MergeParams = @{
+    StartingPath = 'root'
+
+    ReferenceDatum =  $e
+
+    DifferenceDatum = $f
+
+    Strategies = @{
+        'root' = 'deep'
+        'root\rootkey2\Subkey22' = 'Unique'
+        'root\rootkey2\Subkey23' = 'Unique'
+        '^.*' = 'deep'
+    }
+}
+Merge-Datum @MergeParams
