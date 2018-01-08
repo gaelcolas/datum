@@ -103,13 +103,13 @@ Function Resolve-Datum {
     }
 
     # Transform options from string to strategy hashtable
-    foreach ($optKey in $lookup_options.keys) {
+    foreach ($optKey in ([string[]]$lookup_options.keys)) {
         if($lookup_options[$optKey] -is [string]) {
             $lookup_options[$optKey] = Get-MergeStrategyFromString -MergeStrategy $lookup_options[$optKey]
         }
     }
 
-    foreach ($optKey in $options.keys) {
+    foreach ($optKey in ([string[]]$options.keys)) {
         if($options[$optKey] -is [string]) {
             $options[$optKey] = Get-MergeStrategyFromString -MergeStrategy $options[$optKey]
         }
@@ -121,7 +121,7 @@ Function Resolve-Datum {
     }
 
     # Add default strategy for ^.* if not present
-    if($Options.keys -notcontains '^.*') {
+    if(([string[]]$Options.keys) -notcontains '^.*') {
         $options.add('^.*',$default_options)
     }
 
@@ -139,7 +139,7 @@ Function Resolve-Datum {
     $MergeResult = $null
 
     # Get the strategy for this path, to be used for merging
-    $StartingMergeStrategy = Get-MergeStrategyFromPath -Path $PropertyPath -Strategies $options
+    $StartingMergeStrategy = Get-MergeStrategyFromPath -PropertyPath $PropertyPath -Strategies $options
 
     # Walk every search path in listed order, and return datum when found at end of path
     foreach ($SearchPrefix in $PathPrefixes) { #through the hierarchy

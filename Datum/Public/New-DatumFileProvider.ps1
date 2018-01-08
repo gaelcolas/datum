@@ -1,12 +1,20 @@
 
 function New-DatumFileProvider {
     Param(
-        [alias('DataDir')]
-        $Path,
-
+        
+        [alias('DataOptions')]
         [AllowNull()]
-        $DataOptions
+        $Store,
+        
+        [AllowNull()]
+        $DatumHierarchyDefinition = @{},
+
+        $Path = $Store.StoreOptions.Path
     )
 
-    [FileProvider]::new($Path,$DataOptions)
+    if (!$DatumHierarchyDefinition) {
+        $DatumHierarchyDefinition = @{}
+    }
+    
+    [FileProvider]::new($Path, $Store,$DatumHierarchyDefinition)
 }
