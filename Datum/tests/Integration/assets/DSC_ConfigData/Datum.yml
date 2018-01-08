@@ -18,7 +18,7 @@ DatumStructure:
     StoreProvider: Datum::File
     StoreOptions:
       Path: "./Roles"
-      ### THUMBPRINT ###
+
 
 ResolutionPrecedence:
   - 'AllNodes\$($Node.Environment)\$($Node.Name)'
@@ -27,6 +27,26 @@ ResolutionPrecedence:
   - 'SiteData\$($Node.Location)'
   - 'Roles\$($Node.Role)' 
   - 'Roles\All'
+
+DatumHandlers:
+  Datum::TestHandler: #Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
+    Filter: $False #$InputObject -is [string] -and $InputObject -match "^\[TEST=[\w\W]*\]$"
+    Action: $handler #Get-Process
+    CommandOptions:
+      Password: P@ssw0rd      
+  # Datum::ProtectedData: # Datum\Test-ProtectedDataFilter & Invoke-ProtectedDataAction
+  #   Filter: $InputObject -is [string] -and $InputObject -match "^\[ENC=[\w\W]*\]$"
+  #   Action: $Datum #Unprotect-Datum -Base64Data $InputObject @CommandOptions
+  #   CommandOptions:
+  #     Password: P@ssw0rd
+      ### THUMBPRINT ###
+  # Datum::FollowRedirection:
+  #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
+  #   Action: Resolve-Datum -PropertyPath ($InputObject -replace '^\[REF=').TrimEnd(']') -DatumTre $Datum -Variable $Node
+  # Datum::Interpolation:
+  #   Filter: $InputObject -is [string] -and $InputObject -match '\%\{.*\}'
+  #   Action: Get-InterpolatedDatum $InputObject
+
 
 # That's the default
 # default_lookup_options: MostSpecific

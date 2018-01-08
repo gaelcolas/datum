@@ -1,1 +1,2 @@
 Description: 'This is the DEV environment'
+Test: "[TEST=CatchMe]"

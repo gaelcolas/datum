@@ -83,6 +83,7 @@ function Merge-Hashtable {
     
 }
 
+<#
 $a = @{
     keya = 1
     keyb = 2
@@ -200,3 +201,4 @@ $MergeParams = @{
     }
 }
 Merge-Datum @MergeParams
+#>

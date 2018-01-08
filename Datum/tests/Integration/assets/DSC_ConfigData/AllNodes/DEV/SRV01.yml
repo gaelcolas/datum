@@ -3,3 +3,4 @@ NodeName: 9d8cc603-5c6f-4f6d-a54a-466a6180b589
 role: Role1
 Location: LON
 ExampleProperty1: 'From Node'
+#Test: '[REF=Roles\Role1\Shared1\DestinationPath]'

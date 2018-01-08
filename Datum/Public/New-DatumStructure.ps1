@@ -88,18 +88,48 @@ function New-DatumStructure {
     $root.add('__Definition',$DatumHierarchyDefinition)
 
     foreach ($store in $DatumHierarchyDefinition.DatumStructure){
-        #$StoreParams = Convertto-hashtable $Store.StoreOptions
-        $StoreParams = $Store.StoreOptions
-        $cmd = Get-Command ("{0}\New-Datum{1}Provider" -f ($store.StoreProvider -split '::'))
+        $StoreParams = @{
+            Store =  (ConvertTo-Datum $Store.clone())
+            Path  = $store.StoreOptions.Path
+        }
+
+        # Accept Module Specification for Store Provider as String (unversioned) or Hashtable
+        if($Store.StoreProvider -is [string]) {
+            $StoreProviderModule, $StoreProviderName = $store.StoreProvider -split '::'
+        }
+        else {
+            $StoreProviderModule = $Store.StoreProvider.ModuleName
+            $StoreProviderName = $Store.StoreProvider.ProviderName
+            if($Store.StoreProvider.ModuleVersion) {
+                $StoreProviderModule = @{
+                    ModuleName = $StoreProviderModule
+                    ModuleVersion = $Store.StoreProvider.ModuleVersion
+                }
+            }
+        }
+
+        if(!($Module = Get-Module $StoreProviderModule -ErrorAction SilentlyContinue)) {
+            $Module = Import-Module $StoreProviderModule -Force -ErrorAction Stop -PassThru
+        }
+        $ModuleName = ($Module | Select-Object -First 1).Name
+
+        $NewProvidercmd = Get-Command ("{0}\New-Datum{1}Provider" -f $ModuleName, $StoreProviderName)
 
         if( $StoreParams.Path -and 
             ![io.path]::IsPathRooted($StoreParams.Path) -and
             $DatumHierarchyFolder
         ) {
             Write-Debug "Replacing Store Path with AbsolutePath"
-            $StoreParams['Path'] = Join-Path $DatumHierarchyFolder $StoreParams.Path -Resolve -ErrorAction Stop
+            $StorePath = Join-Path $DatumHierarchyFolder $StoreParams.Path -Resolve -ErrorAction Stop
+            $StoreParams['Path'] = $StorePath
         }
-        $storeObject = &$cmd @StoreParams
+
+        if ($NewProvidercmd.Parameters.keys -contains 'DatumHierarchyDefinition') {
+            Write-Debug "Adding DatumHierarchyDefinition to Store Params"
+            $StoreParams.add('DatumHierarchyDefinition',$DatumHierarchyDefinition)
+        }
+
+        $storeObject = &$NewProvidercmd @StoreParams
         Write-Debug "Adding key $($store.storeName) to Datum root object"
         $root.Add($store.StoreName,$storeObject)
     }
