@@ -29,16 +29,16 @@ ResolutionPrecedence:
   - 'Roles\All'
 
 DatumHandlers:
-  Datum::TestHandler: #Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
+  Datum::TestHandler: # Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
     CommandOptions:
       Password: P@ssw0rd
       Test: test
-  # Datum::ProtectedData: # Datum\Test-ProtectedDataFilter & Invoke-ProtectedDataAction
-  #   Filter: $InputObject -is [string] -and $InputObject -match "^\[ENC=[\w\W]*\]$"
-  #   Action: $Datum #Unprotect-Datum -Base64Data $InputObject @CommandOptions
-  #   CommandOptions:
-  #     Password: P@ssw0rd
-      ### THUMBPRINT ###
+      
+  Datum::ProtectedDatum: # Datum\Test-ProtectedDatumFilter & Invoke-ProtectedDatumAction
+     CommandOptions:
+       PlainTextPassword: P@ssw0rd
+       #Certificate: ### THUMBPRINT ###
+
   # Datum::FollowRedirection:
   #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
   #   Action: Resolve-Datum -PropertyPath ($InputObject -replace '^\[REF=').TrimEnd(']') -DatumTre $Datum -Variable $Node

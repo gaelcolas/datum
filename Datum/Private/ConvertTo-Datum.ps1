@@ -21,19 +21,25 @@ function ConvertTo-Datum
                 }
                 $FilterCommand = Get-Command -ErrorAction SilentlyContinue ("{0}\Test-{1}Filter" -f $FilterModule,$FilterName)
                 if($FilterCommand -and ($InputObject | &$FilterCommand)) {
-                    if($ActionCommand = Get-Command -ErrorAction SilentlyContinue ("{0}\Invoke-{1}Action" -f $FilterModule,$FilterName)) {
-                        $ActionParams = @{}
-                        $CommandOptions = $Datumhandlers.$handler.CommandOptions.Keys
-                        # Populate the Command's params with what's in the Datum.yml, or from variables
-                        foreach( $ParamName in $ActionCommand.Parameters.keys ) {
-                            if( $ParamName -in $CommandOptions ) {
-                                $ActionParams.add($ParamName,$Datumhandlers.$handler.CommandOptions[$ParamName])
+                    try {
+                        if($ActionCommand = Get-Command -ErrorAction SilentlyContinue ("{0}\Invoke-{1}Action" -f $FilterModule,$FilterName)) {
+                            $ActionParams = @{}
+                            $CommandOptions = $Datumhandlers.$handler.CommandOptions.Keys
+                            # Populate the Command's params with what's in the Datum.yml, or from variables
+                            foreach( $ParamName in $ActionCommand.Parameters.keys ) {
+                                if( $ParamName -in $CommandOptions ) {
+                                    $ActionParams.add($ParamName,$Datumhandlers.$handler.CommandOptions[$ParamName])
+                                }
+                                elseif($ValueInScope = Get-Variable -name $ParamName -ErrorAction SilentlyContinue -ValueOnly ){
+                                    $ActionParams.add($ParamName,$ValueInScope)
+                                }
                             }
-                            elseif($ValueInScope = Get-Variable -name $ParamName -ErrorAction SilentlyContinue -ValueOnly ){
-                                $ActionParams.add($ParamName,$ValueInScope)
-                            }
+                            return (&$ActionCommand @ActionParams)
                         }
-                        return (&$ActionCommand @ActionParams)
+                    }
+                    catch {
+                        Write-Warning "Error using Datum Handler $Handler, returning Input Object"
+                        $InputObject
                     }
                 }
             }
