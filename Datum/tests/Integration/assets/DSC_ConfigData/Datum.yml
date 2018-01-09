@@ -30,10 +30,9 @@ ResolutionPrecedence:
 
 DatumHandlers:
   Datum::TestHandler: #Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
-    Filter: $False #$InputObject -is [string] -and $InputObject -match "^\[TEST=[\w\W]*\]$"
-    Action: $handler #Get-Process
     CommandOptions:
-      Password: P@ssw0rd      
+      Password: P@ssw0rd
+      Test: test
   # Datum::ProtectedData: # Datum\Test-ProtectedDataFilter & Invoke-ProtectedDataAction
   #   Filter: $InputObject -is [string] -and $InputObject -match "^\[ENC=[\w\W]*\]$"
   #   Action: $Datum #Unprotect-Datum -Base64Data $InputObject @CommandOptions
