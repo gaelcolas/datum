@@ -4,7 +4,7 @@
 
 > `A datum is a piece of information.`
 
-An Sample repository of an Infrastructure managed this way is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of the usage of Datum.
+A Sample repository of an Infrastructure from code managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
 
 ## What is Datum for?
 
@@ -14,12 +14,12 @@ This (opinionated) approach allows to raise **cattle** instead of pets, while fa
 
 The Configuration Data is composed in a configurable hiearchy, where the storage can be done in files, and the format Yaml, Json, PSD1.
 
-Unsurprisingly, the ideas follows the model developped by the Puppet, Chef and Ansible communities (and possibly others), in the following projects:
+The ideas follows the model developped by the Puppet, Chef and Ansible communities (possibly others), in the following projects:
 - [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration, thanks Glenn S. for the pointers!)
 - [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
 - [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
 
-Although not in v1.0.0 yet, Datum is currently used in a Production system to manage several hundered machines, and is actively maintained.
+Although not in v1 yet, Datum is currently used in a Production system to manage several hundreds of machines, and is actively maintained.
 
 ## Usage
 
