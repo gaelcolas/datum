@@ -4,6 +4,8 @@
 
 > `A datum is a piece of information.`
 
+An Sample repository of an Infrastructure managed this way is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of the usage of Datum.
+
 ## What is Datum for?
 
 This PowerShell Module enables you to manage your **Infrastructure _from_ Code** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy relevant to your environment, and injecting it into **Configurations** based on the Nodes and their Roles.
@@ -12,7 +14,10 @@ This (opinionated) approach allows to raise **cattle** instead of pets, while fa
 
 The Configuration Data is composed in a configurable hiearchy, where the storage can be done in files, and the format Yaml, Json, PSD1.
 
-An Sample repository of an Infrastructure managed this way is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of the usage of Datum.
+Unsurprisingly, the ideas follows the model developped by the Puppet, Chef and Ansible communities (and possibly others), in the following projects:
+- [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration, thanks Glenn S. for the pointers!)
+- [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
+- [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
 
 Although not in v1.0.0 yet, Datum is currently used in a Production system to manage several hundered machines, and is actively maintained.
 
@@ -129,6 +134,6 @@ Back in 2014, Steve Murawski then working for Stack Exchange lead the way by imp
 This work has been complemented by Dave Wyatt's contribution mainly around the Credential store.
 After these two main contributors moved on from DSC and Pull Server mode, the project stalled (in the Dev branch), despite its unique value.
 
-I [refreshed this](https://github.com/gaelcolas/DscConfigurationData) to be more geared for PowerShell 5, and updated the dependencies as project had evolved and moved to different maintainer, locations, and name.
+I [refreshed this](https://github.com/gaelcolas/DscConfigurationData) to be more geared for PowerShell 5, and updated the dependencies as some projects had evolved and moved to different maintainers, locations, and name.
 
-As I was re-writing it, I found that the version offered a very good way to manage configuration data, but in a prescriptive way, lacking a bit of flexibility for some customisation. Steve also pointed me to [Chef's Databag](https://docs.chef.io/data_bags.html), and later I discovered [Puppet's Hiera](https://docs.puppet.com/hiera/3.3/complete_example.html), which is where I get most of my inspiration.
+As I was re-writing it, I found that the version offered a very good way to manage configuration data, but in a prescriptive way, lacking a bit of flexibility for some much needed customisation (layers and ordering). Steve also pointed me to [Chef's Databag](https://docs.chef.io/data_bags.html), and later I discovered [Puppet's Hiera](https://docs.puppet.com/hiera/3.3/complete_example.html), which is where I get most of my inspiration.
