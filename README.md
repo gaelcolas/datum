@@ -2,10 +2,113 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/twbfc16g6w68ub8m/branch/master?svg=true)](https://ci.appveyor.com/project/gaelcolas/datum/branch/master)
 
-`A datum is a piece of information.`
+> `A datum is a piece of information.`
 
-This project is an attempt at managing hierarchical configuration data for Desired State Configuration (DSC).
+## What is Datum for?
 
+This PowerShell Module enables you to manage your **Infrastructure _from_ Code** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy relevant to your environment, and injecting it into **Configurations** based on the Nodes and their Roles.
+
+This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the Policy for your infrastructure) and provide defaults with the flexibility of specific overrides per layers based on your environment.
+
+The Configuration Data is composed in a configurable hiearchy, where the storage can be done in files, and the format Yaml, Json, PSD1.
+
+An Sample repository of an Infrastructure managed this way is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of the usage of Datum.
+
+Although not in v1.0.0 yet, Datum is currently used in a Production system to manage several hundered machines, and is actively maintained.
+
+## Usage
+
+
+### _Policy for Role 'WindowsBase'_
+```Yaml
+# WindowsBase.yml
+Configurations: #Configurations to Include for Nodes of this role
+  - Shared1
+  - SoftwareBase
+  - Packages
+
+Shared1: # Parameters for Configuration Shared1
+  DestinationPath: C:\MyRoleParam.txt
+  Param1: This is the Role Value!
+
+SoftwareBase: # Parameters for Configuration SoftwareBase
+  Sources:
+    - Name: chocolatey
+      Disabled: false
+      Source: https://chocolatey.org/api/v2
+
+  Packages:
+    - Name: chocolatey
+    - Name: NotepadPlusplus
+      Version: '7.5.2'
+    - Name: Putty
+```
+
+### _Node Specific data_
+
+```yaml
+# SRV01.yml
+NodeName: 9d8cc603-5c6f-4f6d-a54a-466a6180b589
+role: WindowsBase
+Location: LON
+
+```
+### Excerpt of DSC Composite Resource (aka. Configuration)
+
+```PowerShell
+Configuration SoftwareBase {
+    Param(
+        $PackageFeedUrl = 'https://chocolatey.org/api/v2',
+        $Sources = @(),
+        $Packages
+    )
+    
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName Chocolatey -ModuleVersion 0.0.46
+    
+    ChocolateySoftware ChocoInstall {
+        Ensure = 'Present'
+        PackageFeedUrl = $PackageFeedUrl
+    }
+
+    foreach($source in $Sources) {
+        if(!$source.Ensure) { $source.add('Ensure', 'Present') }
+        Get-DscSplattedResource -ResourceName ChocolateySource -ExecutionName "$($Source.Name)_src" -Properties $source
+    }
+
+    foreach ($Package in $Packages) {
+        if(!$Package.Ensure) { $Package.add('Ensure','Present') }
+        if(!$Package.Version) { $Package.add('version', 'latest') }
+        Get-DscSplattedResource -ResourceName ChocolateyPackage -ExecutionName "$($Package.Name)_pkg" -Properties $Properties
+    }
+}
+```
+
+### Root Configuration
+
+```PowerShell
+# RootConfiguration.ps1
+configuration "RootConfiguration"
+{
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName SharedDscConfig -ModuleVersion 0.0.3
+    Import-DscResource -ModuleName Chocolatey -ModuleVersion 0.0.46
+
+    node $ConfigurationData.AllNodes.NodeName {
+        (Lookup $Node 'Configurations') | % {
+            $ConfigurationName = $_
+            $Properties = $(lookup $Node $ConfigurationName -Verbose -DefaultValue @{})
+            x $ConfigurationName $ConfigurationName $Properties
+        }
+        #>
+    }
+}
+
+RootConfiguration -ConfigurationData $ConfigurationData -Out "$BuildRoot\BuildOutput\MOF\"
+
+```
+
+## Under the hood
 
 It does so by abstracting the underlying storage (i.e. files in folders) and format (json, yaml, PSD1), and representing the data as a structured object, walkable using the '.' notation: 
 
@@ -20,79 +123,6 @@ For instance, one could compose like so:
  - Database Data
  - File Data
 
-## Usage
-
-For now, this is only a prototype, and the best documentation is the Demo:
-- [Datum Structure](./Datum/examples/demo1/datum.yml) by combining provider
-- [example file](./Datum/examples/demo1/demo1.ps1) that loads structure and execute some search in different modes
-- [the root](./Datum/examples/demo1/DSC_Configuration) of the config data
-
-```PowerShell
-Resolve-Datum -searchPaths $yml.ResolutionPrecedence `
-              -DatumStructure $datum `
-              -PropertyPath 'ExampleProperty1' `
-              -SearchBehavior 'AllValues'
-
-#Searching all Properties 'ExampleProperty1' for FileServer01:
-#From Node
-#From Site
-#From All SiteData
-#From Role
-#From All Roles
-```
-
-## TODO
-
-- Features / Roadmap
-    - [x] FileSystem Provider
-    - [x] Yaml, JSON, PSD1 Formats
-    - [x] Hierachical data with order of precedence
-    - [x] Throw exception when a Value is null
-    - [x] Allow Default value (like Invoke-BUild's property)
-    - [x] Credentials/Encrypted data via Protected-Data
-    - [ ] Merge behaviour of the datum when type is hashtable/Array
-
-## Lack of Tooling around DSC
-
-DSC Being a platform, it does not come bundled with tooling to manage a deployed scenario, so customisations must be provided.
-
-In DSC, the examples of Configuration Data always refer to a very simple structure for explaining the concepts simply.
-For instance, [one of Nana's post on the subject](https://blogs.msdn.microsoft.com/powershell/2014/01/09/separating-what-from-where-in-powershell-dsc/) shows the following:
-```
-# Content of configuration data file (e.g. ConfigurationData.psd1) could be:
- 
-# Hashtable to define the environmental data
-@{
-    # Node specific data
-    AllNodes = @(
- 
-       # All the WebServer has following identical information
-       @{
-            NodeName           = “*”
-            WebsiteName        = “FourthCoffee”
-            SourcePath         = “C:\BakeryWebsite\”
-            DestinationPath    = “C:\inetpub\FourthCoffee”
-            DefaultWebSitePath = “C:\inetpub\wwwroot”
-       },
- 
-       @{
-            NodeName           = “WebServer1.fourthcoffee.com”
-            Role               = “Web”
-        },
- 
-       @{
-            NodeName           = “WebServer2.fourthcoffee.com”
-            Role               = “Web”
-        }
-    );
-}
-```
-
-In practice, using a single flat file is not scalable or defining within the script, and generating the data structure dynamically can pose some conceptual problem about [Policy-driven infrastructure](http://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/).
-- Less visible policy
-- Added complexity by managing configuration and data separetely
-- added overhead for managing the changes (instead of git with build pipeline)
-- less portable ...
 
 ## History
 Back in 2014, Steve Murawski then working for Stack Exchange lead the way by implementing some tooling, and open sourced them on the [PowerShell.Org's Github](https://github.com/PowerShellOrg/DSC/tree/development).
