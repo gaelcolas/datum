@@ -4,7 +4,7 @@
 
 > `A datum is a piece of information.`
 
-**Datum** is a PowerShell module to lookup configuration data from aggregated sources allowing you to define generic information and specific overrides without repeating yourself.
+**Datum** is a PowerShell module to lookup **configuration data** from aggregated sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
 A Sample repository of an 'Infrastructure _from_ code' managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
 
@@ -18,12 +18,12 @@ This (opinionated) approach allows to raise **cattle** instead of pets, while fa
 
 The Configuration Data is composed in a configurable hiearchy, where the storage can be done in files, and the format Yaml, Json, PSD1.
 
-The ideas follows the model developped by the Puppet, Chef and Ansible communities (possibly others), in the following projects:
+The idea follows the model developped by the Puppet, Chef and Ansible communities (possibly others), in the configuration data management area:
 - [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration, thanks Glenn S. for the pointers!)
 - [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
 - [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
 
-Although not in v1 yet, Datum is currently used in a Production system to manage several hundreds of machines, and is actively maintained.
+Although not in v1 yet, Datum is currently used in a Production to manage several hundreds of machines, and is actively maintained.
 
 ## Usage
 
@@ -122,20 +122,105 @@ RootConfiguration -ConfigurationData $ConfigurationData -Out "$BuildRoot\BuildOu
 
 ## Under the hood
 
-Datum is meant to
-It does so by abstracting the underlying storage (i.e. files in folders) and format (json, yaml, PSD1), and representing the data as a structured object, walkable using the '.' notation: 
+Although Datum has been primarily targeted at DSC Configuration Data, it can be used in other context where the hierachical model and lookup makes sense.
 
-_i.e._ `$object.property1.subproperty2`
+### Building a Datum Hierarchy
 
-There is potential for this tool to be used outside DSC, so an effort is made to abstract the DSC Specifics as long as possible.
+The Datum hierarchy, similar to Puppet and Hiera, is defined typically in a [**Datum.yml**](.\Datum\tests\Integration\assets\DSC_ConfigData\Datum.yml) at the base of the Config Data files.
+Although Datum comes only with a built-in _Datum File Provider_ (Not SHIPS) supporting the **JSON, Yaml, and PSD1** format, it can call external PowerShell modules implementing the Provider functionalities.
 
-The goal is to be able to assemble providers, so that the Datum structure can be composed with different technologies.
-For instance, one could compose like so:
- - Local File Credential stores
- - Secret Vault
- - Database Data
- - File Data
 
+#### Root Branches
+
+A branch of the Datum Tree would be defined within the DatumStructure of the Datum.yml like so:
+
+```yaml
+# Datum.yml
+DatumStructure:
+  - StoreName: AllNodes
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./AllNodes"
+```
+Instanciating a variable from that definition would be done with this:
+> `$Datum = New-DatumStructure -DefinitionFile Datum.yml`
+
+This returns a hashtable with a key 'AllNodes' (StoreName), by using the internal command (under the hood):
+> `Datum\New-DatumFileProvider -Path "./AllNodes"`
+
+Should you create a module (e.g. named 'MyReddis'), implementing the function `New-DatumReddisProvider` you could write the following _Datum.yml_ to use it (as long as it's in your **PSModulePath**):
+```yaml
+# Datum.yml
+DatumStructure:
+  - StoreName: AllNodes
+    StoreProvider: MyReddis::Reddis
+    StoreOptions:
+      YourParameter: ParameterValue
+```
+If you do, please let me know I'm interested :)
+
+You can have several **root branches**, of different **_Datum Store Providers_**, with custom options (but prefer to Keep it super simple).
+
+#### Store Provider
+
+So what should those store providers look like? What do they do?
+
+In short, they abstract the underlying data storage and format, in a way that will allow us to consistently do **key/value lookups**.
+
+The main reason(s) it is not based on SHIPS (or @Beefarino's Simplex module, which I tried and enjoyed!), is that the PowerShell Providers did not seem to provide enough abstraction for read-only key/value pair access. These are still very useful (and used) as an intermediary abstraction, such as the FileSystem provider used [here](./Datum/Classes/FileProvider.ps1).
+
+In short I wanted an uniform key, that could abstract the container, the store, and the structure within the Format.
+Imagine the standard FileSystem provider:
+
+> Directory > File > JSON
+
+Where the file `SERVER01.PSD1` is in the folder `.\AllNodes\`, and has the following data:
+```PowerShell
+# SERVER01.PSD1
+@{
+    Name = 'SERVER01'
+    MetaData = @{
+        Subkey = 'Data Value'
+    }
+}
+```
+I wanted that the key 'AllNodes\SERVER01\MetaData\Subkey' returns '`Data Value`'.
+
+However, while the notation with Path Separator (`\`) is used for lookups (more on this later), the provider abstracts the storage+format using the **dot notation**.
+
+From the example above where we loaded our Datum Tree, we'd use the following to return the value:
+> `$Datum.AllNodes.SERVER01.MetaData.Subkey`
+
+So we're just accessing variable properties, and our Config Data stored on the FileSystem, in case of the FileProvider, is just _mounted_ in a variable.
+
+With the **dot notation** we have access using asbolute keys to all values via the root `$datum`, but this is not much different from having all data in one big hashtable or PSD1 file...
+
+### Lookups and overrides in Hierarchy
+
+So we can mount different _Datum Stores_ (unit of Provider + Parameters) as branches onto our `root` variable.
+Typically, I mount the following structure or variant:
+```
+DSC_ConfigData
+│   Datum.yml
+├───AllNodes
+│   ├───DEV
+│   └───PROD
+├───Environments
+├───Roles
+└───SiteData
+```
+So I can access the data with:
+> `$Datum.AllNodes.DEV.SRV01`
+
+or
+> `$Datum.SiteData.London`
+
+To be a hierarchy, there should be an order of precedence, and the `lookup` is a function that resolves a **relative path**, in the paths defined by the order of precedence.
+
+
+_(To be Continued)_
+
+------
 
 ## History
 Back in 2014, Steve Murawski then working for Stack Exchange lead the way by implementing some tooling, and open sourced them on the [PowerShell.Org's Github](https://github.com/PowerShellOrg/DSC/tree/development).
