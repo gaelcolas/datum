@@ -4,7 +4,11 @@
 
 > `A datum is a piece of information.`
 
-A Sample repository of an Infrastructure from code managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
+**Datum** is a PowerShell module to lookup configuration data from aggregated sources allowing you to define generic information and specific overrides without repeating yourself.
+
+A Sample repository of an 'Infrastructure _from_ code' managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
+
+Datum currently works on Windows PowerShell 5.1, as it relies on specific dlls and Module (ProtectedData) for **Credential and Data Encryption**. These functionalities will soon be moved to an optional module (code already decoupled).
 
 ## What is Datum for?
 
@@ -58,7 +62,7 @@ role: WindowsBase
 Location: LON
 
 ```
-### Excerpt of DSC Composite Resource (aka. Configuration)
+### _Excerpt of DSC Composite Resource (aka. Configuration)_
 
 ```PowerShell
 Configuration SoftwareBase {
@@ -89,23 +93,26 @@ Configuration SoftwareBase {
 }
 ```
 
-### Root Configuration
+### _Root Configuration_
 
 ```PowerShell
 # RootConfiguration.ps1
 configuration "RootConfiguration"
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
+
     Import-DscResource -ModuleName SharedDscConfig -ModuleVersion 0.0.3
     Import-DscResource -ModuleName Chocolatey -ModuleVersion 0.0.46
 
+    $module = Get-Module PSDesiredStateConfiguration
+    $null = & $module {param($tag) Set-PSTopConfigurationName "MOF_$($tag)"} "$BuildVersion"
+
     node $ConfigurationData.AllNodes.NodeName {
-        (Lookup $Node 'Configurations') | % {
+        (Lookup 'Configurations').Foreach{
             $ConfigurationName = $_
-            $Properties = $(lookup $Node $ConfigurationName -Verbose -DefaultValue @{})
-            x $ConfigurationName $ConfigurationName $Properties
+            $Properties = $(lookup $ConfigurationName -DefaultValue @{})
+            Get-DscSplattedResource -ResourceName $ConfigurationName -ExecutionName $ConfigurationName -Properties $Properties
         }
-        #>
     }
 }
 
@@ -115,6 +122,7 @@ RootConfiguration -ConfigurationData $ConfigurationData -Out "$BuildRoot\BuildOu
 
 ## Under the hood
 
+Datum is meant to
 It does so by abstracting the underlying storage (i.e. files in folders) and format (json, yaml, PSD1), and representing the data as a structured object, walkable using the '.' notation: 
 
 _i.e._ `$object.property1.subproperty2`

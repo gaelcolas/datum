@@ -19,7 +19,7 @@ Describe 'Test Datum overrides' {
                 if(!$Node.contains('Name') ) {
                     $null = $Node.Add('Name',$_.Name)
                 }
-                $Node
+                (@{} + $Node)
             })
             
             $ConfigurationData = @{

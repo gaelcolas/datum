@@ -1,5 +1,7 @@
 # DEMOS
 
+**since version 0.0.24 most of these PoC are obsoletes. The features persist but are simpler to use and the interface has changed**
+
 ## [Demo1 -> Hierachical Data with lookup](./demo1/)
 
 ## [Demo2 -> Encrypting Credential or String in file](./demo2/)
