@@ -78,11 +78,7 @@ Function Resolve-Datum {
     # Configure Merge Behaviour in the Datum structure (as per Puppet hiera)
 
     if( !$DatumTree.__Definition.default_lookup_options ) {
-        $default_options = [ordered]@{
-            '^.*' = @{
-                strategy = 'MostSpecific'
-            }
-        }
+        $default_options = Get-MergeStrategyFromString
         Write-Verbose "Default option not found in Datum Tree"
     }
     else {

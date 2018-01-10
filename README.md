@@ -172,7 +172,7 @@ The main reason(s) it is not based on SHIPS (or @Beefarino's Simplex module, whi
 In short I wanted an uniform key, that could abstract the container, the store, and the structure within the Format.
 Imagine the standard FileSystem provider:
 
-> Directory > File > JSON
+> Directory > File > PSD1
 
 Where the file `SERVER01.PSD1` is in the folder `.\AllNodes\`, and has the following data:
 ```PowerShell
@@ -186,7 +186,7 @@ Where the file `SERVER01.PSD1` is in the folder `.\AllNodes\`, and has the follo
 ```
 I wanted that the key 'AllNodes\SERVER01\MetaData\Subkey' returns '`Data Value`'.
 
-However, while the notation with Path Separator (`\`) is used for lookups (more on this later), the provider abstracts the storage+format using the **dot notation**.
+However, while the notation with Path Separator (`\`) is used for **lookups** (more on this later), the provider abstracts the storage+format using the **dot notation**.
 
 From the example above where we loaded our Datum Tree, we'd use the following to return the value:
 > `$Datum.AllNodes.SERVER01.MetaData.Subkey`
@@ -197,8 +197,8 @@ With the **dot notation** we have access using asbolute keys to all values via t
 
 ### Lookups and overrides in Hierarchy
 
-So we can mount different _Datum Stores_ (unit of Provider + Parameters) as branches onto our `root` variable.
-Typically, I mount the following structure or variant:
+We can mount different _Datum Stores_ (unit of Provider + Parameters) as branches onto our `root` variable.
+Typically, I mount the following structure (with many more files not listed here):
 ```
 DSC_ConfigData
 │   Datum.yml
@@ -209,13 +209,13 @@ DSC_ConfigData
 ├───Roles
 └───SiteData
 ```
-So I can access the data with:
+I can access the data with:
 > `$Datum.AllNodes.DEV.SRV01`
 
 or
 > `$Datum.SiteData.London`
 
-To be a hierarchy, there should be an order of precedence, and the `lookup` is a function that resolves a **relative path**, in the paths defined by the order of precedence.
+But to be a hierarchy, there should be an order of precedence, and the `lookup` is a function that resolves a **relative path**, in the paths defined by the order of precedence.
 
 
 _(To be Continued)_
