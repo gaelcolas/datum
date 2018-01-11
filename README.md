@@ -6,7 +6,7 @@
 
 **Datum** is a PowerShell module to lookup **configuration data** from aggregated sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
-A Sample repository of an 'Infrastructure _from_ code' managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
+A Sample repository of an ['Infrastructure _as_ code'](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
 
 Datum currently works on Windows PowerShell 5.1, as it relies on specific dlls and Module (ProtectedData) for **Credential and Data Encryption**. These functionalities will soon be moved to an optional module (code already decoupled).
 
@@ -25,22 +25,38 @@ The idea follows the model developped by the Puppet, Chef and Ansible communitie
 
 Although not in v1 yet, Datum is currently used in a Production to manage several hundreds of machines, and is actively maintained.
 
-## Usage
+## Intended Usage
+
+The overall goal, better covered in the book [Infrastructure As Code](http://infrastructure-as-code.com/book/) by Kief Morris, is to enable a team to "_quickly, easily, and confidently adapt their infrastructure to meet the changing needs of their organization_".
+
+To do so, we define our Infrastructure with as a set of Policies: human-readable documents describing the intended result (or Desired State), in structured, declarative aggregation of data, that are also usable by computers.
+
+We then interpret and transform the data to pass it over to the platform and technology components grouped in manageable units.
+
+Finally, the decentralised execution can converge towards the policy by executing a set of atomic actions deducted from the required changes specific to each technology.
+
+The policies and their execution are composed in layers of abstraction, so that people with different responsibilities, specialisations and accountabilites have access to the right amount of data in the layer they operate for their task.
 
 
-### _Policy for Role 'WindowsBase'_
+### _Policy for Role 'WindowsServerDefault'_
+
+At a high level, we can compose a Role that should apply for a set of nodes, with what we'd like to see configured.
+
+In this document, we define a default role we intend for generic Windows Servers, and include the different Configurations we need (Shared1,SoftwareBaseline). Those
+
+We then provide the data for the parameters to those configurations.
+
 ```Yaml
-# WindowsBase.yml
+# WindowsServerDefault.yml
 Configurations: #Configurations to Include for Nodes of this role
   - Shared1
-  - SoftwareBase
-  - Packages
+  - SoftwareBaseline
 
 Shared1: # Parameters for Configuration Shared1
   DestinationPath: C:\MyRoleParam.txt
   Param1: This is the Role Value!
 
-SoftwareBase: # Parameters for Configuration SoftwareBase
+SoftwareBaseline: # Parameters for DSC Composite Configuration SoftwareBaseline
   Sources:
     - Name: chocolatey
       Disabled: false
@@ -52,20 +68,33 @@ SoftwareBase: # Parameters for Configuration SoftwareBase
       Version: '7.5.2'
     - Name: Putty
 ```
+The baseline for this role is self documenting. This SoftwareBaseline is specific data for that role, and can be different for another role, while the underlying code would not change.
+Adding a new package is trivial and does not need any DSC or Chocolatey knowledge.
 
 ### _Node Specific data_
+
+We define the nodes with the least amount of uniqueness, to avoid snowflakes.
+Below, we only say where the Node is located, what role is associated to it, its name (SRV01, the file's BaseName) and a unique identifier.
 
 ```yaml
 # SRV01.yml
 NodeName: 9d8cc603-5c6f-4f6d-a54a-466a6180b589
-role: WindowsBase
+role: WindowsServerDefault
 Location: LON
 
 ```
+
 ### _Excerpt of DSC Composite Resource (aka. Configuration)_
 
+This is where the Configuration Data is massaged in usable ways for the underlying technologies (DSC resources).
+
+Here we are creating a SoftwareBaseline by:
+- Installing Chocolatey from a Nuget Feed (using the Resource ChocolateySoftware)
+- Registering a Set of Sources provided from the Configuration Data
+- Installing a Set of packages as per the Configuration data
+
 ```PowerShell
-Configuration SoftwareBase {
+Configuration SoftwareBaseline {
     Param(
         $PackageFeedUrl = 'https://chocolatey.org/api/v2',
         $Sources = @(),
@@ -92,20 +121,24 @@ Configuration SoftwareBase {
     }
 }
 ```
+In this configuration example, Systems Administrators do not need to be Chocolatey Software specialists to know how to create a Software baseline using the Chocolatey DSC Resources.
+
 
 ### _Root Configuration_
+
+Finally the root configuration is where each node is processed.
+
+We import the Module or DSC Resources needed by the Configurations, and for each Node, we lookup the Configurations included by the policies, and for each of those we lookup for the parameters and splat them to the DSC Resources.
+
+**This file does not need to change, it is Dynamic!**
 
 ```PowerShell
 # RootConfiguration.ps1
 configuration "RootConfiguration"
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-
     Import-DscResource -ModuleName SharedDscConfig -ModuleVersion 0.0.3
     Import-DscResource -ModuleName Chocolatey -ModuleVersion 0.0.46
-
-    $module = Get-Module PSDesiredStateConfiguration
-    $null = & $module {param($tag) Set-PSTopConfigurationName "MOF_$($tag)"} "$BuildVersion"
 
     node $ConfigurationData.AllNodes.NodeName {
         (Lookup 'Configurations').Foreach{
