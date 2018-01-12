@@ -6,19 +6,19 @@
 
 **Datum** is a PowerShell module used to lookup **DSC configuration data** from aggregated sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
-A Sample repository of an [Infrastructure _as_ code](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
+A Sample repository of an [Infrastructure, managed _from_ code](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) using Datum is available in the [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample) project, along with more explanations of its usage and the recommended Control repository layout.
 
-Datum is currently developped on Windows PowerShell 5.1, but will soon be tested against PowerShell 6.
+Datum is currently developed on Windows PowerShell 5.1, but will soon be tested against PowerShell 6.
 
 ## What is Datum for?
 
-This PowerShell Module enables you to manage your **Infrastructure _from_ Code** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy adapted to your business context, and injecting it into **Configurations** based on the Nodes and the Roles they implement.
+This PowerShell Module enables you to easily manage a **Policy-Driven Infrastructure** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy adapted to your business context, and injecting it into **Configurations** based on the Nodes and the Roles they implement.
 
-This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the Policy for your infrastructure) and provide defaults with the flexibility of specific overrides per layers based on your environment.
+This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the Policy for your infrastructure) and provide defaults with the flexibility of specific overrides per layers, based on your environment.
 
-The Configuration Data is composed in a configurable hiearchy, where the storage can be done in files, and the format Yaml, Json, PSD1.
+The Configuration Data is composed in a customisable hiearchy, where the storage can be using the file system, and the format Yaml, Json, PSD1 allowing all the goodness of version control systems such as git.
 
-The idea follows the model developped by the Puppet, Chef and Ansible communities (possibly others), in the configuration data management area:
+The idea follows the model developed by the Puppet, Chef and Ansible communities (possibly others), in the configuration data management area:
 - [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration. Thanks Glenn S. for the pointers, and James McG for helping me understand!)
 - [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
 - [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
