@@ -4,22 +4,22 @@
 
 > `A datum is a piece of information.`
 
-**Datum** is a PowerShell module to lookup **configuration data** from aggregated sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
+**Datum** is a PowerShell module used to lookup **DSC configuration data** from aggregated sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
-A Sample repository of an ['Infrastructure _as_ code'](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
+A Sample repository of an [Infrastructure _as_ code](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) managed using Datum is available at [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample), along with more explanations of its usage and the recommended Control repository layout.
 
-Datum currently works on Windows PowerShell 5.1, as it relies on specific dlls and Module (ProtectedData) for **Credential and Data Encryption**. These functionalities will soon be moved to an optional module (code already decoupled).
+Datum is currently developped on Windows PowerShell 5.1, but will soon be tested against PowerShell 6.
 
 ## What is Datum for?
 
-This PowerShell Module enables you to manage your **Infrastructure _from_ Code** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy relevant to your environment, and injecting it into **Configurations** based on the Nodes and their Roles.
+This PowerShell Module enables you to manage your **Infrastructure _from_ Code** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy adapted to your business context, and injecting it into **Configurations** based on the Nodes and the Roles they implement.
 
 This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the Policy for your infrastructure) and provide defaults with the flexibility of specific overrides per layers based on your environment.
 
 The Configuration Data is composed in a configurable hiearchy, where the storage can be done in files, and the format Yaml, Json, PSD1.
 
 The idea follows the model developped by the Puppet, Chef and Ansible communities (possibly others), in the configuration data management area:
-- [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration, thanks Glenn S. for the pointers!)
+- [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration. Thanks Glenn S. for the pointers, and James McG for helping me understand!)
 - [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
 - [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
 
@@ -27,22 +27,28 @@ Although not in v1 yet, Datum is currently used in a Production to manage severa
 
 ## Intended Usage
 
-The overall goal, better covered in the book [Infrastructure As Code](http://infrastructure-as-code.com/book/) by Kief Morris, is to enable a team to "_quickly, easily, and confidently adapt their infrastructure to meet the changing needs of their organization_".
+The overall goal, better covered in the book [Infrastructure As Code](http://infrastructure-as-code.com/book/) by Kief Morris, is to enable a team to "_quickly, easily, and confidently adapt their infrastructure to **meet the changing needs of their organization**_".
 
-To do so, we define our Infrastructure with as a set of Policies: human-readable documents describing the intended result (or Desired State), in structured, declarative aggregation of data, that are also usable by computers.
+To do so, we define our Infrastructure in a set of Policies: human-readable documents describing the intended result (or, Desired State), in structured, declarative aggregation of data, that are also usable by computers: **The Configuration Data**.
 
-We then interpret and transform the data to pass it over to the platform and technology components grouped in manageable units.
+We then interpret and transform the data to pass it over to the platform (DSC) and technology components (DSC Resources) grouped in manageable units (Resources, Configurations, and PowerShell Modules).
 
-Finally, the decentralised execution can converge towards the policy by executing a set of atomic actions deducted from the required changes specific to each technology.
+Finally, the decentralised execution of the platform can let the nodes converge towards their policy.
 
 The policies and their execution are composed in layers of abstraction, so that people with different responsibilities, specialisations and accountabilites have access to the right amount of data in the layer they operate for their task.
 
+As it simplest, a scalable implementation regroups:
+- A Role defining the configurations to include, along with the data,
+- Nodes implementing that role,
+- Configurations (DSC Composite Resources) included in the role,
+
+> The abstraction via roles allows to apply a generic 'template' to all nodes, while enabling Node specific data such as Name, GUID, Encryption Certificate Thumbprint for credentials. 
 
 ### _Policy for Role 'WindowsServerDefault'_
 
-At a high level, we can compose a Role that should apply for a set of nodes, with what we'd like to see configured.
+At a high level, we can compose a Role that will apply to a set of nodes, with what we'd like to see configured.
 
-In this document, we define a default role we intend for generic Windows Servers, and include the different Configurations we need (Shared1,SoftwareBaseline). Those
+In this document, we define a generic role we intend to use for Windows Servers, and include the different Configurations we need (Shared1,SoftwareBaseline).
 
 We then provide the data for the parameters to those configurations.
 
@@ -68,8 +74,8 @@ SoftwareBaseline: # Parameters for DSC Composite Configuration SoftwareBaseline
       Version: '7.5.2'
     - Name: Putty
 ```
-The baseline for this role is self documenting. This SoftwareBaseline is specific data for that role, and can be different for another role, while the underlying code would not change.
-Adding a new package is trivial and does not need any DSC or Chocolatey knowledge.
+The  Software baseline for this role is self documenting. Its specific data apply to that role, and can be different for another role, while the underlying code would not change.
+Adding a new package to the list is simple and does not require any DSC or Chocolatey knowledge.
 
 ### _Node Specific data_
 
@@ -83,6 +89,7 @@ role: WindowsServerDefault
 Location: LON
 
 ```
+
 
 ### _Excerpt of DSC Composite Resource (aka. Configuration)_
 
@@ -126,11 +133,11 @@ In this configuration example, Systems Administrators do not need to be Chocolat
 
 ### _Root Configuration_
 
-Finally the root configuration is where each node is processed.
+Finally the root configuration is where each node is processed (and the Magic happens).
 
-We import the Module or DSC Resources needed by the Configurations, and for each Node, we lookup the Configurations included by the policies, and for each of those we lookup for the parameters and splat them to the DSC Resources.
+We import the Module or DSC Resources needed by the Configurations, and for each Node, we `lookup` the Configurations implemented by the policies (`Lookup 'Configurations'`), and for each of those we `lookup` for the parameters that applies and [splat](https://technet.microsoft.com/en-us/library/gg675931.aspx) them to the DSC Resources ([sort of...](https://gaelcolas.com/2017/11/05/pseudo-splatting-dsc-resources/)).
 
-**This file does not need to change, it is Dynamic!**
+**This file does not need to change, it dynamically uses what's in `$ConfigurationData`!**
 
 ```PowerShell
 # RootConfiguration.ps1
@@ -155,15 +162,15 @@ RootConfiguration -ConfigurationData $ConfigurationData -Out "$BuildRoot\BuildOu
 
 ## Under the hood
 
-Although Datum has been primarily targeted at DSC Configuration Data, it can be used in other context where the hierachical model and lookup makes sense.
+Although Datum has been primarily targeted at DSC Configuration Data, it can be used in other contexts where the hierachical model and lookup makes sense.
 
 ### Building a Datum Hierarchy
 
-The Datum hierarchy, similar to Puppet and Hiera, is defined typically in a [**Datum.yml**](.\Datum\tests\Integration\assets\DSC_ConfigData\Datum.yml) at the base of the Config Data files.
-Although Datum comes only with a built-in _Datum File Provider_ (Not SHIPS) supporting the **JSON, Yaml, and PSD1** format, it can call external PowerShell modules implementing the Provider functionalities.
+The Datum hierarchy, similar to [Puppet's Hiera](https://puppet.com/docs/puppet/5.0/hiera_intro.html), is defined typically in a [**Datum.yml**](.\Datum\tests\Integration\assets\DSC_ConfigData\Datum.yml) at the base of the Config Data files.
+Although Datum comes only with a built-in _Datum File Provider_ (Not [SHIPS](https://github.com/PowerShell/SHiPS)) supporting the **JSON, Yaml, and PSD1** format, it can call external PowerShell modules implementing the Provider functionalities.
 
 
-#### Root Branches
+#### Datum Tree's Root Branches
 
 A branch of the Datum Tree would be defined within the DatumStructure of the Datum.yml like so:
 
@@ -200,9 +207,9 @@ So what should those store providers look like? What do they do?
 
 In short, they abstract the underlying data storage and format, in a way that will allow us to consistently do **key/value lookups**.
 
-The main reason(s) it is not based on SHIPS (or @Beefarino's Simplex module, which I tried and enjoyed!), is that the PowerShell Providers did not seem to provide enough abstraction for read-only key/value pair access. These are still very useful (and used) as an intermediary abstraction, such as the FileSystem provider used [here](./Datum/Classes/FileProvider.ps1).
+The main reason(s) it is not based on [SHIPS](https://github.com/PowerShell/SHiPS) (or Jim Christopher, _aka [@beefarino](https://twitter.com/beefarino)_'s [Simplex module](https://github.com/beefarino/simplex), which I tried and enjoyed!), is that the PowerShell Providers did not seem to provide enough abstraction for **read-only key/value pair access**. These are still very useful (and used) as an intermediary abstraction, such as the FileSystem provider used in the [Datum FileProvider](./Datum/Classes/FileProvider.ps1).
 
-In short I wanted an uniform key, that could abstract the container, the store, and the structure within the Format.
+In short I wanted an uniform key, that could abstract the container, storage, and the structure within the Format.
 Imagine the standard FileSystem provider:
 
 > Directory > File > PSD1
@@ -219,16 +226,16 @@ Where the file `SERVER01.PSD1` is in the folder `.\AllNodes\`, and has the follo
 ```
 I wanted that the key 'AllNodes\SERVER01\MetaData\Subkey' returns '`Data Value`'.
 
-However, while the notation with Path Separator (`\`) is used for **lookups** (more on this later), the provider abstracts the storage+format using the **dot notation**.
+However, while the notation with Path Separator (`\`) is used for **lookups** (more on this later), the provider abstracts the storage+format using the familiar **dot notation**.
 
 From the example above where we loaded our Datum Tree, we'd use the following to return the value:
 > `$Datum.AllNodes.SERVER01.MetaData.Subkey`
 
-So we're just accessing variable properties, and our Config Data stored on the FileSystem, in case of the FileProvider, is just _mounted_ in a variable.
+So we're just accessing variable properties, and our Config Data stored on the FileSystem, is just _mounted_ in a variable (in case of the FileProvider).
 
-With the **dot notation** we have access using asbolute keys to all values via the root `$datum`, but this is not much different from having all data in one big hashtable or PSD1 file...
+With the **dot notation** we have access using asbolute keys to all values via the root `$datum`, but this is not much different from having all data in one big hashtable or PSD1 file... This is why we have...
 
-### Lookups and overrides in Hierarchy
+#### Lookups and overrides in Hierarchy
 
 We can mount different _Datum Stores_ (unit of Provider + Parameters) as branches onto our `root` variable.
 Typically, I mount the following structure (with many more files not listed here):
@@ -249,6 +256,89 @@ or
 > `$Datum.SiteData.London`
 
 But to be a hierarchy, there should be an order of precedence, and the `lookup` is a function that resolves a **relative path**, in the paths defined by the order of precedence.
+
+`Datum.yml` defines another section for **ResolutionPrecedence**: this is an ordered list of _prefix_ to use to search for a relative path, from the most specific to the most generic.
+
+Should you do a `Lookup` for a relative path of `property\subkey`, and the Yaml would contain the following block:
+
+```yaml
+ResolutionPrecedence:
+  - 'AllNodes'
+  - 'Environments'
+  - 'Location'
+  - 'Roles\All'
+
+```
+In this case the lookup function would _try_ the following absolute path, in order:
+```PowerShell
+$Datum.AllNodes.property.Subkey
+$Datum.Environments.property.Subkey
+$Datum.Location.property.Subkey
+$Datum.Roles.All.property.Subkey
+```
+
+Although you can configure Datum to behave differently based on your needs, like merging together the data found at each layers, the most common and simple case, is when you only want the **'MostSpecific'** data defined in the hierarchy (and this is the default behaviour).
+
+In that case, even if you usually define the data in the `roles` layer (the most generic layer), if there's an override in a more specific layer, it will be used instead.
+
+But the ordering shown above is not very flexible. How do we apply the relation between the list of roles, the current Node, Environment, location and so on?
+
+### Variable Substitution in Path Prefixes
+
+As we've seen that a Node **implements a role**, is **in a location** and **from a specific Environment**, how do we express these relations (or any relation that would make sense in your context)?
+
+We can define the names and values of those information in the Node meta data (SRV01.yml) like so:
+
+```Yaml
+# SRV01.yml
+NodeName: 9d8cc603-5c6f-4f6d-a54a-466a6180b589
+role: WindowsServerDefault
+Location: LON
+Environment: DEV
+```
+And use variable substitution in the `ResolutionPrecedence` block of the `Datum.yml` so that the Search Prefix can be dynamic from one Node to another:
+
+```yaml
+# in Datum.yml
+ResolutionPrecedence:
+  - 'AllNodes\$($Node.Environment)\$($Node.Name)'
+  - 'AllNodes\$($Node.Environment)\All'
+  - 'Environments\$($Node.Environment)'
+  - 'SiteData\$($Node.Location)'
+  - 'Roles\$($Node.Role)' 
+  - 'Roles\All'
+```
+The `lookup` of the Property Path `'property\Subkey'` would try the following for the above ResolutionPrecedence:
+```PowerShell
+$Datum.AllNodes.($Node.Environment).($Node.Name).property.Subkey
+$Datum.AllNodes.($Node.Environment).All.property.Subkey
+$Datum.Environments.($Node.Environment).property.Subkey
+$Datum.SiteData.($Node.Location).property.Subkey
+$Datum.Roles.($Node.Role).property.Subkey
+$Datum.Roles.All.property.Subkey
+```
+
+If you remember the part of the Root Configuration:
+```PowerShell
+ node $ConfigurationData.AllNodes.NodeName {
+    # ...
+ }
+```
+It goes through all the Nodes in `$ConfigurationData.AllNodes`, so the absolute path is changing based on the current value of `$Node`.
+
+### Enriching the Data lookup
+
+#### Merging Behaviour
+
+- MostSpecific
+- Unique
+- hash
+- Deep
+#### Lookup Options
+- Default
+- general
+- per lookup override
+#### Data Handlers - Encrypted Credentials
 
 
 _(To be Continued)_
