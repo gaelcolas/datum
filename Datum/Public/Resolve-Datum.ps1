@@ -42,37 +42,57 @@ Function Resolve-Datum {
     # Manage lookup options:
     <#
     default_lookup_options	Lookup_options	options (argument)	Behaviour
-    Absent	Absent	Absent	MostSpecific for ^.*
-    Present	Absent	Absent	default_lookup_options + most Specific if not ^.*
-    Absent	Present	Absent	lookup_options + Default to most Specific if not ^.*
-    Absent	Absent	Present	options + Default to Most Specific if not ^.*
-    Present	Present	Absent	Lookup_options + Default for ^.* if !Exists
-    Present	Absent	Present	options + Default for ^.* if !Exists
-    Absent	Present	Present	options override lookup options + Most Specific if !Exists
+                MostSpecific for ^.*
+    Present			default_lookup_options + most Specific if not ^.*
+        Present		lookup_options + Default to most Specific if not ^.*
+            Present	options + Default to Most Specific if not ^.*
+    Present	Present		Lookup_options + Default for ^.* if !Exists
+    Present		Present	options + Default for ^.* if !Exists
+        Present	Present	options override lookup options + Most Specific if !Exists
     Present	Present	Present	options override lookup options + default for ^.*
+
     
     +========================+================+====================+============================================================+
     | default_lookup_options | Lookup_options | options (argument) |                         Behaviour                          |
     +========================+================+====================+============================================================+
-    | Absent                 | Absent         | Absent             | MostSpecific for ^.*                                       |
+    |                        |                |                    | MostSpecific for ^.*                                       |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
-    | Present                | Absent         | Absent             | default_lookup_options + most Specific if not ^.*          |
+    | Present                |                |                    | default_lookup_options + most Specific if not ^.*          |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
-    | Absent                 | Present        | Absent             | lookup_options + Default to most Specific if not ^.*       |
+    |                        | Present        |                    | lookup_options + Default to most Specific if not ^.*       |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
-    | Absent                 | Absent         | Present            | options + Default to Most Specific if not ^.*              |
+    |                        |                | Present            | options + Default to Most Specific if not ^.*              |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
-    | Present                | Present        | Absent             | Lookup_options + Default for ^.* if !Exists                |
+    | Present                | Present        |                    | Lookup_options + Default for ^.* if !Exists                |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
-    | Present                | Absent         | Present            | options + Default for ^.* if !Exists                       |
+    | Present                |                | Present            | options + Default for ^.* if !Exists                       |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
-    | Absent                 | Present        | Present            | options override lookup options + Most Specific if !Exists |
+    |                        | Present        | Present            | options override lookup options + Most Specific if !Exists |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
     | Present                | Present        | Present            | options override lookup options + default for ^.*          |
     +------------------------+----------------+--------------------+------------------------------------------------------------+
 
+    If there's no default options, auto-add default options of mostSpecific merge, and tag as 'default'
+    if there's a default options, use that strategy and tag as 'default'
+    if the options implements ^.*, do not add Default_options, and do not tag
+
+    1. Defaults to Most Specific
+    2. Allow setting your own default, with precedence for non-default options
+    3. Overriding ^.* without tagging it as default (always match unless)
+
+
+    I want to merge property path this way:
+        Key1: mostSpecific
+        Key2: hash
+        Key2\subkey: mostSpecific
+        ^.*: hash #
+
     #>
     
+    # Make options an ordered case insensitive variable
+    if($options) {
+        $options = [ordered]@{} + $options
+    }
         
     # https://docs.puppet.com/puppet/5.0/hiera_merging.html
     # Configure Merge Behaviour in the Datum structure (as per Puppet hiera)
@@ -88,11 +108,13 @@ Function Resolve-Datum {
         else {
             $default_options = $DatumTree.__Definition.default_lookup_options
         }
+        #TODO: Add default_option input validation
         Write-Verbose "Found default options in Datum Tree of type $($default_options.Strategy)."
     }
 
-    if( $lookup_options = $DatumTree.__Definition.lookup_options) {
+    if( $DatumTree.__Definition.lookup_options) {
         Write-Debug "Lookup options found."
+        $lookup_options = @{} + $DatumTree.__Definition.lookup_options
     }
     else {
         $lookup_options = @{}
@@ -116,8 +138,10 @@ Function Resolve-Datum {
         $options = $lookup_options
     }
 
-    # Add default strategy for ^.* if not present
+    # Add default strategy for ^.* if not present, at the end
     if(([string[]]$Options.keys) -notcontains '^.*') {
+        # Adding Default flag
+        $default_options.add('Default',$true)
         $options.add('^.*',$default_options)
     }
 

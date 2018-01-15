@@ -16,7 +16,7 @@ This PowerShell Module enables you to easily manage a **Policy-Driven Infrastruc
 
 This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the Policy for your infrastructure) and provide defaults with the flexibility of specific overrides per layers, based on your environment.
 
-The Configuration Data is composed in a customisable hiearchy, where the storage can be using the file system, and the format Yaml, Json, PSD1 allowing all the goodness of version control systems such as git.
+The Configuration Data is composed in a customisable hiearchy, where the storage can be using the file system, and the format Yaml, Json, PSD1 allowing all the use of version control systems such as git.
 
 The idea follows the model developed by the Puppet, Chef and Ansible communities (possibly others), in the configuration data management area:
 - [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration. Thanks Glenn S. for the pointers, and James McG for helping me understand!)

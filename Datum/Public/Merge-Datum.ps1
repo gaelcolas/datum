@@ -14,11 +14,10 @@ function Merge-Datum {
     )
 
     Write-verbose "`r`n######## MERGE DATUM`r`nPATH: $StartingPath.`r`n`r`n"
-    Write-Debug "`r`nStrategies : $($strategies|Convertto-Json)`r`n########"
-    Write-Debug "REF $($ReferenceDatum|Convertto-JSon)"
+    
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "Strategy: $($Strategy | ConvertTo-Json)"
+    Write-Verbose "Strategy: $($Strategy.Strategy)"
     # Merge with strategy
     $mergeParams = @{
         ReferenceHashtable  = $ReferenceDatum
@@ -31,48 +30,80 @@ function Merge-Datum {
         'MostSpecific' { return $ReferenceDatum}
         'AllValues'    { return $DifferenceDatum }
         
-        'Unique'       {
-            if($ReferenceDatum -as [hashtable]) {
-                $ReferenceDatum = @($ReferenceDatum)
-            }
+        # 'Unique'       {
+        #     if($ReferenceDatum -as [hashtable]) {
+        #         $ReferenceDatum = @($ReferenceDatum)
+        #     }
 
-            if($DifferenceDatum -as [hashtable]) {
-                $DifferenceDatum = @($DifferenceDatum)
-            }
+        #     if($DifferenceDatum -as [hashtable]) {
+        #         $DifferenceDatum = @($DifferenceDatum)
+        #     }
 
-            if($ReferenceDatum -as [hashtable[]]) {
-                # it's an array of Hashtable objects, merge it by uniqueness
-                #   compare those with same set of Keys, then compare values? or compare object for sum of keys
-            }
-            elseif ($ReferenceDatum -is [System.Collections.IEnumerable] -and $ReferenceDatum -isnot [string]) {
-                # it's another type of collection
-                # cast refdatum to object[], add $diffDatum values, select unique, return 
-                @($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique
-            }
-        }
+        #     if($ReferenceDatum -as [hashtable[]]) {
+        #         # it's an array of Hashtable objects, merge it by uniqueness
+        #         #   compare those with same set of Keys, then compare values? or compare object for sum of keys
+        #     }
+        #     elseif ($ReferenceDatum -is [System.Collections.IEnumerable] -and $ReferenceDatum -isnot [string]) {
+        #         # it's another type of collection
+        #         # cast refdatum to object[], add $diffDatum values, select unique, return 
+        #         @($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique
+        #     }
+        # }
 
         'hash'         {
-            # ignore non-hashtable elements (replace with empty hash)
-            if(!($ReferenceDatum -as [hashtable])) {
-                $mergeParams['ReferenceHashtable'] = @{}
-            }
+            if($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
+                Write-Debug "HASH Merge: -> array of hashtable. Sending to Merge-DatumArray"
+                if($DifferenceDatum -isnot [System.Collections.IEnumerable]) {
+                    $DifferenceDatum = @($DifferenceDatum)
+                }
 
-            if(!($DifferenceDatum -as [hashtable])) {
-                $mergeParams['DifferenceHashtable'] = @{}
+                $MergeDatumArrayParams = @{
+                    ReferenceArray = $ReferenceDatum
+                    DifferenceArray = $DifferenceDatum
+                    Strategy = $Strategy
+                    ChildStrategies = $ChildStrategies
+                    StartingPath = $StartingPath
+                }
+                Merge-DatumArray @MergeDatumArrayParams
+                # it's an array of Hashtable, merge it by position, property, or uniqueness?
             }
+            else {
+                # ignore non-hashtable elements (replace with empty hash)
+                if(!($ReferenceDatum -as [hashtable])) {
+                    $mergeParams['ReferenceHashtable'] = @{}
+                }
 
-            # merge top layer keys, ignore subkeys
-            Merge-Hashtable @mergeParams
+                if(!($DifferenceDatum -as [hashtable])) {
+                    $mergeParams['DifferenceHashtable'] = @{}
+                }
+
+                # merge top layer keys, ignore subkeys
+                Merge-Hashtable @mergeParams
+            }
         }
 
         'deep' {
-            if($ReferenceDatum -as [hashtable[]]) {
-                Write-Debug "array of hashtable. Should merge by position, property or uniqueness"
-                # it's an array of Hashtable, merge it by position, property, or uniqueness?
+            if($ReferenceDatum -is [hashtable]) {
+                $mergeParams.Add('ChildStrategies',$Strategies)
+                Merge-Hashtable @mergeParams
             }
-            Write-Debug "adding Child Startegies: $($Strategies|ConvertTo-Json)"
-            $mergeParams.Add('ChildStrategies',$Strategies)
-            Merge-Hashtable @mergeParams
+            elseif($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
+                Write-Debug "DEEP Merge: -> array of hashtable. Sending to Merge-DatumArray"
+                
+                if($DifferenceDatum -isnot [System.Collections.IEnumerable]) {
+                    $DifferenceDatum = @($DifferenceDatum)
+                }
+
+                $MergeDatumArrayParams = @{
+                    ReferenceArray = $ReferenceDatum
+                    DifferenceArray = $DifferenceDatum
+                    Strategy = $Strategy
+                    ChildStrategies = $ChildStrategies
+                    StartingPath = $StartingPath
+                }
+                Merge-DatumArray @MergeDatumArrayParams
+            }
+            
         }
 
     }

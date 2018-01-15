@@ -25,7 +25,11 @@ function Get-MergeStrategyFromString {
                 options = @{
                     knockout_prefix    = '--'
                     sort_merged_arrays = $false
-                    merge_hash_arrays  = $false
+                    merge_basetype_arrays = $false #'MostSpecific' # or Unique
+                    merge_hash_arrays = @{ # $false #or Most Specific
+                        strategy = 'MostSpecificArray' #'MergeHashesByProperties' or 'UniqueByProperties'
+                        #PropertyNames = 'ObjectProperty1','objectProperty2'
+                    }
                 }
             }
         }
@@ -36,7 +40,11 @@ function Get-MergeStrategyFromString {
                 options = @{
                     knockout_prefix    = '--'
                     sort_merged_arrays = $false
-                    merge_hash_arrays  = $false
+                    merge_basetype_arrays = 'Unique' # or MostSpecific
+                    merge_hash_arrays = @{ # $false #or Most Specific
+                        strategy = 'ByPropertyTuple' # or 'Unique', or 'MostSpecific'
+                        PropertyNames = 'ObjectProperty1','objectProperty2'
+                    }
                 }
             }
         }
