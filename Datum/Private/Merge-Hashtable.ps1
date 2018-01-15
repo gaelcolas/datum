@@ -2,10 +2,10 @@ function Merge-Hashtable {
     [outputType([hashtable])]
     [cmdletBinding()]
     Param(
-        [hashtable]
+        # [hashtable] These should stay ordered
         $ReferenceHashtable,
 
-        [hashtable]
+        # [hashtable] These should stay ordered
         $DifferenceHashtable,
 
         [validateScript(
@@ -26,13 +26,20 @@ function Merge-Hashtable {
         $ParentPath
     )
     
+    Write-Debug "`tMerge-Hashtable -ParentPath <$ParentPath>"
+    # Removing Case Sensitivity while keeping ordering
+    $ReferenceHashtable  = [ordered]@{} + $ReferenceHashtable
+    $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
+    $clonedReference     = [ordered]@{} + $ReferenceHashtable
 
-    $clonedReference = $ReferenceHashtable.Clone()
     if ($Strategy.options.knockout_prefix) {
         $KnockoutPrefix = $Strategy.options.knockout_prefix
         $KnockoutPrefixMatcher = [regex]::escape($KnockoutPrefix).insert(0,'^')
-        Write-Debug "Knockout Prefix Matcher: $knockoutPrefixMatcher"
     }
+    else {
+        $KnockoutPrefixMatcher = [regex]::escape('--').insert(0,'^')
+    }
+    Write-Debug "`t  Knockout Prefix Matcher: $knockoutPrefixMatcher"
 
     if($strategy -eq 'deep' -or $strategy.Strategy -eq 'deep') {
         $deepmerge = $true
@@ -42,39 +49,69 @@ function Merge-Hashtable {
     }
 
     $knockedOutKeys = $ReferenceHashtable.keys.where{$_ -match $KnockoutPrefixMatcher}.foreach{$_ -replace $KnockoutPrefixMatcher} 
-    Write-Debug "Knockout Keys: $($knockedOutKeys -join ', '); Ref Hashtable Keys $($ReferenceHashtable.keys -join ', ')"
+    Write-Debug "`t  Knockedout Keys: [$($knockedOutKeys -join ', ')] from reference Hashtable Keys [$($ReferenceHashtable.keys -join ', ')]"
 
     foreach ($currentKey in $DifferenceHashtable.keys) {
-        Write-Debug "CurrentKey: $currentKey"
+        Write-Debug "`t  CurrentKey: $currentKey"
         if($currentKey -in $knockedOutKeys) {
-            Write-Debug "`tThe Key $currentkey is knocked out from the reference Hashtable."
+            Write-Debug "`t`tThe Key $currentkey is knocked out from the reference Hashtable."
         }
         elseif ($currentKey -match $KnockoutPrefixMatcher -and !$ReferenceHashtable.contains(($currentKey -replace $KnockoutPrefixMatcher))) {
             # it's a knockout coming from a lower level key, it should only apply down from here
-            Write-Debug "`tKnockout prefix found for $currentKey in Difference hashtable, and key not set in Reference hashtable"
+            Write-Debug "`t`tKnockout prefix found for $currentKey in Difference hashtable, and key not set in Reference hashtable"
             if(!$ReferenceHashtable.contains($currentKey)) {
-                Write-Debug "`t..adding knockout prefixed key for $curretKey to block further merges"
+                Write-Debug "`t`t..adding knockout prefixed key for $curretKey to block further merges"
                 $clonedReference.add($currentKey,$null)
             }
-            #Write-Warning "Removed key $($currentKey -replace $KnockoutPrefixMatcher) as we found the knockout prefix $KnockoutPrefix in the difference object"
-            #$clonedReference.remove(($currentKey -replace $KnockoutPrefixMatcher))
         }
         elseif (!$ReferenceHashtable.contains($currentKey) )  {
             #if the key does not exist in reference ht, create it using the DiffHt's value
-            Write-Debug "`tAdded Key $currentKey using the DifferenceHashtable value: $($DifferenceHashtable[$currentKey]| Format-List * | out-String)"
+            Write-Debug "`t    Added Missing Key $currentKey of value: $($DifferenceHashtable[$currentKey]) from difference HT"
             $clonedReference.add($currentKey,$DifferenceHashtable[$currentKey])
         }
         else { #the key exists, and it's not a knockout entry
-            if ($deepmerge -and ($ReferenceHashtable[$currentKey] -as [hashtable] -or ($ReferenceHashtable[$currentKey] -is [System.Collections.IEnumerable] -and $ReferenceHashtable[$currentKey] -isnot [string]))) {
+            if ( $deepmerge -and ($ReferenceHashtable[$currentKey] -as [hashtable] -or
+                 # Or is an arry/list
+                 ( $ReferenceHashtable[$currentKey] -is [System.Collections.IEnumerable] -and
+                   $ReferenceHashtable[$currentKey] -isnot [string])
+                 )
+               ) 
+            {
                 # both are hashtables and we're in Deepmerge mode
-                Write-Debug "`t .. Merging Datums at current path $ParentPath\$CurrentKey"
-                $subMerge = Merge-Datum -StartingPath (Join-Path  $ParentPath $currentKey) -ReferenceDatum $ReferenceHashtable[$currentKey] -DifferenceDatum $DifferenceHashtable[$currentKey] -Strategies $ChildStrategies
-                Write-Debug "# Submerge $($submerge|ConvertTo-Json)."
+                $ChildPath = (Join-Path  $ParentPath $currentKey)
+                Write-Debug "`t`t .. Merging Datums at current path $ChildPath"
+                # if there's no Merge override for the subkey's path in the (not subkeys), 
+                #   merge HASHTABLE with same strategy
+                # otherwise, merge Datum
+                $ChildStrategy = Get-MergeStrategyFromPath -Strategies $ChildStrategies -PropertyPath $ChildPath
+                
+                if($ChildStrategy.Default) {
+                    Write-Debug "`t`t ..Merging using the current Deep Strategy, Bypassing default"
+                    $MergePerDefault = @{
+                        ParentPath = $ChildPath
+                        Strategy = $Strategy
+                        ReferenceHashtable = $ReferenceHashtable[$currentKey]
+                        DifferenceHashtable = $DifferenceHashtable[$currentKey]
+                        ChildStrategies = $ChildStrategies
+                    }
+                    $subMerge = Merge-Hashtable @MergePerDefault
+                }
+                else {
+                    Write-Debug "`t`t ..Merging using Override Strategy $($ChildStrategy|ConvertTo-Json)"
+                    $MergeDatumParam = @{
+                        StartingPath = $ChildPath
+                        ReferenceDatum = $ReferenceHashtable[$currentKey]
+                        DifferenceDatum = $DifferenceHashtable[$currentKey] 
+                        Strategies = $ChildStrategies
+                    }
+                    $subMerge = Merge-Datum @MergeDatumParam
+                }
+                Write-Debug "`t  # Submerge $($submerge|ConvertTo-Json)."
                 $clonedReference[$currentKey]  = $subMerge
             }  ####################### ---> add array merge and hashtable[] merge here (hashtable[] merge based on defined subkey)
             else {
                 #one is not an hashtable or we're not in deepmerge mode, leave the ClonedReference as-is
-                Write-verbose "`tDeepmerge: $deepmerge; Ref[$currentkey] type $($ReferenceHashtable[$currentKey].GetType());  Diff[$currentkey] type $($DifferenceHashtable[$currentKey].GetType())" 
+                Write-debug "`t    Using BaseType $($ReferenceHashtable[$currentKey].GetType()) from Ref[$currentkey] of value $($ReferenceHashtable[$currentKey])" #";  Diff[$currentkey] type $($DifferenceHashtable[$currentKey].GetType())" 
             }
         }
     }

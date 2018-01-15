@@ -50,7 +50,8 @@ function ConvertTo-Datum
             foreach ($Key in $hashKeys) {
                 $InputObject[$Key] = ConvertTo-Datum -InputObject $InputObject[$Key] -DatumHandlers $DatumHandlers
             }
-            $InputObject
+            # Making the Ordered Dict Case Insensitive
+            ([ordered]@{}+$InputObject)
         }
         elseif ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string])
         {
