@@ -2,16 +2,16 @@ Description: 'This is the DEV environment'
 Test: "[TEST=CatchMe]"
 
 MergeTest1:
-  # MergeHash:
-  #   HashKey2: FromEnvironment
-  #   HashKey3: FromEnvironment
-  # MergeIntArray:
-  #   - 1
-  #   - 3
-  # MergeStringArray:
-  #   - string1
-  #   - string2
-  #   - string4
+  MergeHash:
+    HashKey2: FromEnvironment
+    HashKey3: FromEnvironment
+  MergeIntArray:
+    - 1
+    - 3
+  MergeStringArray:
+    - string1
+    - string2
+    - string4
   MergeHashArrays:
     - Name: HashName1
       Version: version1
