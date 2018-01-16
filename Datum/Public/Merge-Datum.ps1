@@ -13,11 +13,11 @@ function Merge-Datum {
         }
     )
 
-    Write-verbose "`r`n######## MERGE DATUM`r`nPATH: $StartingPath.`r`n`r`n"
+    Write-verbose "Merge-Datum -StartingPath <$StartingPath>"
     
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "Strategy: $($Strategy.Strategy)"
+    Write-Verbose "  Strategy: $($Strategy.Strategy)"
     # Merge with strategy
     $mergeParams = @{
         ReferenceHashtable  = $ReferenceDatum
@@ -50,9 +50,9 @@ function Merge-Datum {
         #     }
         # }
 
-        'hash'         {
+        'hash' {
             if($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
-                Write-Debug "HASH Merge: -> array of hashtable. Sending to Merge-DatumArray"
+                Write-Debug "  HASH Merge: -> array of hashtable. Sending to Merge-DatumArray"
                 if($DifferenceDatum -isnot [System.Collections.IEnumerable]) {
                     $DifferenceDatum = @($DifferenceDatum)
                 }
@@ -61,7 +61,7 @@ function Merge-Datum {
                     ReferenceArray = $ReferenceDatum
                     DifferenceArray = $DifferenceDatum
                     Strategy = $Strategy
-                    ChildStrategies = $ChildStrategies
+                    ChildStrategies = $Strategies
                     StartingPath = $StartingPath
                 }
                 Merge-DatumArray @MergeDatumArrayParams
@@ -85,10 +85,11 @@ function Merge-Datum {
         'deep' {
             if($ReferenceDatum -is [hashtable]) {
                 $mergeParams.Add('ChildStrategies',$Strategies)
+                Write-Debug "  Merging Hashtables"
                 Merge-Hashtable @mergeParams
             }
             elseif($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
-                Write-Debug "DEEP Merge: -> array of hashtable. Sending to Merge-DatumArray"
+                Write-Debug "  DEEP Merge: -> array of objects. Sending to Merge-DatumArray"
                 
                 if($DifferenceDatum -isnot [System.Collections.IEnumerable]) {
                     $DifferenceDatum = @($DifferenceDatum)
@@ -98,12 +99,11 @@ function Merge-Datum {
                     ReferenceArray = $ReferenceDatum
                     DifferenceArray = $DifferenceDatum
                     Strategy = $Strategy
-                    ChildStrategies = $ChildStrategies
+                    ChildStrategies = $Strategies
                     StartingPath = $StartingPath
                 }
                 Merge-DatumArray @MergeDatumArrayParams
             }
-            
         }
 
     }

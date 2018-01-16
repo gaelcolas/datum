@@ -48,7 +48,7 @@ DatumHandlers:
 
 
 # That's the default
-default_lookup_options: MostSpecific
+default_lookup_options: hash
 
 # default_lookup_options:
 #   strategy: MostSpecific
@@ -63,11 +63,19 @@ default_lookup_options: MostSpecific
 
 # Can override for all
 lookup_options:
-  a: first
-  d: unique
-  c: hash
-  b: deep
-  configurations: Unique
+  MergeTest1:
+    strategy: deep
+    options:
+      knockout_prefix: --
+      sort_merge_arrays: false
+      merge_basetype_arrays: Unique
+      merge_hash_arrays:
+        strategy: Merge
+        PropertyNames:
+          - name
+          - version
+  #MergeTest1\MergeHash: first
+  #configurations: Unique
 
   # '^.*\\': 
   #   strategy: deep

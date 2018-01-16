@@ -27,9 +27,20 @@ function Merge-Hashtable {
     )
     
     Write-Debug "`tMerge-Hashtable -ParentPath <$ParentPath>"
+    Write-Debug "`t`tKeys = $($ReferenceHashtable | COnvertto-Json)"
     # Removing Case Sensitivity while keeping ordering
-    $ReferenceHashtable  = [ordered]@{} + $ReferenceHashtable
-    $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
+    if($ReferenceHashtable) {
+        Write-Debug $ReferenceHashtable.GetType().ToString()
+        $ReferenceHashtable  = [ordered]@{} + $ReferenceHashtable
+    }
+    else {
+        $ReferenceHashtable = [ordered]@{}
+    }
+
+    if($DifferenceHashtable) {
+        $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
+    }
+    
     $clonedReference     = [ordered]@{} + $ReferenceHashtable
 
     if ($Strategy.options.knockout_prefix) {
@@ -70,12 +81,24 @@ function Merge-Hashtable {
             $clonedReference.add($currentKey,$DifferenceHashtable[$currentKey])
         }
         else { #the key exists, and it's not a knockout entry
-            if ( $deepmerge -and ($ReferenceHashtable[$currentKey] -as [hashtable] -or
-                 # Or is an arry/list
-                 ( $ReferenceHashtable[$currentKey] -is [System.Collections.IEnumerable] -and
-                   $ReferenceHashtable[$currentKey] -isnot [string])
-                 )
-               ) 
+            if (( $ReferenceHashtable[$currentKey] -is [System.Collections.IEnumerable] -and
+                    $ReferenceHashtable[$currentKey] -isnot [string])
+            )
+            {
+                # both are hashtables and we're in Deepmerge mode
+                $ChildPath = (Join-Path  $ParentPath $currentKey)
+                Write-Debug "`t`t .. Merging Datums at current path $ChildPath"
+                $MergeDatumArrayParams = @{
+                    StartingPath = $ChildPath
+                    Strategy = $Strategy
+                    ReferenceArray = $ReferenceHashtable[$currentKey]
+                    DifferenceArray = $DifferenceHashtable[$currentKey]
+                    ChildStrategies = $ChildStrategies
+                }
+                $subMerge = Merge-DatumArray @MergeDatumArrayParams
+                $clonedReference[$currentKey]  = $subMerge
+            }
+            elseif ( $deepmerge -and ($ReferenceHashtable[$currentKey] -as [hashtable]) )
             {
                 # both are hashtables and we're in Deepmerge mode
                 $ChildPath = (Join-Path  $ParentPath $currentKey)

@@ -80,26 +80,17 @@ Function Resolve-Datum {
     2. Allow setting your own default, with precedence for non-default options
     3. Overriding ^.* without tagging it as default (always match unless)
 
-
-    I want to merge property path this way:
-        Key1: mostSpecific
-        Key2: hash
-        Key2\subkey: mostSpecific
-        ^.*: hash #
-
     #>
     
+    Write-Debug "Resolve-Datum -PropertyPath <$PropertyPath> -Node $($Node.Name)"
     # Make options an ordered case insensitive variable
     if($options) {
         $options = [ordered]@{} + $options
     }
         
-    # https://docs.puppet.com/puppet/5.0/hiera_merging.html
-    # Configure Merge Behaviour in the Datum structure (as per Puppet hiera)
-
     if( !$DatumTree.__Definition.default_lookup_options ) {
         $default_options = Get-MergeStrategyFromString
-        Write-Verbose "Default option not found in Datum Tree"
+        Write-Verbose "  Default option not found in Datum Tree"
     }
     else {
         if($DatumTree.__Definition.default_lookup_options -is [string]) {
@@ -109,11 +100,11 @@ Function Resolve-Datum {
             $default_options = $DatumTree.__Definition.default_lookup_options
         }
         #TODO: Add default_option input validation
-        Write-Verbose "Found default options in Datum Tree of type $($default_options.Strategy)."
+        Write-Verbose "  Found default options in Datum Tree of type $($default_options.Strategy)."
     }
 
     if( $DatumTree.__Definition.lookup_options) {
-        Write-Debug "Lookup options found."
+        Write-Debug "  Lookup options found."
         $lookup_options = @{} + $DatumTree.__Definition.lookup_options
     }
     else {
@@ -167,7 +158,7 @@ Function Resolve-Datum {
         $ArraySb = [System.Collections.ArrayList]@()
         $CurrentSearch = Join-Path $SearchPrefix $PropertyPath
         Write-Verbose ''
-        Write-Verbose "Searching: $CurrentSearch"
+        Write-Verbose " Lookup <$CurrentSearch> $($Node.Name)"
         #extract script block for execution into array, replace by substition strings {0},{1}...
         $newSearch = [regex]::Replace($CurrentSearch, $Pattern, {
                 param($match)
@@ -180,7 +171,7 @@ Function Resolve-Datum {
         # Get value for this property path
         $DatumFound = Resolve-DatumPath -Node $Node -DatumTree $DatumTree -PathStack $PathStack -PathVariables $ArraySb
         
-        Write-Debug "Depth: $depth; Merge Behavior: $($options|Convertto-Json|Out-String)"
+        Write-Debug "  Depth: $depth; Merge options = $($options.count)"
         
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
         if ($DatumFound -and ($StartingMergeStrategy.Strategy -eq 'MostSpecific')) {
@@ -204,7 +195,7 @@ Function Resolve-Datum {
 
         #if we've reached the Maximum Depth allowed, return current result and stop further execution
         if ($Depth -eq $MaxDepth) {
-            Write-Debug "Max depth of $MaxDepth reached. Stopping."
+            Write-Debug "  Max depth of $MaxDepth reached. Stopping."
             return $MergeResult
         }
     }
