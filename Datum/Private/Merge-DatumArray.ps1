@@ -113,20 +113,20 @@ function Merge-DatumArray {
                     $PropertyNames = $ReferenceItem.Keys
                 }
 
-                $MergedArray = $ReferenceArray.Foreach{
+                $MergedArray = [System.Collections.ArrayList]::new()
+                $ReferenceArray.Foreach{
                     $CurrentRefItem = $_
-                    if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentRefItem -DifferenceHashtable $_ )})) {[ordered]@{} +$_}
-                }
-                Write-Debug "Current Keys: $($MergedArray.Foreach{$_.Name} -join ' | ')"
-
-                $MergedArray += $DifferenceArray.Foreach{
-                    $CurrentDiffItem = $_
-                    if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentDiffItem -DifferenceHashtable $_ )})) {
-                        [ordered]@{} +$_
-                        Write-Debug "====> Adding $(([ordered]@{} +$_).Name)"
+                    if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentRefItem -DifferenceHashtable $_ )})) {
+                        $null = $MergedArray.Add(([ordered]@{} +$_))
                     }
                 }
-                Write-Debug "Current Keys: $($MergedArray.Foreach{$_.Name} -join ' | ')"
+
+                $DifferenceArray.Foreach{
+                    $CurrentDiffItem = $_
+                    if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentDiffItem -DifferenceHashtable $_ )})) {
+                        $null = $MergedArray.Add(([ordered]@{} +$_))
+                    }
+                }
             }
         }
     }

@@ -16,6 +16,9 @@ MergeTest1:
     - Name: HashName1
       Version: version1
       ExtraProperty: FromEnvironment
+    - Name: HashName1
+      Version: version1
+      ExtraProperty: FromEnvironment2
     - Name: HashName2
       Version: version2
       Property: FromEnvironment
