@@ -30,6 +30,20 @@ $TestCases = @(
     
 )
 
+Write-Warning "Lookup <Configurations> for $($Node.Name)"
 Lookup Configurations
 
+Write-Warning "Lookup <MergeTest1> for $($Node.Name)"
 Lookup MergeTest1
+
+Write-Warning "Lookup <Configurations> -Node 'SRV02"
+Lookup MergeTest1 -Node 'SRV02'
+
+Write-Warning "Lookup MergeTest1 for $($Node.Name)"
+$a = (lookup MergeTest1)
+
+Write-Warning "Show MergeTest1.MergeStringArray merging result:"
+$a.MergeStringArray
+
+Write-Warning "Show MergeTest1.MergeHashArrays merging result:"
+$a.MergeHashArrays|% {$_; "`r`n"}; 

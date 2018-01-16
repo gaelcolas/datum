@@ -3,17 +3,17 @@ configurations:
   - MergeTest2
 
 MergeTest1:
-  # MergeHash:
-  #   HashKey1: FromRole
-  #   HashKey3: FromRole
-  # MergeIntArray:
-  #   - 2
-  #   - 4
-  #   - 5
-  # MergeStringArray:
-  #   - string3
-  #   - string5
-  #   - string4
+  MergeHash:
+    HashKey1: FromRole
+    HashKey3: FromRole
+  MergeIntArray:
+    - 2
+    - 4
+    - 5
+  MergeStringArray:
+    - string3
+    - string5
+    - string4
   MergeHashArrays:
     - Name: HashName1
       Version: version1
