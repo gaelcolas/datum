@@ -18,17 +18,17 @@ MergeTest1:
     - Name: HashName1
       Version: version1
       Property: FromRole
+      ExtraProperty: FromRole
     - Name: HashName2
       Version: version2
-      ExtraProperty: FromEnvironment
       Property: FromRole
-    - Name: HashName3
-      Version: version3
+    # - Name: HashName3
+    #   Version: version3
       # List:
       #   - RoleElem1
       #   - RoleElem2
     - Name: HashName4
       Version: version4
-      ExtraProperty: Yay
+      ExtraProperty: FromRole
 
 MergeTest2:

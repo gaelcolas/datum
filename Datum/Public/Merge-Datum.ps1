@@ -14,10 +14,11 @@ function Merge-Datum {
     )
 
     Write-verbose "Merge-Datum -StartingPath <$StartingPath>"
-    
+    $strategies | ConvertTo-JSon -Depth 10 | Write-Verbose
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
     Write-Verbose "  Strategy: $($Strategy.Strategy)"
+    Write-Debug "---------------------------- $($Strategy | COnvertto-Json)"
     # Merge with strategy
     $mergeParams = @{
         ReferenceHashtable  = $ReferenceDatum
@@ -29,26 +30,6 @@ function Merge-Datum {
     switch ($Strategy.Strategy) {
         'MostSpecific' { return $ReferenceDatum}
         'AllValues'    { return $DifferenceDatum }
-        
-        # 'Unique'       {
-        #     if($ReferenceDatum -as [hashtable]) {
-        #         $ReferenceDatum = @($ReferenceDatum)
-        #     }
-
-        #     if($DifferenceDatum -as [hashtable]) {
-        #         $DifferenceDatum = @($DifferenceDatum)
-        #     }
-
-        #     if($ReferenceDatum -as [hashtable[]]) {
-        #         # it's an array of Hashtable objects, merge it by uniqueness
-        #         #   compare those with same set of Keys, then compare values? or compare object for sum of keys
-        #     }
-        #     elseif ($ReferenceDatum -is [System.Collections.IEnumerable] -and $ReferenceDatum -isnot [string]) {
-        #         # it's another type of collection
-        #         # cast refdatum to object[], add $diffDatum values, select unique, return 
-        #         @($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique
-        #     }
-        # }
 
         'hash' {
             if($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
@@ -83,7 +64,7 @@ function Merge-Datum {
         }
 
         'deep' {
-            if($ReferenceDatum -is [hashtable]) {
+            if($ReferenceDatum -is [hashtable] -or $ReferenceDatum -is [System.Collections.Specialized.OrderedDictionary]) {
                 $mergeParams.Add('ChildStrategies',$Strategies)
                 Write-Debug "  Merging Hashtables"
                 Merge-Hashtable @mergeParams
