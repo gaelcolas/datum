@@ -5,7 +5,8 @@ function Get-MergeStrategyFromString {
         [String]
         $MergeStrategy
     )
-
+    Write-Debug "Get-MergeStrategyFromString -MergeStrategy <$MergeStrategycls>"
+    
     switch -regex ($MergeStrategy) {
         '^First$|^MostSpecific$' { 
             @{
@@ -49,7 +50,7 @@ function Get-MergeStrategyFromString {
             }
         }
         default {
-            Write-Verbose "Couldn't Match the strategy $MergeStrategy"
+            Write-Debug "Couldn't Match the strategy $MergeStrategy"
             @{
                 strategy = 'MostSpecific'
             }

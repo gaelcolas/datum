@@ -22,8 +22,10 @@ function Merge-DatumArray {
 
         $StartingPath
     )
+    Write-Debug "`tMerge-Hashtable -StartingPath <$StartingPath>"
 
     $HashArrayStrategy = $Strategy.options.merge_hash_arrays.Strategy
+    Write-Debug "`t`t Hash Array Strategy: $HashArrayStrategy"
     $MergeBasetypeArraysStrategy = $Strategy.options.merge_basetype_arrays
 
     $SortParams = @{}
@@ -36,7 +38,7 @@ function Merge-DatumArray {
     if($ReferenceArray -as [hashtable[]]) {
         Write-Debug "`t`tMERGING Array of Hashtables"
         if(!$HashArrayStrategy -or $HashArrayStrategy -match 'MostSpecific') {
-            Write-Debug "`t`tMerge_hash_arrays Disabled"
+            Write-Debug "`t`tMerge_hash_arrays Disabled. value: $HashArrayStrategy"
             $MergedArray = $ReferenceArray
             if($Strategy.sort_merged_arrays) {
                 $MergedArray = $MergedArray | Sort-Object @SortParams
@@ -56,7 +58,8 @@ function Merge-DatumArray {
                 #    if not found, add $DiffItem to $RefArray
 
                 # look at each $RefItems in $RefArray
-                $MergedArray = foreach ($ReferenceItem in $ReferenceArray) {
+                $ExtraItems =  [System.Collections.ArrayList]::New()
+                $MergedArray += foreach ($ReferenceItem in $ReferenceArray) {
                     # if no PropertyNames defined, use all Properties of $RefItem
                     if(!$PropertyNames) {
                         Write-Debug "`t`t`t ..No PropertyName defined: Use ReferenceItem Keys"
@@ -78,13 +81,20 @@ function Merge-DatumArray {
                                 DifferenceDatum = $_
                                 StartingPath    = $StartingPath 
                                 Strategies      = $ChildStrategies
-                                Strategy        = $Strategy
                             }
                             $MergedItem = Merge-Datum @MergeItemsParams
                         }
-                        $MergedItem
+                        else {
+                            Write-Debug ">>>>>>>>>>>>>>>>$_"
+                            if(!$ExtraItems.Contains($_)) {
+                                $null = $ExtraItems.add($_)
+                            }
+                        }
                     }
+                    $MergedItem
                 }
+                #$null = $MergedArray.AddRange($ExtraItems)
+                #$MergedArray.clear()
             }
 
             # UniqueByProperties
@@ -99,7 +109,7 @@ function Merge-DatumArray {
             }
         }
     }
-    elseif(($ReferenceArray.Foreach{$_.getType()} | Select-Object -Unique) -is [PSCustomObject]) {
+    elseif(($ReferenceArray.Foreach{$_.getType()} | Select-Object -Unique).ToString() -eq 'System.Management.Automation.PSCustomObject') {
         Write-Debug "`t`tMERGING Arrays of PSObject"
         if(!$HashArrayStrategy -or $HashArrayStrategy -match 'MostSpecific') {
             Write-Debug "`t`tMerge_hash_arrays Disabled"
