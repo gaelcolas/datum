@@ -43,7 +43,7 @@ function Get-MergeStrategyFromString {
                     sort_merged_arrays = $false
                     merge_basetype_arrays = 'Unique' # or MostSpecific
                     merge_hash_arrays = @{ # $false #or Most Specific
-                        strategy = 'ByPropertyTuple' # or 'Unique', or 'MostSpecific'
+                        strategy = 'MergeByPropertyTuple' # or 'Unique', or 'MostSpecific'
                         PropertyNames = 'ObjectProperty1','objectProperty2'
                     }
                 }

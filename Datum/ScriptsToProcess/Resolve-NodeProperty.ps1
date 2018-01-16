@@ -36,6 +36,10 @@ function Global:Resolve-NodeProperty {
         $MaxDepth
     )
 
+    if ($Node -is [string] -and ($ConfigData = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData'))) {
+        $Node = $ConfigData.AllNodes.Where{$_.Name -eq $Node -or $_.NodeName -eq $Node}
+    }
+
     # Null result should return an exception, unless defined as Default value
     $NullAllowed = $false
 

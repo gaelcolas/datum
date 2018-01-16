@@ -27,20 +27,10 @@ function Merge-Hashtable {
     )
     
     Write-Debug "`tMerge-Hashtable -ParentPath <$ParentPath>"
-    Write-Debug "`t`tKeys = $($ReferenceHashtable | COnvertto-Json)"
     # Removing Case Sensitivity while keeping ordering
-    if($ReferenceHashtable) {
-        Write-Debug $ReferenceHashtable.GetType().ToString()
-        $ReferenceHashtable  = [ordered]@{} + $ReferenceHashtable
-    }
-    else {
-        $ReferenceHashtable = [ordered]@{}
-    }
-
-    if($DifferenceHashtable) {
-        $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
-    }
-    
+ 
+    $ReferenceHashtable  = [ordered]@{} + $ReferenceHashtable
+    $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
     $clonedReference     = [ordered]@{} + $ReferenceHashtable
 
     if ($Strategy.options.knockout_prefix) {
@@ -87,7 +77,7 @@ function Merge-Hashtable {
             {
                 # both are hashtables and we're in Deepmerge mode
                 $ChildPath = (Join-Path  $ParentPath $currentKey)
-                Write-Debug "`t`t .. Merging Datums at current path $ChildPath"
+                Write-Debug "`t  .. Merging Arrays at current path $ChildPath`r`n$($Strategy|ConvertTo-Json)"
                 $MergeDatumArrayParams = @{
                     StartingPath = $ChildPath
                     Strategy = $Strategy
@@ -97,6 +87,7 @@ function Merge-Hashtable {
                 }
                 $subMerge = Merge-DatumArray @MergeDatumArrayParams
                 $clonedReference[$currentKey]  = $subMerge
+                Write-Debug "`t  .. Array Merged for path $ChildPath"
             }
             elseif ( $deepmerge -and ($ReferenceHashtable[$currentKey] -as [hashtable]) )
             {

@@ -70,7 +70,7 @@ lookup_options:
       sort_merge_arrays: false
       merge_basetype_arrays: Unique
       merge_hash_arrays:
-        strategy: Merge
+        strategy: Unique #Merge
         PropertyNames:
           - name
           - version

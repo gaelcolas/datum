@@ -22,18 +22,16 @@ function Merge-DatumArray {
 
         $StartingPath
     )
-    Write-Debug "`tMerge-Hashtable -StartingPath <$StartingPath>"
+    Write-Debug "`tMerge-DatumArray -StartingPath <$StartingPath>"
 
     $HashArrayStrategy = $Strategy.options.merge_hash_arrays.Strategy
-    Write-Debug "`t`t Hash Array Strategy: $HashArrayStrategy"
+    Write-Debug "`t`tHash Array Strategy: $HashArrayStrategy"
     $MergeBasetypeArraysStrategy = $Strategy.options.merge_basetype_arrays
 
     $SortParams = @{}
     if($PropertyNames = [String[]]$Strategy.options.merge_hash_arrays.PropertyNames) {
         $SortParams.Add('Property',$PropertyNames)
     }
-
-    $MergedArray = [System.Collections.ArrayList]::New($ReferenceArray.Length)
 
     if($ReferenceArray -as [hashtable[]]) {
         Write-Debug "`t`tMERGING Array of Hashtables"
@@ -49,7 +47,7 @@ function Merge-DatumArray {
         switch -Regex ($HashArrayStrategy) {
             # MergeHashesByProperties
             '^Merge' {
-                Write-Debug "`t`t`tMerging Hash Array"
+                Write-Debug "`t`t`tStrategy for Array Items: Merge Hash By tuple`r`n"
                 # look at each $RefItems in $RefArray
                 #   if no PropertyNames defined, use all Properties of $RefItem
                 #   else use defined propertyNames
@@ -58,54 +56,77 @@ function Merge-DatumArray {
                 #    if not found, add $DiffItem to $RefArray
 
                 # look at each $RefItems in $RefArray
-                $ExtraItems =  [System.Collections.ArrayList]::New()
-                $MergedArray += foreach ($ReferenceItem in $ReferenceArray) {
+                $UsedDiffItems = [System.Collections.ArrayList]::new()
+                $MergedArray = foreach ($ReferenceItem in $ReferenceArray) {
+                    $ReferenceItem = [ordered]@{} + $ReferenceItem
+                    Write-Debug "`t`t`t  .. Working on Merged Element $($MergedArray.Count)`r`n"
                     # if no PropertyNames defined, use all Properties of $RefItem
                     if(!$PropertyNames) {
                         Write-Debug "`t`t`t ..No PropertyName defined: Use ReferenceItem Keys"
                         $PropertyNames = $ReferenceItem.Keys
                     }
                     $MergedItem = @{} + $ReferenceItem
-                    $DifferenceArray.Foreach{
+                    $DiffItemsToMerge = $DifferenceArray.Where{
+                        $DifferenceItem = [ordered]@{} + $_
                         # Search for DiffItem that has the same Property/Value pairs than RefItem
                         $CompareHashParams = @{
-                            ReferenceHashtable = $ReferenceItem 
-                            DifferenceHashtable = $_
-                            PropertyName = $PropertyNames
+                            ReferenceHashtable = [ordered]@{}+$ReferenceItem 
+                            DifferenceHashtable = $DifferenceItem
+                            Property = $PropertyNames
                         }
-                        if(!(Compare-Hashtable @CompareHashParams)) {
-                            # If no difference, the tuples match, merge-it
-                            Write-Debug "Merging the Current objects."
-                            $MergeItemsParams = @{
-                                ReferenceDatum  = $MergedItem
-                                DifferenceDatum = $_
-                                StartingPath    = $StartingPath 
-                                Strategies      = $ChildStrategies
-                            }
-                            $MergedItem = Merge-Datum @MergeItemsParams
-                        }
-                        else {
-                            Write-Debug ">>>>>>>>>>>>>>>>$_"
-                            if(!$ExtraItems.Contains($_)) {
-                                $null = $ExtraItems.add($_)
-                            }
-                        }
+                        (!(Compare-Hashtable @CompareHashParams))
                     }
+                    $DiffItemsToMerge.Foreach{
+                        $MergeItemsParams = @{
+                            ParentPath = $StartingPath
+                            Strategy = $Strategy
+                            ReferenceHashtable = $MergedItem
+                            DifferenceHashtable = $_
+                            ChildStrategies = $ChildStrategies
+                        }
+                        $MergedItem = Merge-Hashtable @MergeItemsParams
+                    }
+                    # If a diff Item has been used, save it to find the unused ones
+                    $null = $UsedDiffItems.AddRange($DiffItemsToMerge)
                     $MergedItem
                 }
-                #$null = $MergedArray.AddRange($ExtraItems)
-                #$MergedArray.clear()
+                $UnMergedItems = $DifferenceArray.Foreach{
+                    if(!$UsedDiffItems.Contains($_)) {
+                        ([ordered]@{} + $_)
+                    }
+                }
+                $MergedArray += $UnMergedItems
             }
 
             # UniqueByProperties
             '^Unique' {
-                Write-Debug "`t`t`tSelecting Unique Hashes accross both arrays"
+                Write-Debug "`t`t`tSelecting Unique Hashes accross both arrays based on Property tuples"
                 # look at each $DiffItems in $DiffArray
                 #   if no PropertyNames defined, use all Properties of $DiffItem
                 #   else use defined PropertyNames
                 #  Search for a RefItem that has the same Property/Value pairs
                 #  if Nothing is found
                 #    add current DiffItem to RefArray
+
+                if(!$PropertyNames) {
+                    Write-Debug "`t`t`t ..No PropertyName defined: Use ReferenceItem Keys"
+                    $PropertyNames = $ReferenceItem.Keys
+                }
+
+                $MergedArray = $ReferenceArray.Foreach{
+                    $CurrentRefItem = $_
+                    if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentRefItem -DifferenceHashtable $_ )})) {[ordered]@{} +$_}
+                }
+                Write-Debug "Current Keys: $($MergedArray.Foreach{$_.Name} -join ' | ')"
+
+                $MergedArray += $DifferenceArray.Foreach{
+                    $CurrentDiffItem = $_
+                    if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentDiffItem -DifferenceHashtable $_ )})) {
+                        [ordered]@{} +$_
+                        Write-Debug "====> Adding $(([ordered]@{} +$_).Name)"
+                    }
+                }
+                Write-Debug "Current Keys: $($MergedArray.Foreach{$_.Name} -join ' | ')"
             }
         }
     }

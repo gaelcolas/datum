@@ -1,10 +1,9 @@
 function Compare-Hashtable {
     [CmdletBinding()]
     Param(
-        [hashtable]
+        
         $ReferenceHashtable,
 
-        [hashtable]
         $DifferenceHashtable,
 
         [string[]]
@@ -16,7 +15,7 @@ function Compare-Hashtable {
     #Write-Debug "DIFF:`r`n$($DifferenceHashtable|ConvertTo-JSON)"
 
     foreach ($PropertyName in $Property) {
-        Write-debug "  Testing $PropertyName value"
+        Write-debug "  Testing <$PropertyName>'s value"
         if( ($inRef = $ReferenceHashtable.Contains($PropertyName)) -and
             ($inDiff = $DifferenceHashtable.Contains($PropertyName))
           ) 
@@ -46,7 +45,7 @@ function Compare-Hashtable {
             }
         }
         else {
-            Write-Debug "  Property $PropertyName Not in one Side"
+            Write-Debug "  Property $PropertyName Not in one Side: Ref: [$($ReferenceHashtable.Keys -join ',')] | [$($DifferenceHashtable.Keys -join ',')]"
             if($inRef) {
                 Write-Debug "$PropertyName found in Reference hashtable"
                 [PSCustomObject]@{

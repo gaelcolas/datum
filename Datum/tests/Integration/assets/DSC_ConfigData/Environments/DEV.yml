@@ -15,7 +15,7 @@ MergeTest1:
   MergeHashArrays:
     - Name: HashName1
       Version: version1
-      Property: FromEnvironment
+      ExtraProperty: FromEnvironment
     - Name: HashName2
       Version: version2
       Property: FromEnvironment
