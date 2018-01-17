@@ -10,6 +10,22 @@ A Sample repository of an [Infrastructure, managed _from_ code](https://devopsco
 
 Datum is currently developed on Windows PowerShell 5.1, but will soon be tested against PowerShell 6.
 
+## Table of Content
+
+ 1. [What is Datum for?](#what-is-datum-for)
+ 2. [Intended Usage](#intended-usage)
+    - [Policy for Role 'WindowsServerDefault'](#policy-for-role-windowsserverdefault)
+    - [Node Specific data](#node-specific-data)
+    - [Excerpt of DSC Composite Resource (aka. Configuration)](#excerpt-of-dsc-composite-resource-aka-configuration)
+    - [Root Configuration](#root-configuration)
+ 3. [Under the hood](#under-the-hood)
+    - [Building a Datum Hierarchy](#building-a-datum-hierarchy)
+    - [Store Provider](#store-provider)
+    - [Lookups and overrides in Hierarchy](#lookups-and-overrides-in-hierarchy)
+    - [Variable Substitution in Path Prefixes](#variable-substitution-in-path-prefixes)
+    - [Enriching the Data lookup](#enriching-the-data-lookup)
+ 4. [Origins](#origins)
+
 ## What is Datum for?
 
 This PowerShell Module enables you to easily manage a **Policy-Driven Infrastructure** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy adapted to your business context, and injecting it into **Configurations** based on the Nodes and the Roles they implement.
@@ -345,7 +361,7 @@ _(To be Continued)_
 
 ------
 
-## History
+## Origins
 Back in 2014, Steve Murawski then working for Stack Exchange lead the way by implementing some tooling, and open sourced them on the [PowerShell.Org's Github](https://github.com/PowerShellOrg/DSC/tree/development).
 This work has been complemented by Dave Wyatt's contribution mainly around the Credential store.
 After these two main contributors moved on from DSC and Pull Server mode, the project stalled (in the Dev branch), despite its unique value.
