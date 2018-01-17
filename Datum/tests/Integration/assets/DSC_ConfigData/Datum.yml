@@ -68,12 +68,24 @@ lookup_options:
     options:
       knockout_prefix: --
       sort_merge_arrays: false
-      merge_basetype_arrays: Unique
+      merge_basetype_arrays: Sum
       merge_hash_arrays:
-        strategy: Unique #Merge
+        strategy: Merge #Unique
         PropertyNames:
           - name
           - version
+  MergeTest2:
+    strategy: deep
+    options:
+      knockout_prefix: --
+      sort_merge_arrays: false
+      merge_basetype_arrays: Unique
+      merge_hash_arrays:
+        strategy: Sum #Unique
+        PropertyNames:
+          - name
+          - version
+
   #MergeTest1\MergeHash: first
   #configurations: Unique
 
