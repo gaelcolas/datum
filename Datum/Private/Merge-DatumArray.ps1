@@ -22,8 +22,9 @@ function Merge-DatumArray {
 
         $StartingPath
     )
-    Write-Debug "`tMerge-DatumArray -StartingPath <$StartingPath>"
     
+    Write-Debug "`tMerge-DatumArray -StartingPath <$StartingPath>"
+    $knockout_prefix = [regex]::Escape($Strategy.options.knockout_prefix).insert('^')
     $HashArrayStrategy = $Strategy.options.merge_hash_arrays.Strategy
     Write-Debug "`t`tHash Array Strategy: $HashArrayStrategy"
     $MergeBasetypeArraysStrategy = $Strategy.options.merge_basetype_arrays
@@ -183,14 +184,17 @@ function Merge-DatumArray {
         }
     }
     else {
+        $knockedOutItems = $DifferenceArray.Where{$_ -match $knockout_prefix}.Foreach{$_ -replace $knockout_prefix}
         Write-Debug "`t`tMERGING Arrays of basetype"
         if($MergeBasetypeArraysStrategy -eq 'Unique') {
             # TODO: knockout keys that match ^$knockout_prefix
-            $MergedArray = ($ReferenceArray + $DifferenceArray).Foreach{$_} | Select-Object -Unique
+            $MergedArray = ($ReferenceArray + $DifferenceArray).Where{$_ -notin $knockedOutItems} | Select-Object -Unique
         }
         elseif($MergeBasetypeArraysStrategy -match '^Sum|^add') {
             ($DifferenceArray + $ReferenceArray).Foreach{
-                $null = $MergedArray.add($_)
+                if($_ -notin $knockedOutItems) {
+                    $null = $MergedArray.add($_)
+                }
             }
         }
         else {
