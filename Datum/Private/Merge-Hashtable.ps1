@@ -76,7 +76,12 @@ function Merge-Hashtable {
             )
             {
                 # both are hashtables and we're in Deepmerge mode
-                $ChildPath = (Join-Path  $ParentPath $currentKey)
+                if($ParentPath) {
+                    $ChildPath = (Join-Path  $ParentPath $currentKey)
+                }
+                else {
+                    $ChildPath = $currentKey
+                }
                 Write-Debug "`t  .. Merging Arrays at current path $ChildPath`r`n$($Strategy|ConvertTo-Json)"
                 $MergeDatumArrayParams = @{
                     StartingPath = $ChildPath

@@ -25,7 +25,7 @@ ResolutionPrecedence:
   - 'AllNodes\$($Node.Environment)\All'
   - 'Environments\$($Node.Environment)'
   - 'SiteData\$($Node.Location)'
-  - 'Roles\$($Node.Role)' 
+  - 'Roles\$($Node.Role)'
   - 'Roles\All'
 
 DatumHandlers:
