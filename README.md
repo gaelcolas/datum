@@ -1,4 +1,5 @@
 # Datum
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Datum.svg)](https://www.powershellgallery.com/packages/datum/)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/twbfc16g6w68ub8m/branch/master?svg=true)](https://ci.appveyor.com/project/gaelcolas/datum/branch/master)
 
