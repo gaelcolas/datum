@@ -1,11 +1,11 @@
 # Datum
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Datum.svg)](https://www.powershellgallery.com/packages/datum/)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/twbfc16g6w68ub8m/branch/master?svg=true)](https://ci.appveyor.com/project/gaelcolas/datum/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/twbfc16g6w68ub8m/branch/master?svg=true)](https://ci.appveyor.com/project/gaelcolas/datum/branch/master)  [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Datum.svg)](https://www.powershellgallery.com/packages/datum/) 
+
 
 > `A datum is a piece of information.`
 
-**Datum** is a PowerShell module used to lookup **DSC configuration data** from aggregated sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
+**Datum** is a PowerShell module used to aggregate **DSC configuration data** from multiple sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
 A Sample repository of an [Infrastructure, managed _from_ code](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) using Datum is available in the [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample) project, along with more explanations of its usage and the recommended Control repository layout.
 
@@ -13,36 +13,220 @@ Datum is currently developed on Windows PowerShell 5.1, but will soon be tested 
 
 ## Table of Content
 
- 1. [What is Datum for?](#what-is-datum-for)
- 2. [Intended Usage](#intended-usage)
+ 1. [Why Datum?](#1-why-datum)
+ 2. [Getting Started & Concepts](#2-getting-started-concepts)
+    - [Data layers and precedence](#data-layers-and-precedence)
+    - [Path relative to $Node](#path-relative-to-node)
+ 3. [Intended Usage](#3-intended-usage)
     - [Policy for Role 'WindowsServerDefault'](#policy-for-role-windowsserverdefault)
     - [Node Specific data](#node-specific-data)
     - [Excerpt of DSC Composite Resource (aka. Configuration)](#excerpt-of-dsc-composite-resource-aka-configuration)
     - [Root Configuration](#root-configuration)
- 3. [Under the hood](#under-the-hood)
+ 4. [Under the hood](#4-under-the-hood)
     - [Building a Datum Hierarchy](#building-a-datum-hierarchy)
     - [Store Provider](#store-provider)
     - [Lookups and overrides in Hierarchy](#lookups-and-overrides-in-hierarchy)
     - [Variable Substitution in Path Prefixes](#variable-substitution-in-path-prefixes)
     - [Enriching the Data lookup](#enriching-the-data-lookup)
- 4. [Origins](#origins)
+ 5. [Origins](#5-origins)
 
-## What is Datum for?
+
+-------
+
+## 1. Why Datum?
 
 This PowerShell Module enables you to easily manage a **Policy-Driven Infrastructure** using **Desired State Configuration** (DSC), by letting you organise the **Configuration Data** in a hierarchy adapted to your business context, and injecting it into **Configurations** based on the Nodes and the Roles they implement.
 
-This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the Policy for your infrastructure) and provide defaults with the flexibility of specific overrides per layers, based on your environment.
+This (opinionated) approach allows to raise **cattle** instead of pets, while facilitating the management of Configuration Data (the **Policy** for your infrastructure) and provide defaults with the flexibility of specific overrides, per layers, based on your environment.
 
 The Configuration Data is composed in a customisable hiearchy, where the storage can be using the file system, and the format Yaml, Json, PSD1 allowing all the use of version control systems such as git.
+
+### Notes
 
 The idea follows the model developed by the Puppet, Chef and Ansible communities (possibly others), in the configuration data management area:
 - [Puppet Hiera](https://puppet.com/docs/puppet/5.3/hiera_intro.html) and [Role and Profiles method](https://puppet.com/docs/pe/2017.3/managing_nodes/the_roles_and_profiles_method.html) (very similar in principle, as I used their great documentation for inspiration. Thanks Glenn S. for the pointers, and James McG for helping me understand!)
 - [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
 - [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
 
-Although not in v1 yet, Datum is currently used in a Production to manage several hundreds of machines, and is actively maintained.
+Although not in v1 yet, Datum is currently used in Production to manage several hundreds of machines, and is actively maintained. 
+A stable v1 release is expected for March 2018, while some concepts are thought through, and prototype code refactored. 
 
-## Intended Usage
+## 2. Getting Started & Concepts
+
+### Data Layers and Precedence
+
+To simplify the key concept, a Datum hierarchy is some blocks of data (nested hashtables) organised in layers, so that a subset of data can be overriden by another block of data from another layer.
+
+Assuming you have configured two layers of data representing:
+- Per Node Overrides
+- Generic Role Data
+
+If you Define a data block for the Generic data:
+
+```yaml
+# Generic layer
+Data1:
+  Property11: DefaultValue11
+  Property12: DefaultValue12
+
+Data2:
+  Property21: DefaultValue21
+  Property22: DefaultValue22
+```
+You can transform the Data by **overriding** what you want in the _per Node override_:
+
+```yaml
+Data2:
+  Property21: NodeOverrideValue21
+  Property22: NodeOverrideValue22
+```
+
+The resulting data would now be:
+
+```yaml
+# Generic layer
+Data1:
+  Property11: DefaultValue11
+  Property12: DefaultValue12
+
+Data2:
+  Property21: NodeOverrideValue21
+  Property22: NodeOverrideValue22
+```
+
+The order of precedence you define for your layers define the **Most specific** (at the top of your list), to the **Most generic** (at the bottom).
+
+On the file system, this data could be represented in two folders, one per layer, and a Datum configuration file, a Datum.yml
+```
+C:\Demo
+│   Datum.yml
+├───NodeOverride
+│       Data.yml
+└───RoleData
+        Data.yml
+```
+
+The Datum.yml would look like this (the order is imporant):
+```yaml
+ResolutionPrecedence:
+  - NodeOverride\Data
+  - RoleData\Data
+```
+
+You can now use Datum to lookup the 'Merged Data', per key:
+```PowerShell
+$Datum = New-DatumStructure -DefinitionFile .\Demo\Datum.yml
+
+Lookup 'Data1' -DatumTree $Datum
+# Name                           Value
+# ----                           -----
+# Property11                     DefaultValue11
+# Property12                     DefaultValue12
+
+Lookup 'Data2' -DatumTree $Datum
+# Name                           Value
+# ----                           -----
+# Property21                     NodeOverrideValue21
+# Property22                     NodeOverrideValue22
+```
+
+This demonstrate the override principle, but it will always return the same thing. How do we make it **relative to a Node's meta data**?
+
+### Path Relative to $Node
+
+The idea is that we want to apply the override only on certain conditions, that could be expressed like:
+- A node is given the role _SomeRole_, it's in _London_, and is named _SRV01_
+- The Role _SomeRole_ defines default data for Data1 and Data2
+- But because _SRV01_ is in _London_, use **Data2** defined _in the **london** location_ instead (leave Data1 untouched).
+
+In this scenario we would create two layers as per the file layout below:
+```
+Demo2
+│   Datum.yml
+├───Locations
+│       London.yml
+└───Roles
+        SomeRole.yml
+```
+
+```yaml
+# SomeRole.yml
+Data1:
+  Property11: RoleValue11
+  Property12: RoleValue12
+
+Data2:
+  Property21: RoleValue21
+  Property22: RoleValue22
+```
+
+```yaml
+# London.yml
+Data2:
+  Property21: London Override Value21
+  Property22: London Override Value22
+```
+Now let's create a `Node` hashtable that describe our SRV01:
+
+```PowerShell
+$SRV01 = @{
+    Nodename = 'SRV01'
+    Location = 'London'
+    Role     = 'SomeRole'
+}
+```
+Let's create **SRV02** for witness, which is in **Paris** (the override won't apply).
+```PowerShell
+$SRV02 = @{
+    Nodename = 'SRV01'
+    Location = 'Paris'
+    Role     = 'SomeRole'
+}
+```
+And we configure the `Datum.yml`'s Resolution Precende with relative paths using the Node's properties:
+
+```Yaml
+# Datum.yml
+ResolutionPrecedence:
+  - 'Locations\$($Node.Location)'
+  - 'Roles\$($Node.Role)'
+```
+
+We can now _mount_ the Datum tree, and do a lookup in the context of a Node:
+
+```PowerShell
+Import-Module Datum
+$Datum = New-DatumStructure -DefinitionFile .\Datum.yml
+
+lookup 'Data1' -Node $SRV01 -DatumTree $Datum
+# Name                           Value
+# ----                           -----
+# Property11                     RoleValue11
+# Property12                     RoleValue12
+
+
+lookup 'Data2' -Node $SRV01 -DatumTree $Datum
+
+# Name                           Value
+# ----                           -----
+# Property21                     London Override Value21
+# Property22                     London Override Value22
+```
+
+And for our witness, not in the London location, Data2 is not overriden:
+
+```PowerShell
+lookup 'Data2' -Node $SRV02 -DatumTree $Datum
+
+# Name                           Value
+# ----                           -----
+# Property21                     RoleValue21
+# Property22                     RoleValue22
+```
+
+Magic!
+
+## 3. Intended Usage
 
 The overall goal, better covered in the book [Infrastructure As Code](http://infrastructure-as-code.com/book/) by Kief Morris, is to enable a team to "_quickly, easily, and confidently adapt their infrastructure to **meet the changing needs of their organization**_".
 
@@ -177,7 +361,7 @@ RootConfiguration -ConfigurationData $ConfigurationData -Out "$BuildRoot\BuildOu
 
 ```
 
-## Under the hood
+## 4. Under the hood
 
 Although Datum has been primarily targeted at DSC Configuration Data, it can be used in other contexts where the hierachical model and lookup makes sense.
 
@@ -286,7 +470,7 @@ ResolutionPrecedence:
   - 'Roles\All'
 
 ```
-In this case the lookup function would _try_ the following absolute path, in order:
+In this case the lookup function would _try_ the following absolute paths sequentially:
 ```PowerShell
 $Datum.AllNodes.property.Subkey
 $Datum.Environments.property.Subkey
@@ -345,24 +529,31 @@ It goes through all the Nodes in `$ConfigurationData.AllNodes`, so the absolute 
 
 ### Enriching the Data lookup
 
+
+
 #### Merging Behaviour
 
 - MostSpecific
 - Unique
 - hash
 - Deep
+
 #### Lookup Options
 - Default
 - general
 - per lookup override
 #### Data Handlers - Encrypted Credentials
 
+The data typically stored in Datum is usually defined by the Provider and underlying technology.
+For the Datum File Provider, and Yaml format, that would be mostly Text/strings, integer, and boolean, composed in dictionary (ordered, hashtable, or PSCustomObject), or collections.
+
+More complex objects, such as credentials can be stored or referenced by use of Data handler.
 
 _(To be Continued)_
 
 ------
 
-## Origins
+## 5. Origins
 Back in 2014, Steve Murawski then working for Stack Exchange lead the way by implementing some tooling, and open sourced them on the [PowerShell.Org's Github](https://github.com/PowerShellOrg/DSC/tree/development).
 This work has been complemented by Dave Wyatt's contribution mainly around the Credential store.
 After these two main contributors moved on from DSC and Pull Server mode, the project stalled (in the Dev branch), despite its unique value.
