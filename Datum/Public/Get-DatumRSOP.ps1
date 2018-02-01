@@ -14,7 +14,7 @@ function Get-DatumRsop {
     catch { 
         "^.* Already defined" | Write-Warning 
     }
-    $Strategies.add('','Deep')
+    $Strategies.add('','hash')
 
     foreach ($Node in $Element) {
         $MergeDatum = $Node
