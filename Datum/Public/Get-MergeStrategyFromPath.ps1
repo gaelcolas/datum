@@ -21,7 +21,7 @@ function Get-MergeStrategyFromPath {
     }
     else {
         Write-debug "`t  No Strategy found"
-        return #(Get-MergeStrategyFromString)
+        return
     }
 
     Write-Debug "`t  StrategyKey: $StrategyKey"
