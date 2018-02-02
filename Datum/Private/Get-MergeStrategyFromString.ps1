@@ -5,54 +5,105 @@ function Get-MergeStrategyFromString {
         [String]
         $MergeStrategy
     )
-    Write-Debug "Get-MergeStrategyFromString -MergeStrategy <$MergeStrategycls>"
+
+    # if $ref is a
+    #   base type:
+    #       --> Return $ref
+    #   hash
+    #     MostSpecific
+    #       --> Return $ref
+    #     Hash
+    #       --> Merge Hashtable keys
+    #     deep
+    #       --> Merge Hashtable keys recursively, pushing down the strategy until lookup_option override
+    #   baseType Array
+    #      MostSpecific
+    #       --> Return $ref
+    #      Unique
+    #       --> ($ref + $Diff -$kop)|Select-Unique
+    #      Sum
+    #       --> $ref + $diff -$kop
+    #   hash_array
+    #      MostSpecific
+    #       --> Return $ref
+    #      UniqueKeyValTuples
+    #       --> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is not already int output
+    #      DeepTuple
+    #       --> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is merged up
+    #      Sum
+    #       --> $ref + $diff
+    #   merge_options:
+    #     knockout_prefix: --
+    #     TupleKeys:
+    #       - Name
+    #       - Version
+
+    Write-Debug "Get-MergeStrategyFromString -MergeStrategy <$MergeStrategy>"
     
+    <#
+    MergeStrategy: MostSpecific
+          merge_hash: MostSpecific
+          merge_baseType_array: MostSpecific
+          merge_hash_array: MostSpecific
+
+    MergeStrategy: hash
+          merge_hash: hash
+          merge_baseType_array: MostSpecific
+          merge_hash_array: MostSpecific
+          merge_options:
+            knockout_prefix: --
+    
+    MergeStrategy: Deep
+          merge_hash: deep
+          merge_baseType_array: Unique
+          merge_hash_array: DeepTuple
+          merge_options:
+            knockout_prefix: --
+            TupleKeys:
+              - Name
+              - Version
+    #>
+
     switch -regex ($MergeStrategy) {
         '^First$|^MostSpecific$' { 
             @{
-                strategy = 'MostSpecific'
-            }
-        }
-        
-        '^Unique$|^ArrayUniques$' {
-            @{
-                strategy = 'Unique'
+                merge_hash = 'MostSpecific'
+                merge_baseType_array = 'MostSpecific'
+                merge_hash_array = 'MostSpecific'
             }
         }
 
         '^hash$|^MergeTopKeys$' {
             @{
-                strategy = 'hash'
-                options = @{
-                    knockout_prefix    = '--'
-                    sort_merged_arrays = $false
-                    merge_basetype_arrays = $false #'MostSpecific' # or Unique
-                    merge_hash_arrays = @{ # $false #or Most Specific
-                        strategy = 'MostSpecificArray' #'MergeHashesByProperties' or 'UniqueByProperties'
-                        #PropertyNames = 'ObjectProperty1','objectProperty2'
-                    }
+                merge_hash = 'hash'
+                merge_baseType_array = 'MostSpecific'
+                merge_hash_array = 'MostSpecific'
+                merge_options = @{
+                    knockout_prefix = '--'
                 }
             }
         }
 
         '^deep$|^MergeRecursively$' {
             @{
-                strategy = 'deep'
-                options = @{
-                    knockout_prefix    = '--'
-                    sort_merged_arrays = $false
-                    merge_basetype_arrays = 'Unique' # or MostSpecific
-                    merge_hash_arrays = @{ # $false #or Most Specific
-                        strategy = 'MergeByPropertyTuple' # or 'Unique', or 'MostSpecific'
-                        PropertyNames = 'ObjectProperty1','objectProperty2'
-                    }
+                merge_hash = 'deep'
+                merge_baseType_array = 'Unique'
+                merge_hash_array = 'DeepTuple'
+                merge_options = @{
+                    knockout_prefix = '--'
+                    tuple_keys = @(
+                        'Name'
+                        ,'Version'
+                    )
                 }
             }
         }
         default {
             Write-Debug "Couldn't Match the strategy $MergeStrategy"
             @{
-                strategy = 'MostSpecific'
+                merge_hash = 'MostSpecific'
+                merge_baseType_array = 'MostSpecific'
+                merge_hash_array = 'MostSpecific'
             }
         }
     }

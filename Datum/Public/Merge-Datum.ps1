@@ -14,95 +14,115 @@ function Merge-Datum {
     )
 
     Write-verbose "Merge-Datum -StartingPath <$StartingPath>"
-    $strategies | ConvertTo-JSon -Depth 10 | Write-Verbose
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "  Strategy: $($Strategy.Strategy)"
     Write-Debug "---------------------------- $($Strategy | COnvertto-Json)"
-    # Merge with strategy
-    $mergeParams = @{
-        ReferenceHashtable  = $ReferenceDatum
-        DifferenceHashtable = $DifferenceDatum
-        Strategy = $Strategy
-        ParentPath = $StartingPath
+
+    $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
+    $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
+
+    if($ReferenceDatumType -ne $DifferenceDatumType) {
+        Write-Warning "Cannot merge different types, returning most specific Datum."
+        return $ReferenceDatum
     }
 
-    switch ($Strategy.Strategy) {
-        'MostSpecific' { return $ReferenceDatum}
-        'AllValues'    { return $DifferenceDatum }
-
-        'hash' {
-            if($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
-                Write-Debug "  HASH Merge: -> array of hashtable. Sending to Merge-DatumArray"
-                if($DifferenceDatum -isnot [System.Collections.IEnumerable]) {
-                    $DifferenceDatum = @($DifferenceDatum)
-                }
-
-                $MergeDatumArrayParams = @{
-                    ReferenceArray = $ReferenceDatum
-                    DifferenceArray = $DifferenceDatum
-                    Strategy = $Strategy
-                    ChildStrategies = $Strategies
-                    StartingPath = $StartingPath
-                }
-                Merge-DatumArray @MergeDatumArrayParams
-                # it's an array of Hashtable, merge it by position, property, or uniqueness?
-            }
-            else {
-                # ignore non-hashtable elements (replace with empty hash)
-                if(!($ReferenceDatum -as [hashtable])) {
-                    $mergeParams['ReferenceHashtable'] = @{}
-                }
-
-                if(!($DifferenceDatum -as [hashtable])) {
-                    $mergeParams['DifferenceHashtable'] = @{}
-                }
-
-                # merge top layer keys, ignore subkeys
-                Merge-Hashtable @mergeParams
-            }
-        }
-
-        'deep' {
-            if($ReferenceDatum -is [hashtable] -or $ReferenceDatum -is [System.Collections.Specialized.OrderedDictionary]) {
-                $mergeParams.Add('ChildStrategies',$Strategies)
-                Write-Debug "  Merging Hashtables"
-                Merge-Hashtable @mergeParams
-            }
-            elseif($ReferenceDatum -isnot [string] -and $ReferenceDatum -is [System.Collections.IEnumerable]) {
-                Write-Debug "  DEEP Merge: -> array of objects. Sending to Merge-DatumArray"
-                
-                if($DifferenceDatum -isnot [System.Collections.IEnumerable]) {
-                    $DifferenceDatum = @($DifferenceDatum)
-                }
-
-                $MergeDatumArrayParams = @{
-                    ReferenceArray = $ReferenceDatum
-                    DifferenceArray = $DifferenceDatum
-                    Strategy = $Strategy
-                    ChildStrategies = $Strategies
-                    StartingPath = $StartingPath
-                }
-                Merge-DatumArray @MergeDatumArrayParams
-            }
-        }
-
+    if($Strategy -is [string]) {
+        $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
     }
-
-    # Strategy is MostSpecific --> No Merge
-    # strategy is All Values --> No Merge, return all
     
-    # Strategy is Unique --> cast to refdatum [object[]] + diffDatum | select Unique
-    # Strategy is Hash --> Merge Keys.
-    # Strategy is Deep 
-    #     --> is Array or [object[]]Value
-    #         --> Merge Hash[]?
-    #           ---> No, only keep refDatum
-    #           ---> Uniques: cast to refdatum [object[]] + diffDatum | select Unique
-    #           ---> ByKey:   Merge ArrayItem.Where{$_.key -match refArrayItem.Key}
-    #               --> SubMode? Deep or hash
-    #           ---> ByPosition: Merge Ref[itemIndex] with Diff[itemIndex]
-    #               --> SubMode? Deep or hash
-    #     --> is Hash/Ordered
+    switch ($ReferenceDatumType) {
+        'BaseType' {
+            return $ReferenceDatum
+        }
 
+        'hashtable' {
+            $mergeParams = @{
+                ReferenceHashtable  = $ReferenceDatum
+                DifferenceHashtable = $DifferenceDatum
+                Strategy = $Strategy
+                ParentPath = $StartingPath
+            }
+
+            switch -Regex ($Strategy.merge_hash) {
+                '^MostSpecific$|^First' { return $ReferenceDatum }
+
+                '^hash' { 
+                    #--> Merge Hashtable keys 
+                    Merge-Hashtable @mergeParams
+                }
+
+                'deep'  {
+                    $mergeParams.Add('ChildStrategies',$Strategies)
+                    #--> Merge Hashtable keys recursively, pushing down the strategy until lookup_option override        
+                    Write-Debug "  Merging Hashtables"
+                    Merge-Hashtable @mergeParams
+                }
+
+                Default { return $ReferenceDatum }
+            }
+        }
+
+        'baseType_array' {
+            switch -Regex ($Strategy.merge_baseType_array) {
+                '^MostSpecific$|^First' { return $ReferenceDatum }
+
+                '^Unique'   {
+                    if($regexPattern = $Strategy.merge_options.knockout_prefix) {
+                        $regexPattern = $regexPattern.insert(0,'^')
+                        ($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique
+                    }
+                    else {
+                        ($ReferenceDatum + $DifferenceDatum)| Select-object -Unique
+                    }
+                    
+                }
+
+                '^Sum|^Add' {
+                    #--> $ref + $diff -$kop
+                    if($regexPattern = $Strategy.merge_options.knockout_prefix) {
+                        $regexPattern = $regexPattern.insert(0,'^')
+                        ($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern}
+                    }
+                    else {
+                        ($ReferenceDatum + $DifferenceDatum)
+                    }
+                }
+
+                Default { return $ReferenceDatum }
+            }
+        }
+
+        'hash_array' {
+            $MergeDatumArrayParams = @{
+                ReferenceArray = $ReferenceDatum
+                DifferenceArray = $DifferenceDatum
+                Strategy = $Strategy
+                ChildStrategies = $Strategies
+                StartingPath = $StartingPath
+            }
+            
+            switch -Regex ($Strategy.merge_hash_array) {
+                '^MostSpecific|^First' { return $ReferenceDatum }
+
+                '^UniqueKeyValTuples'  {
+                    #--> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is not already int output
+                    Merge-DatumArray @MergeDatumArrayParams
+                }
+
+                '^DeepTuple|^DeepItemMergeByTuples' {
+                    #--> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is merged up
+                    Merge-DatumArray @MergeDatumArrayParams
+                }
+
+                '^Sum' {
+                    #--> $ref + $diff
+                    (@($DifferenceArray) + @($ReferenceArray)).Foreach{
+                        $null = $MergedArray.add(([ordered]@{}+$_))
+                    }
+                }
+
+                Default { return $ReferenceDatum }
+            }
+        }
+    }
 }
