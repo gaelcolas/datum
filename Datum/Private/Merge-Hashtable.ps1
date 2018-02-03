@@ -121,7 +121,7 @@ function Merge-Hashtable {
 
                     $clonedReference[$currentKey]  = Merge-Datum @MergeDatumParams
                     Write-Debug "`t  .. Datum Merged for path $ChildPath"
-                    }
+                }
             }
         }
     }

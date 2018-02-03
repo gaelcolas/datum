@@ -5,7 +5,7 @@ function Get-MergeStrategyFromPath {
 
         $PropertyPath
     )
-    Write-debug "`tGet-MergeStrategyFromPath -PropertyPath <$PropertyPath> -Strategies $Strategies, count $($Strategies.count)"
+    Write-debug "`tGet-MergeStrategyFromPath -PropertyPath <$PropertyPath> -Strategies [$($Strategies.keys -join ', ')], count $($Strategies.count)"
     # Select Relevant strategy
     #   Use exact path match first
     #   or try Regex in order
