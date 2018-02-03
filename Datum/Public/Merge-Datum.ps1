@@ -21,6 +21,10 @@ function Merge-Datum {
     $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
+    if($ReferenceDatumType -ne $DifferenceDatumType) {
+        Write-Warning "Cannot merge different types REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
+        return $ReferenceDatum
+    }
 
     if($Strategy -is [string]) {
         $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
@@ -40,11 +44,7 @@ function Merge-Datum {
                 ChildStrategies = $Strategies
             }
             
-            if($ReferenceDatumType -ne $DifferenceDatumType) {
-                Write-Warning "Cannot merge different types REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
-                return $ReferenceDatum
-            }
-            elseif($Strategy.merge_hash -match '^MostSpecific$|^First') {
+            if($Strategy.merge_hash -match '^MostSpecific$|^First') {
                 return $ReferenceDatum
             }
             else {
@@ -53,9 +53,6 @@ function Merge-Datum {
         }
 
         'baseType_array' {
-            # Fixing issue when single item yaml array becomes String.
-            if($DifferenceDatumType -ne 'baseType_array') {$DifferenceDatum = @($DifferenceDatum)}
-            
             switch -Regex ($Strategy.merge_baseType_array) {
                 '^MostSpecific$|^First' { return $ReferenceDatum }
 
@@ -86,8 +83,6 @@ function Merge-Datum {
         }
 
         'hash_array' {
-            if($DifferenceDatumType -ne 'hash_array') {$DifferenceDatum = @($DifferenceDatum)}
-            
             $MergeDatumArrayParams = @{
                 ReferenceArray = $ReferenceDatum
                 DifferenceArray = $DifferenceDatum
