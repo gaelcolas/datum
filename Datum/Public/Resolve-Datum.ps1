@@ -174,7 +174,7 @@ Function Resolve-Datum {
         Write-Debug "  Depth: $depth; Merge options = $($options.count)"
         
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
-        if ($DatumFound -and ($StartingMergeStrategy.Strategy -eq 'MostSpecific')) {
+        if ($DatumFound -and ($StartingMergeStrategy.Strategy -match '^MostSpecific|^First')) {
             return $DatumFound
         }
         elseif ( $DatumFound ) {
