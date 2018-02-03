@@ -50,7 +50,7 @@ function Resolve-DatumPath {
 
         if ($RemainingStack.Count -eq 1) {
             Write-Verbose -Message " VALUE found at `$Datum$PropertySeparator$($ExecutionContext.InvokeCommand.ExpandString(($RelativePath -join $PropertySeparator) -f [string[]]$PathVariables))"
-            Write-Output $CurrentNode
+            Write-Output $CurrentNode -NoEnumerate
         }
         
     }
