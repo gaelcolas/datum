@@ -4,3 +4,6 @@ role: MergingTest
 Location: LON
 ExampleProperty1: 'From Node'
 Test: '[TEST=Roles\Role1\Shared1\DestinationPath]'
+
+configurations:
+  - test1
