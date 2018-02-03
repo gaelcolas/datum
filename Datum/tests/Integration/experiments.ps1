@@ -22,13 +22,6 @@ $ConfigurationData = @{
 }
 $Node = $ConfigurationData.AllNodes[2]
 
-$TestCases = @(
-    @{PropertyPath = 'ExampleProperty1'; ExpectedResult = 'From Node'}
-    @{PropertyPath = 'Description';      ExpectedResult = 'This is the DEV environment' }
-    @{PropertyPath = 'Shared1\Param1';   ExpectedResult = 'This is the Role override!'}
-    @{PropertyPath = 'locationName';     ExpectedResult = 'London'}
-    
-)
 
 Write-Warning "Lookup <Configurations> for $($Node.Name)"
 Lookup Configurations
@@ -50,6 +43,8 @@ $a.MergeHashArrays|% {$_; "`r`n"};
 
 
 
+$r = Get-DatumRsop -Datum $Datum -Element $Node
+$r
 <#
 $a = [ordered]@{
     keya = 1

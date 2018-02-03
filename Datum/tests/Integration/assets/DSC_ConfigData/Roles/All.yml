@@ -15,3 +15,5 @@ LCM_Config:
     SourcePath: \\your\dfs\share
 
 
+Configurations:
+  - Shared1
