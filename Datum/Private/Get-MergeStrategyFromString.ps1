@@ -1,3 +1,26 @@
+<#
+MergeStrategy: MostSpecific
+        merge_hash: MostSpecific
+        merge_baseType_array: MostSpecific
+        merge_hash_array: MostSpecific
+
+MergeStrategy: hash
+        merge_hash: hash
+        merge_baseType_array: MostSpecific
+        merge_hash_array: MostSpecific
+        merge_options:
+        knockout_prefix: --
+
+MergeStrategy: Deep
+        merge_hash: deep
+        merge_baseType_array: Unique
+        merge_hash_array: DeepTuple
+        merge_options:
+        knockout_prefix: --
+        TupleKeys:
+            - Name
+            - Version
+#>
 function Get-MergeStrategyFromString {
     [CmdletBinding()]
     [OutputType([hashtable])]
@@ -5,54 +28,48 @@ function Get-MergeStrategyFromString {
         [String]
         $MergeStrategy
     )
-    Write-Debug "Get-MergeStrategyFromString -MergeStrategy <$MergeStrategycls>"
     
+    Write-Debug "Get-MergeStrategyFromString -MergeStrategy <$MergeStrategy>"
     switch -regex ($MergeStrategy) {
         '^First$|^MostSpecific$' { 
             @{
-                strategy = 'MostSpecific'
-            }
-        }
-        
-        '^Unique$|^ArrayUniques$' {
-            @{
-                strategy = 'Unique'
+                merge_hash = 'MostSpecific'
+                merge_baseType_array = 'MostSpecific'
+                merge_hash_array = 'MostSpecific'
             }
         }
 
         '^hash$|^MergeTopKeys$' {
             @{
-                strategy = 'hash'
-                options = @{
-                    knockout_prefix    = '--'
-                    sort_merged_arrays = $false
-                    merge_basetype_arrays = $false #'MostSpecific' # or Unique
-                    merge_hash_arrays = @{ # $false #or Most Specific
-                        strategy = 'MostSpecificArray' #'MergeHashesByProperties' or 'UniqueByProperties'
-                        #PropertyNames = 'ObjectProperty1','objectProperty2'
-                    }
+                merge_hash = 'hash'
+                merge_baseType_array = 'MostSpecific'
+                merge_hash_array = 'MostSpecific'
+                merge_options = @{
+                    knockout_prefix = '--'
                 }
             }
         }
 
         '^deep$|^MergeRecursively$' {
             @{
-                strategy = 'deep'
-                options = @{
-                    knockout_prefix    = '--'
-                    sort_merged_arrays = $false
-                    merge_basetype_arrays = 'Unique' # or MostSpecific
-                    merge_hash_arrays = @{ # $false #or Most Specific
-                        strategy = 'MergeByPropertyTuple' # or 'Unique', or 'MostSpecific'
-                        PropertyNames = 'ObjectProperty1','objectProperty2'
-                    }
+                merge_hash = 'deep'
+                merge_baseType_array = 'Unique'
+                merge_hash_array = 'DeepTuple'
+                merge_options = @{
+                    knockout_prefix = '--'
+                    tuple_keys = @(
+                        'Name'
+                        ,'Version'
+                    )
                 }
             }
         }
         default {
             Write-Debug "Couldn't Match the strategy $MergeStrategy"
             @{
-                strategy = 'MostSpecific'
+                merge_hash = 'MostSpecific'
+                merge_baseType_array = 'MostSpecific'
+                merge_hash_array = 'MostSpecific'
             }
         }
     }

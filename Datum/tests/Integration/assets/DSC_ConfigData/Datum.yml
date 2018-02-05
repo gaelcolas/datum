@@ -63,26 +63,21 @@ default_lookup_options: hash
 
 # Can override for all
 lookup_options:
-  MergeTest1:
-    strategy: deep
-    options:
-      knockout_prefix: --
-      sort_merge_arrays: false
-      merge_basetype_arrays: Sum
-      merge_hash_arrays:
-        strategy: Merge #Unique
-        PropertyNames:
-          - name
-          - version
+  Configurations:
+    merge_baseType_array: unique
+  #MergeTest1: deep
+  mergeTest1\MergeIntArray:
+    merge_basetype_array: Sum
+        
+  MergeTest1\MergeHash: deep
+  
   MergeTest2:
-    strategy: deep
-    options:
+    merge_hash: deep
+    merge_basetype_array: Sum
+    merge_hash_array: Merge #Unique
+    merge_options:
       knockout_prefix: --
-      sort_merge_arrays: false
-      merge_basetype_arrays: Unique
-      merge_hash_arrays:
-        strategy: Sum #Unique
-        PropertyNames:
+      tuple_keys:
           - name
           - version
 

@@ -1,9 +1,0 @@
-Configurations:
-  - Base1
-  - Config1
-
-Base1:
-  BaseParam1: This is my Datum in Role
-
-Config1:
-  Config1Param1: This is Config1 datum in Role override

@@ -5,18 +5,7 @@ function Merge-DatumArray {
 
         $DifferenceArray,
 
-        $Strategy = @{
-            strategy = 'hash'
-            options = @{
-                knockout_prefix    = '--'
-                sort_merged_arrays = $false
-                merge_basetype_arrays = 'MostSpecific' # = $false, or Unique
-                merge_hash_arrays = @{ # $false #or Strategy
-                    strategy = 'MostSpecific' #'ByPropertyTuple' or 'Unique'
-                    #PropertyNames = 'ObjectProperty1','objectProperty2'
-                }
-            }
-        },
+        $Strategy = @{ },
 
         $ChildStrategies = @{'^.*' = $Strategy},
 
@@ -24,14 +13,14 @@ function Merge-DatumArray {
     )
     
     Write-Debug "`tMerge-DatumArray -StartingPath <$StartingPath>"
-    $knockout_prefix = [regex]::Escape($Strategy.options.knockout_prefix).insert('^')
-    $HashArrayStrategy = $Strategy.options.merge_hash_arrays.Strategy
+    $knockout_prefix = [regex]::Escape($Strategy.merge_options.knockout_prefix).insert(0,'^')
+    $HashArrayStrategy = $Strategy.merge_hash_array
     Write-Debug "`t`tHash Array Strategy: $HashArrayStrategy"
-    $MergeBasetypeArraysStrategy = $Strategy.options.merge_basetype_arrays
+    $MergeBasetypeArraysStrategy = $Strategy.merge_basetype_array
     $MergedArray = [System.Collections.ArrayList]::new()
 
     $SortParams = @{}
-    if($PropertyNames = [String[]]$Strategy.options.merge_hash_arrays.PropertyNames) {
+    if($PropertyNames = [String[]]$Strategy.merge_options.tuple_keys) {
         $SortParams.Add('Property',$PropertyNames)
     }
 
@@ -47,14 +36,14 @@ function Merge-DatumArray {
         }
 
         switch -Regex ($HashArrayStrategy) {
-            '^Sum|^Add'  {
+            '^Sum|^Add' {
                 (@($DifferenceArray) + @($ReferenceArray)).Foreach{
                     $null = $MergedArray.add(([ordered]@{}+$_))
                 }
             }
             
             # MergeHashesByProperties
-            '^Merge' {
+            '^Deep|^Merge' {
                 Write-Debug "`t`t`tStrategy for Array Items: Merge Hash By tuple`r`n"
                 # look at each $RefItems in $RefArray
                 #   if no PropertyNames defined, use all Properties of $RefItem
@@ -139,72 +128,6 @@ function Merge-DatumArray {
             }
         }
     }
-    elseif(($ReferenceArray.Foreach{$_.getType()} | Select-Object -Unique).ToString() -eq 'System.Management.Automation.PSCustomObject') {
-        Write-Debug "`t`tMERGING Arrays of PSObject"
-        if(!$HashArrayStrategy -or $HashArrayStrategy -match 'MostSpecific') {
-            Write-Debug "`t`tMerge_hash_arrays Disabled"
-            $MergedArray = $ReferenceArray
-            if($Strategy.sort_merged_arrays) {
-                $MergedArray = $MergedArray | Sort-Object @SortParams
-            }
-            return $MergedArray
-        }
-        
-        switch -Regex ($HashArrayStrategy) {
-            # MergeHashesByProperties
-            '^Merge' {
-                Write-Debug "`t`t`tMerging Array of PSCustomObjects"
-                # look at each $RefItems in $RefArray
-                #   if no PropertyNames defined, use all Properties of $RefItem
-                #   else use defined propertyNames
-                #  Search for DiffItem that has the same Property/Value pairs
-                #    if found, Merge-Datum (or MergeHashtable?)
-                #    if not found, add $DiffItem to $RefArray
-                #  
-                foreach ($ReferenceItem in $ReferenceArray) {
-                    if(!$PropertyNames) {
-                        $PropertyNames = $ReferenceArray.PSObject.Properties.Name
-                    }
-                    throw "Not Implemented yet for PSObjects"
-                }
-            }
-
-            # UniqueByProperties
-            '^Unique' {
-                Write-Debug "`t`t`tSelecting Unique PSCustomObjects accross both arrays"
-                # look at each $DiffItems in $DiffArray
-                #   if no PropertyNames defined, use all Properties of $DiffItem
-                #   else use defined PropertyNames
-                #  Search for a RefItem that has the same Property/Value pairs
-                #  if Nothing is found
-                #    add current DiffItem to RefArray
-                throw "Not Implemented yet for PSObjects"
-
-            }
-        }
-    }
-    else {
-        $knockedOutItems = $DifferenceArray.Where{$_ -match $knockout_prefix}.Foreach{$_ -replace $knockout_prefix}
-        Write-Debug "`t`tMERGING Arrays of basetype"
-        if($MergeBasetypeArraysStrategy -eq 'Unique') {
-            # TODO: knockout keys that match ^$knockout_prefix
-            $MergedArray = ($ReferenceArray + $DifferenceArray).Where{$_ -notin $knockedOutItems} | Select-Object -Unique
-        }
-        elseif($MergeBasetypeArraysStrategy -match '^Sum|^add') {
-            ($DifferenceArray + $ReferenceArray).Foreach{
-                if($_ -notin $knockedOutItems) {
-                    $null = $MergedArray.add($_)
-                }
-            }
-        }
-        else {
-            Write-Debug "`t`tMerge_basetype_arrays Not relevant, Returning most specific"
-            $MergedArray = $ReferenceArray
-        }
-    }
-
-    if($Strategy.sort_merged_arrays) {
-        $MergedArray = $MergedArray | Sort-Object @SortParams
-    }
+    
     $MergedArray
 }
