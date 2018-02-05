@@ -9,7 +9,7 @@ Param (
     [String]
     $BuildOutput = "BuildOutput",
 
-    $ModuleVersion = $(if($Env:APPVEYOR_BUILD_VERSION) {$ENV:APPVEYOR_BUILD_VERSION} else { Get-NextNugetPackageVersion -Name 'Chocolatey'} ),
+    $ModuleVersion = $(if(![string]::IsNullOrEmpty($env:APPVEYOR_BUILD_VERSION)) {$env:APPVEYOR_BUILD_VERSION} else { Get-NextNugetPackageVersion -Name 'Datum'} ),
     
     [String[]]
     $GalleryRepository,
