@@ -62,7 +62,7 @@ function Merge-Hashtable {
         else { #the key exists, and it's not a knockout entry
             $RefHashItemValueType  = Get-DatumType $ReferenceHashtable[$currentKey]
             $DiffHashItemValueType = Get-DatumType $DifferenceHashtable[$currentKey]
-            
+            Write-Debug "for Key $currentKey: REF:[$RefHashItemValueType] | DIFF:[$DiffHashItemValueType]"
             if($ParentPath) {
                 $ChildPath = (Join-Path  $ParentPath $currentKey)
             }

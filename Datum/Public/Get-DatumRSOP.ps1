@@ -14,7 +14,12 @@ function Get-DatumRsop {
     catch { 
         "^.* Already defined" | Write-Warning 
     }
-    $Strategies.add('','hash')
+    # This is an inaccurate representation of the RSOP
+    #  but close enough to be useful in the meantime.
+    #  the problem is when starting to merge root with Deep,
+    #   the deep strategy propagate recursively until there's an override
+    Write-Warning "The RSOP is not 100% accurate in some cases. This will be fixed for v1.0.0"
+    $Strategies.add('','deep')
 
     foreach ($Node in $Element) {
         $MergeDatum = $Node
