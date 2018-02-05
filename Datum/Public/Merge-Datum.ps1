@@ -13,10 +13,10 @@ function Merge-Datum {
         }
     )
 
-    Write-verbose "Merge-Datum -StartingPath <$StartingPath>"
+    Write-Debug "Merge-Datum -StartingPath <$StartingPath>"
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Debug "---------------------------- $($Strategy | COnvertto-Json)"
+    Write-Verbose "   Merge Strategy: @$($Strategy | COnvertto-Json)"
 
     $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
