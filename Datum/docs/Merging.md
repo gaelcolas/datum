@@ -1,3 +1,29 @@
+Important Note:
+
+a lookup done at different 'layers' of the hierarchy (different PropertyPath) will return different value at the same property path:
+
+```PowerShell
+(lookup MergeTest1).MergeHash
+
+# Name                           Value
+# ----                           -----
+# HashKey2                       FromEnvironment
+# HashKey3                       FromEnvironment
+
+lookup MergeTest1\MergeHash
+
+# Name                           Value
+# ----                           -----
+# HashKey2                       FromEnvironment
+# HashKey3                       FromEnvironment
+# HashKey1                       FromRole
+
+```
+
+
+
+
+
 ```
     # if $ref is a
     #   base type:

@@ -36,13 +36,6 @@ Process {
     }
 
     Write-Warning $ModuleVersion
-    if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
-    }
-
-    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
-        $Env:PSModulePath += ';' + (Join-Path $BuildOutput 'modules')
-    }
 
     Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
         Foreach-Object {
@@ -72,6 +65,14 @@ Process {
 
 
 begin {
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
+    }
+
+    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
+        $Env:PSModulePath += ';' + (Join-Path $BuildOutput 'modules')
+    }
     function Resolve-Dependency {
         [CmdletBinding()]
         param()
