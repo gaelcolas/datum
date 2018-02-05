@@ -6,6 +6,17 @@ MergeTest1:
   MergeHash:
     HashKey2: FromEnvironment
     HashKey3: FromEnvironment
+    MyConfig:
+      Gateways:
+        probename: MYPROB
+      ManagedNode:
+        Blah1:
+          Attribute:
+            OS: stuff
+          Types:
+            - test1
+            - test2
+            - test3
   MergeIntArray:
     - 1
     - 3

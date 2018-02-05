@@ -42,9 +42,8 @@ Write-Warning "Show MergeTest1.MergeHashArrays merging result:"
 $a.MergeHashArrays|% {$_; "`r`n"}; 
 
 
-
-$r = Get-DatumRsop -Datum $Datum -Element $Node
-$r
+ $r = Get-DatumRsop -Datum $Datum -AllNodes $Node
+ $r
 <#
 $a = [ordered]@{
     keya = 1
