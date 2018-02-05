@@ -7,3 +7,12 @@ Test: '[TEST=Roles\Role1\Shared1\DestinationPath]'
 
 configurations:
   - test1
+
+MergeTest1:
+  MergeHash:
+    HashKey2: FromEnvironment
+    HashKey3: FromEnvironment
+    MyConfig:
+      Gateways:
+        MYSRV15:
+          port: 2000

@@ -69,6 +69,8 @@ lookup_options:
   mergeTest1\MergeIntArray:
     merge_basetype_array: Sum
         
+  MergeTest1\MergeHash: deep
+  
   MergeTest2:
     merge_hash: deep
     merge_basetype_array: Sum
