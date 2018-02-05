@@ -12,7 +12,7 @@ SoftwareBase:
       Disabled: false
       Source: https://chocolatey.org/api/v2
 
-Packages:
-  - Name: chocolatey
-  - Name: NotepadPlusplus
-  - Name: Putty
+  Packages:
+    - Name: chocolatey
+    - Name: NotepadPlusplus
+    - Name: Putty
