@@ -11,6 +11,10 @@ A Sample repository of an [Infrastructure, managed _from_ code](https://devopsco
 
 Datum is currently developed on Windows PowerShell 5.1, but will soon be tested against PowerShell 6.
 
+**Datum is subject to have breaking change without prior notification, and without a major version bump until v1.0.0 is released (aiming for April 2018, or earlier).**
+Should this be an problem, feel free to raise an issue where we'll notify before releasing breaking changes, and explain the modification to do.
+From now on, the core functionalities may not change much, but the Interface, and especially the configuration file might change abruptly.
+
 ## Table of Content
 
  1. [Why Datum?](#1-why-datum)
