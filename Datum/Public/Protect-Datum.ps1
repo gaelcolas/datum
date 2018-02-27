@@ -76,8 +76,8 @@ function Protect-Datum {
         }
         Write-verbose "Calling Protect-Data $($PSCmdlet.ParameterSetName)"
         Switch ($PSCmdlet.ParameterSetName) {
-            'ByCertificae' { $ProtectDataParams.Add('Certificate',$Certificate)}
-            'ByPassword'   { $ProtectDataParams.Add('Password',$Password)      }
+            'ByCertificate' { $ProtectDataParams.Add('Certificate',$Certificate)}
+            'ByPassword'    { $ProtectDataParams.Add('Password',$Password)      }
         }
 
         $securedData =  Protect-Data @ProtectDataParams
@@ -98,5 +98,4 @@ function Protect-Datum {
             $Base64DataBlock
         }
     }
-
 }
