@@ -97,20 +97,22 @@ One way we could interpret the `ServerType1_application` composition could be:
 >
 >  with the \<Application Data\>
 
-In Puppet's _Role and Profiles_ model, that's a Role definition, and profiles definition. For DSC I'd call it the **Roles and Configurations model**.
+In Puppet's _Role and Profiles_ model, that's a Role definition, including two profiles. For DSC I'd call it the **Roles and Configurations model**.
 
-We can now imagine that we associate several `Nodes` with this role, and we can start raising cattles!
+We can now imagine that we associate several `Nodes` with this role, and we can start raising cattles! The nodes kinda 'instantiate' the Roles.
+
+Assuming a Configuration Data structure like the one below, we have simple Nodes implementing Unique roles, composed of re-usable Configurations but with Data specific to the role.
 
 ```PowerShell
 $ConfigurationData = @{
     AllNodes = @(
         @{
-            Nodename = 'SRV02'
+            Nodename = 'SRV01'
             Role = 'ServerType1_Application'
         },
         @{
-            Nodename = 'SRV01'
-            Role = 'ServerType1_Application'
+            Nodename = 'SRV02'
+            Role = 'ServerType2_Application'
         }
     )
 
@@ -137,4 +139,94 @@ $ConfigurationData = @{
     }
 }
 
+```
+
+The Configurations (DSC Composite Resources) would be re-usable, and probably live in different PowerShell modules (maybe one for the Platform and one for the Application or Product).
+
+Some Data would be duplicated here (i.e. the Application Data for each Role), but that's a subject for another time (Datum).
+
+Now the question is how do we make the link between this Configuration Data, and the Configurations?
+
+Easy!
+
+## Splatting things together
+
+I've blogged about [Pseudo-Splatting DSC resources](https://gaelcolas.com/2017/11/05/pseudo-splatting-dsc-resources/), and this is the same principle. DSC Composite Resources behave in a similar way as DSC Resources when compiling MOFs, so we can splat the Parameters defined in our Roles to the respective Resource:
+
+The **powershell pseudo code equivalent** would be:
+
+```PowerShell
+foreach($Node in $ConfigurationData.AllNodes) {
+    # Retrieving the DSC Composite Resource name to include
+    $configurations = $ConfigurationData.Roles.($Node.Role).configurations
+    foreach($ConfigurationName in $configurations) {
+        $ConfigurationParameters = $ConfigurationData.Roles.($Node.Role).($ConfigurationName)
+        # Splat the Configuration Parameters defined in the Role to the Composite resource
+        &$ConfigurationName @ConfigurationParameters
+    }
+}
+
+```
+
+Should we define the function to **'splat' the DSC Composite Resouce** like so (available in Datum):
+
+```PowerShell
+function Global:Get-DscSplattedResource {
+    [CmdletBinding()]
+    Param(
+        [String]
+        $ResourceName,
+
+        [String]
+        $ExecutionName,
+
+        [hashtable]
+        $Properties,
+
+        [switch]
+        $NoInvoke
+    )
+    # Remove Case Sensitivity of ordered Dictionary or Hashtables
+    $Properties = @{}+$Properties
+
+    $stringBuilder = [System.Text.StringBuilder]::new()
+    $null = $stringBuilder.AppendLine("Param([hashtable]`$Parameters)")
+    $null = $stringBuilder.AppendLine()
+    $null = $stringBuilder.AppendLine(" $ResourceName '$ExecutionName' { ")
+    foreach($PropertyName in $Properties.keys) {
+        $null = $stringBuilder.AppendLine("$PropertyName = `$(`$Parameters['$PropertyName'])")
+    }
+    $null = $stringBuilder.AppendLine("}")
+    Write-Debug ("Generated Resource Block = {0}" -f $stringBuilder.ToString())
+    
+    if($NoInvoke) {
+        [scriptblock]::Create($stringBuilder.ToString())
+    }
+    else {
+        [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+    }
+}
+Set-Alias -Name x -Value Get-DscSplattedResource -scope Global
+```
+
+
+The actual DSC would look like this:
+
+```PowerShell
+Configuration MyDscConfig {
+    # Import the module that has the 'ServerType' configuration
+    Import-DscResource -ModuleName Platform
+    # Import the module that has the 'Application' Configuration
+    Import-DscResource -ModuleName Product
+
+    $ConfigurationData.AllNodes.Nodename {
+        $ConfigurationData.Roles.($Node.Role).configurations.Foreach{
+            $ConfigurationName = $_
+            $ConfigurationParameters = $ConfigurationData.Roles.($Node.Role).($ConfigurationName)
+
+            # This weird notation is to avoid scoping issues when invoking the DSC Composite Resource
+            (Get-DscSplattedResource -ResourceName $ConfigurationName -ExecutionName "$($ConfigurationName)_inc" -Properties $ConfigurationParameters -NoInvoke).Invoke($ConfigurationParameters)
+        }
+    }
+}
 ```
