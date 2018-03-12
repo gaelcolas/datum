@@ -26,12 +26,13 @@ function ConvertTo-Datum
                             $ActionParams = @{}
                             $CommandOptions = $Datumhandlers.$handler.CommandOptions.Keys
                             # Populate the Command's params with what's in the Datum.yml, or from variables
+                            $Variables = Get-Variable
                             foreach( $ParamName in $ActionCommand.Parameters.keys ) {
                                 if( $ParamName -in $CommandOptions ) {
                                     $ActionParams.add($ParamName,$Datumhandlers.$handler.CommandOptions[$ParamName])
                                 }
-                                elseif($ValueInScope = Get-Variable -name $ParamName -ErrorAction SilentlyContinue -ValueOnly ){
-                                    $ActionParams.add($ParamName,$ValueInScope)
+                                elseif($Var = $Variables.Where{$_.Name -eq $ParamName}) {
+                                    $ActionParams.Add($ParamName,$Var.Value)
                                 }
                             }
                             return (&$ActionCommand @ActionParams)
