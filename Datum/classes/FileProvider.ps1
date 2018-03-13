@@ -1,4 +1,4 @@
-Class FileProvider {
+Class FileProvider : DatumProvider {
     hidden $Path
     hidden [hashtable] $Store
     hidden [hashtable] $DatumHierarchyDefinition
