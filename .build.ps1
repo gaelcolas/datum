@@ -20,7 +20,7 @@ Param (
     [Switch]
     $ForceEnvironmentVariables = [switch]$true,
 
-    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={}},'priv*','pub*')
+    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={(Import-PowerShellDataFile -EA 0 .\*\Classes\classes.psd1).order.indexOf($_.BaseName)}},'priv*','pub*')
     
     ,$CodeCoverageThreshold = 0
 )
