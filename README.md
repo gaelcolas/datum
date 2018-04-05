@@ -558,15 +558,214 @@ It goes through all the Nodes in `$ConfigurationData.AllNodes`, so the absolute 
 
 ### Enriching the Data lookup
 
-#### Merging Behaviour
+#### Datum Tree
 
-- MostSpecific
-- Unique
-- hash
-- Deep
+Regardless of the Datum Store Provider used (there's only the Datum File Provider built-in,
+but you can write your own), Datum tries to handle the data similarly to an ordered case-insensitive Dictionary, where possible (i.e. PSD1 don't support Ordering).
+All data is referenced under one variable, so it looks like a big tree with many branches and leafs like the one below.
+
+```
+$Datum
+  +
+  |
+  +--+AllNodes
+  |    +  DEV
+  |    |  +SRV01
+  |    |   ++ NodeName: SRV01
+  |    |      role: Role1
+  |    |      Location: Lon
+  |    |      ExampleProperty1: 'From Node'
+  |    |      Test: '[TEST=Roles\Role1\Shared1\DestinationPath
+  |    |
+  |    +-+PROD
+  |
+  +--+Environments
+  |    +
+  |    +-+DEV
+  |    |      Description: 'This is the DEV Environment'
+  |    +-+PROD
+  |           Description: 'This is the PROD Environment'
+  |
+  +--+Roles
+  |    +-+Role1
+  |           Configurations
+  |               - Shared1
+  |
+  +--+SiteData
+       +-+Lon
+```
+
+If you provide a key, Datum will return All values underneath (to the right):
+```PowerShell
+$Datum.AllNodes.Environments
+
+# DEV                 PROD
+# ---                 ----
+# {Description, Test} {Description}
+```
+
+#### Lookup Merging Behaviour
+
+In the Tree described above, the Lookup function iterates through the ResolutionPrecedence's key prefix, and append the provided key suffix:
+
+For the following ResolutionPrecedence:
+```yaml
+ResolutionPrecedence:
+  - 'AllNodes\$($Node.Environment)\$($Node.Name)'
+  - 'Roles\$($Node.Role)'
+  - 'Roles\All
+```
+
+Within the `$Node` block, doing `Lookup 'Configurations'` will actually look for:
+ - `$Datum.AllNodes.($Node.Environment).($Node.Name).Configurations`
+ - `$Datum.Roles.($Node.Role).Configurations`
+ - `$Datum.Roles.All.Configurations`
+
+By default the merge behaviour is to **not merge**, which means the first occurence will be returned and the lookup stopped.
+
+The other merge behaviours depends on the (rough) data type of the key to be merged.
+
+Datum identifies 4 [main types](./Datum/Private/Get-DatumType.ps1) in whatever matches first the following:
+- **Hashtable**: Hashtables or Ordered Dictionaries
+- **Array of Hashtables**: Every `IEnumerable` (except string) that can be casted `-as [Hastable[]]`
+- **Array of Base type** objects: Every other `IEnumerable` (except string)
+- **Base Types**: Everything else (Int, String, PSCredential, DateTime...)
+
+
+Their merge behaviour can be defined in the `Datum.yml`, either by using a Short name that reference a preset, or a structure that details the behaviour based on the type.
+
+There is a default Behaviour (`MostSpecific` by default), and you can specify ordered overrides:
+
+```Yaml
+default_lookup_options: MostSpecific
+```
+This is the recommended setting and also the default, so that any sub-key merge has to be explicitly declared like so:
+```Yaml
+lookup_options:
+  <Key Name>: MostSpecific/First|hash/MergeTopKeys|deep/MergeRecursively
+  <Other Key>:
+    merge_hash: MostSpecific/First|deep|hash/*
+    merge_basetype_array: MostSpecific/First|Sum/Add|Unique
+    merge_hash_array: MostSpecific/First|Sum|DeepTuple/DeepItemMergeByTuples|UniqueKeyValTuples
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - Name
+        - Version
+```
+The key to be used here is the suffix as used in with the `Lookup` function: e.g. 'Configurations', 'Role1\Data1'.
+
+Each layer will be merged with the result of the previous layer merge:
+
+```
+Precedence 0 +
+             |
+             +---+ Merge 0+-+
+             |              |
+Precedence 1 +              |
+                            +---+Merge 1 +
+                            |            |
+Precedence 2  +-------------+            |
+                                         +----+Merge 2
+                                         |
+Precedence 4  +--------------------------+
+
+```
+
+The Short name presets represent the following:
+```
+First, MostSpecific or any un-matched string:
+  merge_hash: MostSpecific
+  merge_baseType_array: MostSpecific
+  merge_hash_array: MostSpecific
+
+hash or MergeTopKeys:
+  merge_hash: hash
+  merge_baseType_array: MostSpecific
+  merge_hash_array: MostSpecific
+    merge_options:
+      knockout_prefix: '--'
+
+depp or MergeRecursively:
+  merge_hash: deep
+  merge_baseType_array: Unique
+  merge_hash_array: DeepTuple
+  merge_options:
+    knockout_prefix: --
+    tupleKeys:
+      - Name
+      - Version
+```
+
+The Lookup Options can also define keys using a (valid) Regex, for this the key has to start with `^`, for instance:
+```Yaml
+lookup_options:
+  ^LCM_Config\\.*: deep
+```
+
+The lookup will **always favor non-regex exact match**, and failing that will then use the **first matching** regex, before falling back on the `default_lookup_option`.
+
+If you've been following that far, you might wonder how it works for subkeys.
+
+Say you want to merge a subkey of a configuration where the role defines the following:
+
+```Yaml
+Configurations:
+  - SoftwareBaseline
+
+SoftwareBaseline:
+  PackageFeed: https://chocolatey.org/api/v2
+  Packages:
+    - Name: Package1
+      Version: v0.0.2
+```
+
+And an override file somewhere in the hierarchy:
+
+```Yaml
+SoftwareBaseline:
+  Packages:
+    - Name: Package2
+      Version: v4.5.2
+```
+
+You want the packages to have a deep tuple merge (that is, merge the hashtables based on matching key/values pairs, where `$ArrayItem.Property1 -eq $otherArrayItem.Property1`, more on this later).
+
+If the default Merge behaviour is MostSpecific, and no override exist for `SoftwareBaseline`, it will never merge Packages, and always return the Most specific.
+
+If you add a Merge behaviour for the key `SoftwareBaseline` of hash, it will merge the keys `PackageFeed` and `Packages` but not below, that means the result for a `Lookup SoftwareBaseline will be (assuming the Role has the lowest ResolutionPrecedence):
+
+```Yaml
+SoftwareBaseline:
+  PackageFeed: https://chocolatey.org/api/v2
+  Packages:
+    - Name: Package2
+      Version: v4.5.2
+```
+
+The `PackageFeed` key is present, but only the most specific `Package` value has been used (there's only 1 package).
+
+To also merge the Packages, you need to also define the Packages Subkey like so:
+
+```Yaml
+default_lookup_option: MostSpecific
+
+lookup_options:
+  SoftwareBaseline: hash
+  SoftwareBaseline\Packages:
+    merge_hash_array: DeepTuple
+    merge_options:
+      TupleKeys:
+        - Name
+        - Version
+```
+
+If you omit the first key (`SoftwareBaseline`), and the Lookup is only doing a lookup of that root key, it will never **'walk down'** the variable to see what needs  merging below the top key. This is the default behaviour in DscInfraSample's `RootConfiguration.ps1`.
+
+However, if you do a lookup directly to the subkey, `Lookup 'SofwareBaseline\Packages'`, it'll now work (as it does not have to **'walk down'** the variable).
 
 #### Lookup Options
-
+ 
 - Default
 - general
 - per lookup override
