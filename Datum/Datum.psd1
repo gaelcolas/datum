@@ -86,6 +86,9 @@ AliasesToExport =   '*'
 PrivateData = @{
     
         PSData = @{
+
+            CsvListSeparator = ';' #if configured this setting overrides the system defaults retrieved by '(Get-UICulture).TextInfo.ListSeparator'
+            CsvInnerListSeperator = ',' #has to be specified according to the CSV design       
     
             # Tags applied to this module. These help with module discovery in online galleries.
              Tags = @('Datum', 'Hiera', 'DSC', 'DesiredStateConfiguration', 'hierarchical', 'ConfigurationData', 'ConfigData')

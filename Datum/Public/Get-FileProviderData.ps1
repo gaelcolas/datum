@@ -26,7 +26,20 @@ function Get-FileProviderData {
                 '.psd1' { Import-PowerShellDataFile $File           | ConvertTo-Datum -DatumHandlers $DatumHandlers }
                 '.json' { ConvertFrom-Json (Get-Content -Raw $Path) | ConvertTo-Datum -DatumHandlers $DatumHandlers }
                 '.yml'  { ConvertFrom-Yaml (Get-Content -raw $Path) -ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers }
-                
+                '.csv'  {
+                    $listSeparator = $MyInvocation.MyCommand.Module.PrivateData.CsvListSeparator
+                    $innerListSeparator = $MyInvocation.MyCommand.Module.PrivateData.CsvInnerListSeperator
+                    $param = @{
+                        Path        = $Path
+                        ErrorAction = 'Stop'
+                        Delimiter   = if ($listSeparator) { $listSeparator } else { (Get-UICulture).TextInfo.ListSeparator }
+                    }
+                    if ($innerListSeparator) {
+                        $param.Add('InnerDelimiter', $innerListSeparator)
+                    }
+                    
+                    Import-CsvAsHashTable @param | ConvertTo-Datum -DatumHandlers $DatumHandlers 
+                }
                 Default { Get-Content -Raw $Path }
             }
             $script:FileProviderDataCache[$File.FullName] = @{
