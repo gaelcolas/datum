@@ -1,0 +1,107 @@
+DatumStructure:
+  - StoreName: AllNodes
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./AllNodes"
+ 
+  - StoreName: SiteData
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./SiteData"
+
+  - StoreName: Environments
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Environments"
+
+  - StoreName: Roles
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Roles"
+
+
+ResolutionPrecedence:
+  - 'AllNodes\$($Node.Environment)\$($Node.Name)'
+  - 'AllNodes\$($Node.Environment)\All'
+  - 'Environments\$($Node.Environment)'
+  - 'SiteData\$($Node.Location)'
+  - 'Roles\$($Node.Role)'
+  - 'Roles\All'
+
+DatumHandlers:
+  Datum::TestHandler: # Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
+    CommandOptions:
+      Password: P@ssw0rd
+      Test: test
+      
+  Datum::ProtectedDatum: # Datum\Test-ProtectedDatumFilter & Invoke-ProtectedDatumAction
+     CommandOptions:
+       PlainTextPassword: P@ssw0rd
+       #Certificate: ### THUMBPRINT ###
+
+  # Datum::FollowRedirection:
+  #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
+  #   Action: Resolve-Datum -PropertyPath ($InputObject -replace '^\[REF=').TrimEnd(']') -DatumTre $Datum -Variable $Node
+  # Datum::Interpolation:
+  #   Filter: $InputObject -is [string] -and $InputObject -match '\%\{.*\}'
+  #   Action: Get-InterpolatedDatum $InputObject
+
+
+# That's the default
+default_lookup_options: hash
+
+# default_lookup_options:
+#   strategy: MostSpecific
+#   MaxDepth: -1
+# default_lookup_options: # equivalent to adding ^.* in lookup_option
+#   strategy: first|unique|hash|deep
+#   options:
+#     knockout_prefix: --
+#     sort_merged_arrays: false
+#     merge_hash_arrays: false
+
+
+# Can override for all
+lookup_options:
+  Configurations:
+    merge_baseType_array: unique
+  #MergeTest1: deep
+  mergeTest1\MergeIntArray:
+    merge_basetype_array: Sum
+        
+  MergeTest1\MergeHash: deep
+  
+  MergeTest2:
+    merge_hash: deep
+    merge_basetype_array: Sum
+    merge_hash_array: Merge #Unique
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+          - name
+          - version
+
+  #MergeTest1\MergeHash: first
+  #configurations: Unique
+
+  # '^.*\\': 
+  #   strategy: deep
+  #   options:
+  #     knockout_prefix: --
+  #     sort_merged_arrays: false
+  #     merge_hash_arrays: false
+
+# lookup_options:
+#   lookup_options: #when a Configuration defines a merge behaviour, it can be overriden here
+#     merge: hash
+#   Configurations:
+#     merge: Unique
+#   Shared1:
+#     merge:
+#       Strategy: deep
+#       knockoutPrefix: --
+#   SoftwareBase\Packages\Sources:
+#     merge: 
+#       strategy: ArrayOfUniqueHashByPropertyName
+#       PropertyName: Name
+#   #how to support regex when path separator is \

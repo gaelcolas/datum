@@ -13,6 +13,8 @@
     PSScriptAnalyzer = 'latest'
     PlatyPS = 'latest'
     psdeploy = 'latest'
+    'powershell-yaml' = 'latest'
+    protectedData = 'latest'
 
     #required for DSC authoring
     xDscResourceDesigner = 'latest'

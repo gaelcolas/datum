@@ -1,23 +1,39 @@
-#Requires -module powershell-yaml
-#Using Module Datum
-
 function Get-FileProviderData {
     [CmdletBinding()]
     Param(
         $Path,
 
         [AllowNull()]
-        $DataOptions
+        $DatumHandlers = @{}
     )
-    Write-Verbose "Getting File Provider Data for Path: $Path"
-    $File = Get-Item -Path $Path
-    switch ($File.Extension) {
-        '.psd1' { Import-PowerShellDataFile $File }
-        '.json' { Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-Hashtable }
-        '.yml'  { convertfrom-yaml (Get-Content -raw $Path) | ConvertTo-Hashtable }
-        '.ejson'{ Get-Content -Raw $Path | ConvertFrom-Json | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
-        '.eyaml'{ ConvertFrom-Yaml (Get-Content -Raw $Path) | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
-        '.epsd1'{ Import-PowerShellDatafile $File | ConvertTo-ProtectedDatum -UnprotectOptions $DataOptions}
-        Default { Get-Content -Raw $Path }
+
+    begin {
+        if(!$script:FileProviderDataCache) {
+            $script:FileProviderDataCache = @{}
+        }
+    }
+
+    process {
+        $File = Get-Item -Path $Path
+        if($script:FileProviderDataCache.ContainsKey($File.FullName) -and 
+        $File.LastWriteTime -eq $script:FileProviderDataCache[$File.FullName].Metadata.LastWriteTime) {
+            Write-Verbose "Getting File Provider Cache for Path: $Path"
+            $script:FileProviderDataCache[$File.FullName].Value
+        }
+        else {
+            Write-Verbose "Getting File Provider Data for Path: $Path"
+            $Data = switch ($File.Extension) {
+                '.psd1' { Import-PowerShellDataFile $File           | ConvertTo-Datum -DatumHandlers $DatumHandlers }
+                '.json' { ConvertFrom-Json (Get-Content -Raw $Path) | ConvertTo-Datum -DatumHandlers $DatumHandlers }
+                '.yml'  { ConvertFrom-Yaml (Get-Content -raw $Path) -ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers }
+                
+                Default { Get-Content -Raw $Path }
+            }
+            $script:FileProviderDataCache[$File.FullName] = @{
+                Metadata = $File
+                Value = $Data
+            }
+            $Data
+        }
     }
 }

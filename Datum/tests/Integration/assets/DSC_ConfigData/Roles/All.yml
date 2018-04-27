@@ -1,0 +1,19 @@
+LCM_Config:
+  Settings:
+    RefreshMode: Pull
+    RefreshFrequencyMins: 30
+    RebootNodeIfNeeded: true
+    ActionAfterReboot: ContinueConfiguration
+    AllowModuleOverwrite: true
+    #CertificateID: ...
+    ConfigurationMode: ApplyAndAutocorrect
+    ConfigurationModeFrequencyMins: 60
+  ConfigurationRepositoryShare:
+    #Credential:  ...
+    SourcePath: \\your\dfs\share
+  ResourceRepositoryShare:
+    SourcePath: \\your\dfs\share
+
+
+Configurations:
+  - Shared1

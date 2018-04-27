@@ -1,0 +1,76 @@
+Description: 'This is the DEV environment'
+Test: "[TEST=CatchMe]"
+
+
+MergeTest1:
+  MergeHash:
+    HashKey2: FromEnvironment
+    HashKey3: FromEnvironment
+    MyConfig:
+      Gateways:
+        probename: MYPROB
+      ManagedNode:
+        Blah1:
+          Attribute:
+            OS: stuff
+          Types:
+            - test1
+            - test2
+            - test3
+  MergeIntArray:
+    - 1
+    - 3
+    - 4
+  MergeStringArray:
+    - string1
+    - string2
+    - string4
+
+  MergeHashArrays:
+    - Name: HashName1
+      Version: version1
+      ExtraProperty: FromEnvironment
+    - Name: HashName2
+      Version: version2
+      Property: FromEnvironment
+    - Name: HashName3
+      Version: version3
+      # List:
+      #   - RoleElem3
+      #   - RoleElem4
+
+
+
+
+
+
+MergeTest2:
+  MergeHash:
+    HashKey2: FromEnvironment
+    HashKey3: FromEnvironment
+  MergeIntArray:
+    - 1
+    - 3
+
+  MergeStringArray:
+    - string1
+    - string2
+    - string4
+
+  MergeHashArrays:
+    - Name: HashName1
+      Version: version1
+      ExtraProperty: FromEnvironment
+    - Name: HashName1
+      Version: version1
+      ExtraProperty: FromEnvironment2
+    - Name: HashName2
+      Version: version2
+      Property: FromEnvironment
+    - Name: HashName3
+      Version: version3
+      # List:
+      #   - RoleElem3
+      #   - RoleElem4
+
+

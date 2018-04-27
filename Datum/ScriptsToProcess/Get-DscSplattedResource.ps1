@@ -8,12 +8,18 @@ function Global:Get-DscSplattedResource {
         $ExecutionName,
 
         [hashtable]
-        $Properties
+        $Properties,
+
+        [switch]
+        $NoInvoke
     )
-    
+    # Remove Case Sensitivity of ordered Dictionary or Hashtables
+    $Properties = @{}+$Properties
+
     $stringBuilder = [System.Text.StringBuilder]::new()
     $null = $stringBuilder.AppendLine("Param([hashtable]`$Parameters)")
     $null = $stringBuilder.AppendLine()
+    $null = $stringBuilder.AppendLine(" `$(`$Parameters=@{}+`$Parameters)")
     $null = $stringBuilder.AppendLine(" $ResourceName $ExecutionName { ")
     foreach($PropertyName in $Properties.keys) {
         $null = $stringBuilder.AppendLine("$PropertyName = `$(`$Parameters['$PropertyName'])")
@@ -21,15 +27,12 @@ function Global:Get-DscSplattedResource {
     $null = $stringBuilder.AppendLine("}")
     Write-Debug ("Generated Resource Block = {0}" -f $stringBuilder.ToString())
     
-    [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+    if($NoInvoke) {
+        [scriptblock]::Create($stringBuilder.ToString())
+    }
+    else {
+        [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+    }
 }
 Set-Alias -Name x -Value Get-DscSplattedResource -scope Global
 #Export-ModuleMember -Alias x
-
-<#
-
-ipmo -Force ..\..\Datum.psd1
-. .\demo3.ps1
-MyConfiguration -ConfigurationData $mydata -verbose
-
-#>

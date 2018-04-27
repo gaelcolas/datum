@@ -1,0 +1,18 @@
+Configurations:
+  - Shared1
+  - SoftwareBase
+
+Shared1:
+  DestinationPath: C:\MyRoleParam.txt
+  Param1: This is the Role Value!
+
+SoftwareBase:
+  Sources:
+    - Name: chocolatey
+      Disabled: false
+      Source: https://chocolatey.org/api/v2
+
+  Packages:
+    - Name: chocolatey
+    - Name: NotepadPlusplus
+    - Name: Putty

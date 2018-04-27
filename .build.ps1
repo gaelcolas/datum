@@ -9,7 +9,7 @@ Param (
     [String]
     $BuildOutput = "BuildOutput",
 
-    $ModuleVersion = $(if($Env:APPVEYOR_BUILD_VERSION) {$ENV:APPVEYOR_BUILD_VERSION} else { Get-NextNugetPackageVersion -Name 'Chocolatey'} ),
+    $ModuleVersion = $(if(![string]::IsNullOrEmpty($env:APPVEYOR_BUILD_VERSION)) {$env:APPVEYOR_BUILD_VERSION} else { Get-NextNugetPackageVersion -Name 'Datum'} ),
     
     [String[]]
     $GalleryRepository,
@@ -20,7 +20,7 @@ Param (
     [Switch]
     $ForceEnvironmentVariables = [switch]$true,
 
-    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={}},'priv*','pub*')
+    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={(Import-PowerShellDataFile -EA 0 .\*\Classes\classes.psd1).order.indexOf($_.BaseName)}},'priv*','pub*')
     
     ,$CodeCoverageThreshold = 0
 )
@@ -36,13 +36,6 @@ Process {
     }
 
     Write-Warning $ModuleVersion
-    if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
-    }
-
-    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
-        $Env:PSModulePath += ';' + (Join-Path $BuildOutput 'modules')
-    }
 
     Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
         Foreach-Object {
@@ -62,15 +55,24 @@ Process {
             FailBuildIfFailedUnitTest, 
             FailIfLastCodeConverageUnderThreshold,
             IntegrationTests,
+            UploadIntegrationTestResultsToAppVeyor,
+            FailBuildIfFailedIntegrationTest,
             DeployAll
             
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
-
 
 }
 
 
 begin {
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
+    }
+
+    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
+        $Env:PSModulePath += ';' + (Join-Path $BuildOutput 'modules')
+    }
     function Resolve-Dependency {
         [CmdletBinding()]
         param()

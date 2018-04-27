@@ -1,0 +1,15 @@
+NodeName: SRV02
+Description: Dev version of SRV01
+role: WindowsBase
+Location: LON
+ExampleProperty1: 'From Node'
+
+LCM_Config:
+  Settings:
+    RefreshMode: Push
+    RefreshFrequencyMins: 30
+    RebootNodeIfNeeded: true
+
+Shared1:
+  DestinationPath: C:\MyRoleParam.txt
+  Param1: This is the Node override!

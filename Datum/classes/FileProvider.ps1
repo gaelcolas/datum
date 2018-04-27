@@ -1,23 +1,27 @@
-Class FileProvider {
+Class FileProvider : DatumProvider {
     hidden $Path
-    hidden [hashtable] $DataOptions
-    FileProvider ($Path,$DataOptions)
+    hidden [hashtable] $Store
+    hidden [hashtable] $DatumHierarchyDefinition
+    hidden [hashtable] $StoreOptions
+    hidden [hashtable] $DatumHandlers
+
+    FileProvider ($Path,$Store,$DatumHierarchyDefinition)
     {
-        $this.DataOptions = $DataOptions
+        $this.Store = $Store
+        $this.DatumHierarchyDefinition = $DatumHierarchyDefinition
+        $this.StoreOptions = $Store.StoreOptions
         $this.Path = Get-Item $Path -ErrorAction SilentlyContinue
-        
+        $this.DatumHandlers = $DatumHierarchyDefinition.DatumHandlers
+
         $Result = Get-ChildItem $path | ForEach-Object {
             if($_.PSisContainer) {
-                $val = [scriptblock]::Create("New-DatumFileProvider -Path `"$($_.FullName)`" -DataOptions `$this.DataOptions")
+                $val = [scriptblock]::Create("New-DatumFileProvider -Path `"$($_.FullName)`" -StoreOptions `$this.DataOptions -DatumHierarchyDefinition `$this.DatumHierarchyDefinition")
                 $this | Add-Member -MemberType ScriptProperty -Name $_.BaseName -Value $val
             }
             else {
-                $val = [scriptblock]::Create("Get-FileProviderData -Path  `"$($_.FullName)`" -DataOptions `$this.DataOptions")
+                $val = [scriptblock]::Create("Get-FileProviderData -Path `"$($_.FullName)`" -DatumHandlers `$this.DatumHandlers")
                 $this | Add-Member -MemberType ScriptProperty -Name $_.BaseName -Value $val
             }
         }
     }
 }
-
-#$ConfigurationData = [fileProvider]::new($PWD.Path,@{})
-#($ConfigurationData.AllNodes.psobject.Properties | % { $ConfigurationData.AllNodes.($_.Name) })[1]

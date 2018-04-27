@@ -1,0 +1,6 @@
+NodeName: 9d8cc603-5c6f-4f6d-a54a-466a6180b589
+#Description: Dev version of SRV01
+role: Role1
+Location: LON
+ExampleProperty1: 'From Node'
+Test: '[TEST=Roles\Role1\Shared1\DestinationPath]'

@@ -1,8 +1,0 @@
-DatumStructure:
-  - StoreName: Secured
-    StoreProvider: Datum::File
-    StoreOptions:
-      DataDir: "./ConfigData"
-      DataOptions:
-        ClearTextPassword: P@ssw0rd
-        #Certificate: ### THUMBPRINT ###

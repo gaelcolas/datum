@@ -1,0 +1,68 @@
+configurations:
+  - MergeTest1
+  - MergeTest2
+
+MergeTest1:
+  MergeHash:
+    HashKey1: FromRole
+    HashKey3: FromRole
+  MergeIntArray:
+    - 2
+    - 4
+    - 5
+  MergeStringArray:
+    - string3
+    - string5
+    - string4
+
+  MergeHashArrays:
+    - Name: HashName1
+      Version: version1
+      Property: FromRole
+      ExtraProperty: FromRole
+    - Name: HashName2
+      Version: version2
+      Property: FromRole
+    # - Name: HashName3
+    #   Version: version3
+      # List:
+      #   - RoleElem1
+      #   - RoleElem2
+    - Name: HashName4
+      Version: version4
+      ExtraProperty: FromRole
+      UniqueProp: FromRole
+
+MergeTest2:
+  MergeHash:
+    HashKey1: FromRole
+    HashKey3: FromRole
+  MergeIntArray:
+    - 2
+    - 4
+    - 5
+  MergeStringArray:
+    - string3
+    - string5
+    - string4
+
+  MergeHashArrays:
+    - Name: HashName1
+      Version: version1
+      Property: FromRole
+      ExtraProperty: FromRole
+    - Name: HashName2
+      Version: version2
+      Property: FromRole
+    # - Name: HashName3
+    #   Version: version3
+      # List:
+      #   - RoleElem1
+      #   - RoleElem2
+    - Name: HashName4
+      Version: version4
+      ExtraProperty: FromRole
+    - Name: HashName4
+      Version: version4
+      ExtraProperty: FromRole
+      UniqueProp: FromRole
