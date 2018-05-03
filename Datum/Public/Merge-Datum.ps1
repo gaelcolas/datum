@@ -71,14 +71,14 @@ function Merge-Datum {
                     #--> $ref + $diff -$kop
                     if($regexPattern = $Strategy.merge_options.knockout_prefix) {
                         $regexPattern = $regexPattern.insert(0,'^')
-                        ($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern}
+                        Write-Output (($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern}) -NoEnumerate
                     }
                     else {
-                        ($ReferenceDatum + $DifferenceDatum)
+                        Write-Output ($ReferenceDatum + $DifferenceDatum) -NoEnumerate
                     }
                 }
 
-                Default { return $ReferenceDatum }
+                Default { Write-Output $ReferenceDatum -NoEnumerate; return }
             }
         }
 
@@ -96,12 +96,12 @@ function Merge-Datum {
 
                 '^UniqueKeyValTuples'  {
                     #--> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is not already int output
-                    Merge-DatumArray @MergeDatumArrayParams
+                    Write-Output (Merge-DatumArray @MergeDatumArrayParams) -NoEnumerate
                 }
 
                 '^DeepTuple|^DeepItemMergeByTuples' {
                     #--> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is merged up
-                    Merge-DatumArray @MergeDatumArrayParams
+                    Write-Output (Merge-DatumArray @MergeDatumArrayParams) -NoEnumerate
                 }
 
                 '^Sum' {
@@ -109,9 +109,10 @@ function Merge-Datum {
                     (@($DifferenceArray) + @($ReferenceArray)).Foreach{
                         $null = $MergedArray.add(([ordered]@{}+$_))
                     }
+                    Write-Output $MergedArray -NoEnumerate
                 }
 
-                Default { return $ReferenceDatum }
+                Default { Write-Output $ReferenceDatum -NoEnumerate; return }
             }
         }
     }
