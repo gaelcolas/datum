@@ -2,6 +2,7 @@
     $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
     $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
 
+. $PSScriptRoot\classes\DatumProvider.ps1
 . $PSScriptRoot\classes\FileProvider.ps1
 
 #Dot source the files

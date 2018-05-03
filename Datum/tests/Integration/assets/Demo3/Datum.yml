@@ -1,5 +1,4 @@
 ResolutionPrecedence:
-  - 'Locations\$($Node.Location)'
   - 'Roles\$($Node.Role)'
   - 'Roles\All'
 
