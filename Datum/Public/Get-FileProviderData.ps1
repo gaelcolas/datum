@@ -29,6 +29,12 @@ function Get-FileProviderData {
                 '.csv'  {
                     $listSeparator = $MyInvocation.MyCommand.Module.PrivateData.CsvListSeparator
                     $innerListSeparator = $MyInvocation.MyCommand.Module.PrivateData.CsvInnerListSeperator
+
+                    if (-not $listSeparator -or -not $innerListSeparator)
+                    {
+                        Write-Error "Cannot import CSV file '$Path' as the 'ListSeparator' or 'InnerListSeparator'"
+                        return
+                    }
                     $param = @{
                         Path        = $Path
                         ErrorAction = 'Stop'

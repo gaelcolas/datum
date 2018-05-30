@@ -41,7 +41,7 @@ function Import-CsvAsHashTable {
         $subItems = @{}
         foreach ($property in ($properties | Where-Object Name -ne $KeyColumn)) {
             $propertyValue = $item."$($property.Name)"
-            if ($propertyValue -like ($InnerDelimiter)) {
+            if ($propertyValue.Contains($InnerDelimiter)) {
                 $values = $propertyValue -split $InnerDelimiter
                 $subItems.Add($property.Name, $values)
             }
