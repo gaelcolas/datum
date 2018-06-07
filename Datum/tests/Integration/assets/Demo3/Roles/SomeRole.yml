@@ -1,0 +1,8 @@
+# SomeRole.yml
+Disks:
+  - Number: 1
+    DriveLetter: D
+    FS: NTFS
+  - Number: 2
+    DriveLetter: E
+    FS: ReFS
