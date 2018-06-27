@@ -22,14 +22,14 @@ function Merge-Datum {
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
     if($ReferenceDatumType -ne $DifferenceDatumType) {
-        Write-Warning "Cannot merge different types REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
+        Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
         return $ReferenceDatum
     }
 
     if($Strategy -is [string]) {
         $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
     }
-    
+
     switch ($ReferenceDatumType) {
         'BaseType' {
             return $ReferenceDatum
@@ -43,7 +43,7 @@ function Merge-Datum {
                 ParentPath = $StartingPath
                 ChildStrategies = $Strategies
             }
-            
+
             if($Strategy.merge_hash -match '^MostSpecific$|^First') {
                 return $ReferenceDatum
             }
@@ -64,7 +64,7 @@ function Merge-Datum {
                     else {
                         ($ReferenceDatum + $DifferenceDatum)| Select-object -Unique
                     }
-                    
+
                 }
 
                 '^Sum|^Add' {
@@ -90,7 +90,7 @@ function Merge-Datum {
                 ChildStrategies = $Strategies
                 StartingPath = $StartingPath
             }
-            
+
             switch -Regex ($Strategy.merge_hash_array) {
                 '^MostSpecific|^First' { return $ReferenceDatum }
 
