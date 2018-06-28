@@ -35,16 +35,19 @@ function Get-FileProviderData {
                         Write-Error "Cannot import CSV file '$Path' as the 'ListSeparator' or 'InnerListSeparator'"
                         return
                     }
-                    $param = @{
-                        Path        = $Path
-                        ErrorAction = 'Stop'
-                        Delimiter   = if ($listSeparator) { $listSeparator } else { (Get-UICulture).TextInfo.ListSeparator }
-                    }
-                    if ($innerListSeparator) {
-                        $param.Add('InnerDelimiter', $innerListSeparator)
-                    }
                     
-                    Import-CsvAsHashTable @param | ConvertTo-Datum -DatumHandlers $DatumHandlers 
+                    $data = Get-Content -Path $Path | ConvertFrom-Csv -Delimiter $listSeparator | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                    for ($i = 0; $i -lt $data.Count; $i++)
+                    {
+                        for ($j = 0; $j -lt $data[$i].Keys.Count; $j++)
+                        {
+                            if ($data[$i]."$(([array]$data[$i].Keys)[$j])".Contains($innerListSeparator))
+                            {
+                                $data[$i]."$(([array]$data[$i].Keys)[$j])" = $data[$i]."$(([array]$data[$i].Keys)[$j])" -split $innerListSeparator
+                            }
+                        }                        
+                    }
+                    $data
                 }
                 Default { Get-Content -Raw $Path }
             }
