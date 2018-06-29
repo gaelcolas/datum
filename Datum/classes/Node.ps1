@@ -1,4 +1,4 @@
-Class Node : hashtable {
+class Node : hashtable {
     Node([hashtable]$NodeData)
     {
         $NodeData.keys | % {
@@ -30,4 +30,3 @@ Class Node : hashtable {
         "Resolve-DscProperty $Path"
     }
 }
- 

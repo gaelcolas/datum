@@ -13,10 +13,21 @@ function Merge-Datum {
         }
     )
 
+    if ($DifferenceDatum -is [DatumProvider])
+    {
+        $DifferenceDatum = ConvertTo-Datum -InputObject $DifferenceDatum | Add-Member -Name FlexType -MemberType NoteProperty -Value $StartingPath -PassThru
+    }
+    
+    if ($ReferenceDatum.__DatumInternal_Path -and $DifferenceDatum -is [System.Collections.IEnumerable])
+    {
+        Write-Verbose "Reference is imported from a file and difference is an array. Converting reference to array to allow merge"
+        $ReferenceDatum = @($ReferenceDatum)
+    }
+
     Write-Debug "Merge-Datum -StartingPath <$StartingPath>"
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "   Merge Strategy: @$($Strategy | COnvertto-Json)"
+    Write-Verbose "   Merge Strategy: @$($Strategy | ConvertTo-Json)"
 
     $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
@@ -59,10 +70,12 @@ function Merge-Datum {
                 '^Unique'   {
                     if($regexPattern = $Strategy.merge_options.knockout_prefix) {
                         $regexPattern = $regexPattern.insert(0,'^')
-                        ($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique
+                        $result = @(($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique)
+                        Write-Output $result -NoEnumerate
                     }
                     else {
-                        ($ReferenceDatum + $DifferenceDatum)| Select-object -Unique
+                        $result = @(($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique)
+                        Write-Output $result -NoEnumerate
                     }
 
                 }

@@ -1,10 +1,13 @@
-Class FileProvider : DatumProvider {
-    hidden $Path
+class FileProvider : DatumProvider {
+    hidden [string]    $Path
     hidden [hashtable] $Store
     hidden [hashtable] $DatumHierarchyDefinition
     hidden [hashtable] $StoreOptions
     hidden [hashtable] $DatumHandlers
 
+    FileProvider()
+    { }
+    
     FileProvider ($Path,$Store,$DatumHierarchyDefinition)
     {
         $this.Store = $Store
