@@ -175,16 +175,15 @@ function Resolve-Datum {
         if ($DatumFound -is [DatumProvider]) {
             $DatumFound = $DatumFound.ToHashTable()
         }
-
+        
         Write-Debug "  Depth: $depth; Merge options = $($options.count)"
 
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
         if ($DatumFound -and ($StartingMergeStrategy.Strategy -match '^MostSpecific|^First')) {
             return $DatumFound
         }
-        elseif ( $DatumFound ) {
-
-            if (!$MergeResult) {
+        elseif ($DatumFound) {
+            if (-not $MergeResult) {
                 $MergeResult = $DatumFound
             }
             else {

@@ -13,11 +13,6 @@ function Merge-Datum {
         }
     )
 
-    if ($DifferenceDatum -is [DatumProvider])
-    {
-        $DifferenceDatum = ConvertTo-Datum -InputObject $DifferenceDatum | Add-Member -Name FlexType -MemberType NoteProperty -Value $StartingPath -PassThru
-    }
-    
     if ($ReferenceDatum.__DatumInternal_Path -and $DifferenceDatum -is [System.Collections.IEnumerable])
     {
         Write-Verbose "Reference is imported from a file and difference is an array. Converting reference to array to allow merge"
