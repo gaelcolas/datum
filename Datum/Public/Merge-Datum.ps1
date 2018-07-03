@@ -13,7 +13,7 @@ function Merge-Datum {
         }
     )
 
-    if ($ReferenceDatum.__DatumInternal_Path -and $DifferenceDatum -is [System.Collections.IEnumerable])
+    if ($ReferenceDatum.__DatumInternal_Path -and $DifferenceDatum -is [object[]])
     {
         Write-Verbose "Reference is imported from a file and difference is an array. Converting reference to array to allow merge"
         $ReferenceDatum = @($ReferenceDatum)
