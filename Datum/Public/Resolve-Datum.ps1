@@ -1,6 +1,6 @@
-Function Resolve-Datum {
+function Resolve-Datum {
     [cmdletBinding()]
-    Param(
+    param(
         [Parameter(
             Mandatory
         )]
@@ -31,9 +31,9 @@ Function Resolve-Datum {
 
         [int]
         $MaxDepth = $(
-            if ($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth) { 
-                $MxdDpth 
-            } 
+            if ($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth) {
+                $MxdDpth
+            }
             else {
                 -1
             })
@@ -51,7 +51,7 @@ Function Resolve-Datum {
         Present	Present	options override lookup options + Most Specific if !Exists
     Present	Present	Present	options override lookup options + default for ^.*
 
-    
+
     +========================+================+====================+============================================================+
     | default_lookup_options | Lookup_options | options (argument) |                         Behaviour                          |
     +========================+================+====================+============================================================+
@@ -81,13 +81,13 @@ Function Resolve-Datum {
     3. Overriding ^.* without tagging it as default (always match unless)
 
     #>
-    
+
     Write-Debug "Resolve-Datum -PropertyPath <$PropertyPath> -Node $($Node.Name)"
     # Make options an ordered case insensitive variable
     if ($options) {
         $options = [ordered]@{} + $options
     }
-        
+
     if ( !$DatumTree.__Definition.default_lookup_options ) {
         $default_options = Get-MergeStrategyFromString
         Write-Verbose "  Default option not found in Datum Tree"
@@ -124,7 +124,7 @@ Function Resolve-Datum {
         }
     }
 
-    # using options if specified or lookup_options otherwise 
+    # using options if specified or lookup_options otherwise
     if (!$options) {
         $options = $lookup_options
     }
@@ -167,21 +167,24 @@ Function Resolve-Datum {
                 $index = $ArraySb.Add($expr)
                 "`$({$index})"
             }, @('IgnoreCase', 'SingleLine', 'MultiLine'))
-        
+
         $PathStack = $newSearch -split $splitPattern
         # Get value for this property path
         $DatumFound = Resolve-DatumPath -Node $Node -DatumTree $DatumTree -PathStack $PathStack -PathVariables $ArraySb
+
+        if ($DatumFound -is [DatumProvider]) {
+            $DatumFound = $DatumFound.ToHashTable()
+        }
         
         Write-Debug "  Depth: $depth; Merge options = $($options.count)"
-        
+
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
         if ($DatumFound -and ($StartingMergeStrategy.Strategy -match '^MostSpecific|^First')) {
             return $DatumFound
         }
-        elseif ( $DatumFound ) {
-
-            if (!$MergeResult) {
-                $MergeResult = $DatumFound 
+        elseif ($DatumFound) {
+            if (-not $MergeResult) {
+                $MergeResult = $DatumFound
             }
             else {
                 $MergeParams = @{
