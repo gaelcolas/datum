@@ -26,8 +26,8 @@ function Global:Get-DscSplattedResource {
     }
     $null = $stringBuilder.AppendLine("}")
     Write-Debug ("Generated Resource Block = {0}" -f $stringBuilder.ToString())
-    
-    if($NoInvoke) {
+
+    if($NoInvoke.IsPresent) {
         [scriptblock]::Create($stringBuilder.ToString())
     }
     else {
