@@ -38,5 +38,10 @@ Describe 'Test Datum overrides' {
             $MyNode = $AllNodes.Where({$_.Name -eq $Node})
             (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $MyNode -DatumTree $Datum) | Should -HaveCount $Count
         }
+
+        it "should return False as value" {
+            $MyNode = $AllNodes.Where( {$_.Name -eq "Node3"})
+            lookup -PropertyPath StartVM -Node $MyNode -DatumTree $Datum | Should -BeFalse
+        }
     }
 }

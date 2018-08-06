@@ -180,7 +180,7 @@ Function Resolve-Datum {
         }
         elseif ($null -ne $DatumFound) {
 
-            if ($null -ne $MergeResult) {
+            if ($null -eq $MergeResult) {
                 $MergeResult = $DatumFound
             }
             else {
