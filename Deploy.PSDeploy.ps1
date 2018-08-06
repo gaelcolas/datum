@@ -7,8 +7,7 @@ if(
     if (!$Env:APPVEYOR_PULL_REQUEST_NUMBER -and 
         $Env:BuildSystem -eq 'AppVeyor' -and 
         $Env:BranchName -eq 'master' -and 
-        $Env:NuGetApiKey -and
-        $Env:CommitMessage -match '!Deploy'
+        $Env:NuGetApiKey
     ) {
         $manifest = Import-PowerShellDataFile -Path ".\$Env:ProjectName\$Env:ProjectName.psd1"
         $manifest.RequiredModules|ForEach-Object {
@@ -17,7 +16,7 @@ if(
             if($ReqModuleVersion = ([Microsoft.PowerShell.Commands.ModuleSpecification]$_).RequiredVersion) {
                 $InstallModuleParams.Add('RequiredVersion',$ReqModuleVersion)
             }
-            Install-Module @InstallModuleParams -Force
+            Install-Module @InstallModuleParams -AllowClobber -SkipPublisherCheck -Force
         }
 
         Deploy Module {
