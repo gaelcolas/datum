@@ -27,7 +27,7 @@ function Global:Resolve-NodeProperty {
 
         [string[]]
         $SearchPaths,
-        
+
         [Parameter(
             Position = 5
         )]
@@ -47,14 +47,14 @@ function Global:Resolve-NodeProperty {
     foreach ($removeKey in $PSBoundParameters.keys.where{$_ -in @('DefaultValue','Node')}) {
         $ResolveDatumParams.remove($removeKey)
     }
-    
+
     # Translate the DSC specific Node into the 'Node' variable and Node name used by Resolve-Datum
     if($Node) {
         $ResolveDatumParams.Add('Variable',$Node)
         $ResolveDatumParams.Add('VariableName','Node')
     }
 
-    # Starting DSC Behaviour: Resolve-Datum || $DefaultValue || $null if specified as default || throw 
+    # Starting DSC Behaviour: Resolve-Datum || $DefaultValue || $null if specified as default || throw
     if($result = Resolve-Datum @ResolveDatumParams) {
         Write-Verbose "`tResult found for $PropertyPath"
     }
@@ -67,21 +67,21 @@ function Global:Resolve-NodeProperty {
         $NullAllowed = $true
         Write-Debug "`t`tDefault NULL found and allowed."
     }
-    else { 
+    else {
         #This is when the Lookup is initiated from a Composite Resource, for itself
-        
+
         if(-not ($here = $MyInvocation.PSScriptRoot)) {
             $here = $Pwd.Path
         }
         Write-Debug "`t`tAttempting to load datum from $($here)."
-        
+
         $ResourceConfigDataPath = Join-Path $here 'ConfigData' -Resolve -ErrorAction SilentlyContinue
 
         if($ResourceConfigDataPath) {
             $DatumDefinitionFile = Join-Path $ResourceConfigDataPath 'Datum.*' -Resolve -ErrorAction SilentlyContinue
             if($DatumDefinitionFile) {
                 Write-Debug "Resource Datum File Path: $DatumDefinitionFile"
-                $ResourceDatum = New-DatumStructure -DefinitionFile $DatumDefinitionFile 
+                $ResourceDatum = New-DatumStructure -DefinitionFile $DatumDefinitionFile
             }
             else {
                 #Loading Default Datum structure
@@ -99,7 +99,7 @@ function Global:Resolve-NodeProperty {
         }
     }
 
-    if($result -or $NullAllowed) {
+    if($null -ne $result -or $NullAllowed) {
         Write-Output $result -NoEnumerate
     }
     else {
