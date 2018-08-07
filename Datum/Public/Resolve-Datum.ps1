@@ -1,6 +1,6 @@
-Function Resolve-Datum {
+function Resolve-Datum {
     [cmdletBinding()]
-    Param(
+    param(
         [Parameter(
             Mandatory
         )]
@@ -172,6 +172,10 @@ Function Resolve-Datum {
         # Get value for this property path
         $DatumFound = Resolve-DatumPath -Node $Node -DatumTree $DatumTree -PathStack $PathStack -PathVariables $ArraySb
 
+        if ($DatumFound -is [DatumProvider]) {
+            $DatumFound = $DatumFound.ToHashTable()
+        }
+        
         Write-Debug "  Depth: $depth; Merge options = $($options.count)"
 
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)

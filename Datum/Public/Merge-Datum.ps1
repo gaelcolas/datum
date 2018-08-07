@@ -13,23 +13,29 @@ function Merge-Datum {
         }
     )
 
+    if ($ReferenceDatum.__DatumInternal_Path -and $DifferenceDatum -is [object[]])
+    {
+        Write-Verbose "Reference is imported from a file and difference is an array. Converting reference to array to allow merge"
+        $ReferenceDatum = @($ReferenceDatum)
+    }
+
     Write-Debug "Merge-Datum -StartingPath <$StartingPath>"
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "   Merge Strategy: @$($Strategy | COnvertto-Json)"
+    Write-Verbose "   Merge Strategy: @$($Strategy | ConvertTo-Json)"
 
     $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
     if($ReferenceDatumType -ne $DifferenceDatumType) {
-        Write-Warning "Cannot merge different types REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
+        Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
         return $ReferenceDatum
     }
 
     if($Strategy -is [string]) {
         $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
     }
-    
+
     switch ($ReferenceDatumType) {
         'BaseType' {
             return $ReferenceDatum
@@ -43,7 +49,7 @@ function Merge-Datum {
                 ParentPath = $StartingPath
                 ChildStrategies = $Strategies
             }
-            
+
             if($Strategy.merge_hash -match '^MostSpecific$|^First') {
                 return $ReferenceDatum
             }
@@ -59,12 +65,14 @@ function Merge-Datum {
                 '^Unique'   {
                     if($regexPattern = $Strategy.merge_options.knockout_prefix) {
                         $regexPattern = $regexPattern.insert(0,'^')
-                        ($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique
+                        $result = @(($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique)
+                        Write-Output $result -NoEnumerate
                     }
                     else {
-                        ($ReferenceDatum + $DifferenceDatum)| Select-object -Unique
+                        $result = @(($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique)
+                        Write-Output $result -NoEnumerate
                     }
-                    
+
                 }
 
                 '^Sum|^Add' {
@@ -90,7 +98,7 @@ function Merge-Datum {
                 ChildStrategies = $Strategies
                 StartingPath = $StartingPath
             }
-            
+
             switch -Regex ($Strategy.merge_hash_array) {
                 '^MostSpecific|^First' { return $ReferenceDatum }
 
