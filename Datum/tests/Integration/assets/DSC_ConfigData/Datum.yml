@@ -34,10 +34,10 @@ DatumHandlers:
       Password: P@ssw0rd
       Test: test
       
-  Datum::ProtectedDatum: # Datum\Test-ProtectedDatumFilter & Invoke-ProtectedDatumAction
-     CommandOptions:
-       PlainTextPassword: P@ssw0rd
-       #Certificate: ### THUMBPRINT ###
+  # Datum.ProtectedData::ProtectedDatum: # Datum.ProtectedData\Test-ProtectedDatumFilter & Datum.ProtectedData\Invoke-ProtectedDatumAction
+  #    CommandOptions:
+  #      PlainTextPassword: P@ssw0rd
+  #      #Certificate: ### THUMBPRINT ###
 
   # Datum::FollowRedirection:
   #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
