@@ -10,6 +10,16 @@ function ConvertTo-Datum
 
     process
     {
+        if($InputObject.ProviderURI) {
+            $ProviderURI = $InputObject.ProviderURI
+        }
+
+        if(!$InputObject.StructureRelativePath) {
+            $StructureRelativePath = $null
+        } else  {
+            $StructureRelativePath = $InputObject.StructureRelativePath
+        }
+
         if ($null -eq $InputObject) { return $null }
 
         # if There's a matching filter, process associated command and return result
@@ -49,33 +59,49 @@ function ConvertTo-Datum
         if ($InputObject -is [System.Collections.IDictionary]) {
             $hashKeys = [string[]]$InputObject.Keys
             foreach ($Key in $hashKeys) {
+                if($null -ne $InputObject[$Key]) {
+                    $InputObject[$Key] | Add-Member -MemberType NoteProperty -Name ProviderURI -Value $ProviderURI -Force #-PassThru
+                }
+                $InputObject[$Key] | Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value (@($InputObject.StructureRelativePath, $Key) -join '\') -Force    
                 $InputObject[$Key] = ConvertTo-Datum -InputObject $InputObject[$Key] -DatumHandlers $DatumHandlers
+                $InputObject[$Key] | Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value (@($InputObject.StructureRelativePath, $Key) -join '\') -Force    
             }
             # Making the Ordered Dict Case Insensitive
-            ([ordered]@{}+$InputObject)
+            Write-Output -NoEnumerate (([ordered]@{}+$InputObject)| Add-Member -Force -MemberType NoteProperty -Name ProviderURI -Value $ProviderURI -PassThru|
+            Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value $StructureRelativePath -Force -PassThru )
         }
         elseif ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string])
         {
+            $index = 0
             $collection = @(
-                foreach ($object in $InputObject) { ConvertTo-Datum -InputObject $object -DatumHandlers $DatumHandlers }
-            )
+                foreach ($object in $InputObject) {
+                    $object | Add-Member -MemberType NoteProperty -Name ProviderURI -Value $ProviderURI -Force -PassThru |
+                    Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value "$StructureRelativePath[$index]" -Force 
+                    ConvertTo-Datum -InputObject $object -DatumHandlers $DatumHandlers 
+                    $index++
+                }
+            ) | Add-Member -MemberType NoteProperty -Name ProviderURI -Value $ProviderURI -Force -PassThru |
+            Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value $StructureRelativePath -Force -PassThru
 
             Write-Output -NoEnumerate $collection
         }
         elseif ($InputObject -is [psobject] -or $InputObject -is [DatumProvider])
         {
-            $hash = [ordered]@{}
+            $hash = [ordered]@{} | Add-Member -MemberType NoteProperty -Name ProviderURI -Value $ProviderURI -Force -PassThru |
+            Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value ($StructureRelativePath) -Force -PassThru
 
             foreach ($property in $InputObject.PSObject.Properties)
             {
                 $hash[$property.Name] = ConvertTo-Datum -InputObject $property.Value -DatumHandlers $DatumHandlers
+                $hash[$property.Name] | Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value ($StructureRelativePath,$Property.Name -join '\') -Force
             }
 
-            $hash
+            Write-Output -NoEnumerate $hash
         }
         else
         {
-            $InputObject
+           Write-Output -NoEnumerate ($InputObject | Add-Member -MemberType NoteProperty -Name ProviderURI -Value $ProviderURI -PassThru |
+           Add-Member -MemberType NoteProperty -Name StructureRelativePath -Value $StructureRelativePath -Force -PassThru )
         }
     }
 }

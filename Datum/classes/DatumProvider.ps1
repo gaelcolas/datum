@@ -1,5 +1,6 @@
 class DatumProvider {
     hidden [bool]$IsDatumProvider = $true
+    hidden [String]$ProviderURI
 
     [hashtable]ToHashTable()
     {

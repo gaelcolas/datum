@@ -14,6 +14,7 @@ class FileProvider : DatumProvider {
         $this.DatumHierarchyDefinition = $DatumHierarchyDefinition
         $this.StoreOptions = $Store.StoreOptions
         $this.Path = Get-Item $Path -ErrorAction SilentlyContinue
+        $this.ProviderURI = $Path
         $this.DatumHandlers = $DatumHierarchyDefinition.DatumHandlers
 
         $Result = Get-ChildItem $path | ForEach-Object {

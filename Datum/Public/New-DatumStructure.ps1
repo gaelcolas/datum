@@ -89,7 +89,7 @@ function New-DatumStructure {
 
     foreach ($store in $DatumHierarchyDefinition.DatumStructure){
         $StoreParams = @{
-            Store =  (ConvertTo-Datum ([hashtable]$Store).clone())
+            Store =  [hashtable]$Store #(ConvertTo-Datum ([hashtable]$Store).clone())
             Path  = $store.StoreOptions.Path
         }
 
