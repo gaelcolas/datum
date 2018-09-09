@@ -19,7 +19,9 @@ function Global:Get-DscSplattedResource {
     $stringBuilder = [System.Text.StringBuilder]::new()
     $null = $stringBuilder.AppendLine("Param([hashtable]`$Parameters)")
     $null = $stringBuilder.AppendLine()
-    $null = $stringBuilder.AppendLine(" `$(`$Parameters=@{}+`$Parameters)")
+    $null = $stringBuilder.AppendLine(' if ($Parameters) {')
+    $null = $stringBuilder.AppendLine(' $($Parameters=@{}+$Parameters)')
+    $null = $stringBuilder.AppendLine(' }') 
     $null = $stringBuilder.AppendLine(" $ResourceName $ExecutionName { ")
     foreach($PropertyName in $Properties.keys) {
         $null = $stringBuilder.AppendLine("$PropertyName = `$(`$Parameters['$PropertyName'])")
@@ -31,7 +33,11 @@ function Global:Get-DscSplattedResource {
         [scriptblock]::Create($stringBuilder.ToString())
     }
     else {
-        [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+        if ($Properties) {
+            [scriptblock]::Create($stringBuilder.ToString()).Invoke($Properties)
+        } else {
+            [scriptblock]::Create($stringBuilder.ToString()).Invoke()
+        }
     }
 }
 Set-Alias -Name x -Value Get-DscSplattedResource -scope Global
