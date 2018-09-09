@@ -16,13 +16,13 @@ function Merge-Datum {
     Write-Debug "Merge-Datum -StartingPath <$StartingPath>"
     $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "   Merge Strategy: @$($Strategy | COnvertto-Json)"
+    Write-Verbose "   Merge Strategy: @$($Strategy | ConvertTo-Json)"
 
     $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
     if($ReferenceDatumType -ne $DifferenceDatumType) {
-        Write-Warning "Cannot merge different types REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
+        Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum." 
         return $ReferenceDatum
     }
 
@@ -59,10 +59,12 @@ function Merge-Datum {
                 '^Unique'   {
                     if($regexPattern = $Strategy.merge_options.knockout_prefix) {
                         $regexPattern = $regexPattern.insert(0,'^')
-                        ($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique
+                        $result = @(($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique)
+                        Write-Output $result -NoEnumerate 
                     }
                     else {
-                        ($ReferenceDatum + $DifferenceDatum)| Select-object -Unique
+                        $result = @(($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique)
+                        Write-Output $result -NoEnumerate
                     }
                     
                 }
