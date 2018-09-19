@@ -46,7 +46,7 @@ function ConvertTo-Datum
             }
         }
 
-        if ($InputObject -is [System.Collections.Hashtable] -or ($InputObject -is [System.Collections.Specialized.OrderedDictionary])) {
+        if ($InputObject -is [System.Collections.IDictionary]) { 
             $hashKeys = [string[]]$InputObject.Keys
             foreach ($Key in $hashKeys) {
                 $InputObject[$Key] = ConvertTo-Datum -InputObject $InputObject[$Key] -DatumHandlers $DatumHandlers
@@ -62,7 +62,7 @@ function ConvertTo-Datum
 
             Write-Output -NoEnumerate $collection
         }
-        elseif ($InputObject -is [psobject])
+        elseif ($InputObject -is [psobject] -or $InputObject -is [DatumProvider]) 
         {
             $hash = [ordered]@{}
 

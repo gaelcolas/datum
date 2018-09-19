@@ -18,22 +18,29 @@ function Get-FileProviderData {
         if($script:FileProviderDataCache.ContainsKey($File.FullName) -and 
         $File.LastWriteTime -eq $script:FileProviderDataCache[$File.FullName].Metadata.LastWriteTime) {
             Write-Verbose "Getting File Provider Cache for Path: $Path"
-            $script:FileProviderDataCache[$File.FullName].Value
-        }
-        else {
+            Write-Output $script:FileProviderDataCache[$File.FullName].Value -NoEnumerate
+        } else {
             Write-Verbose "Getting File Provider Data for Path: $Path"
-            $Data = switch ($File.Extension) {
-                '.psd1' { Import-PowerShellDataFile $File           | ConvertTo-Datum -DatumHandlers $DatumHandlers }
-                '.json' { ConvertFrom-Json (Get-Content -Raw $Path) | ConvertTo-Datum -DatumHandlers $DatumHandlers }
-                '.yml'  { ConvertFrom-Yaml (Get-Content -raw $Path) -ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers }
-                
-                Default { Get-Content -Raw $Path }
+            $data = switch ($File.Extension) {
+                '.psd1' {
+                    Import-PowerShellDataFile -Path $File | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                '.json' {
+                    ConvertFrom-Json (Get-Content -Path $Path -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                '.yml' {
+                    ConvertFrom-Yaml (Get-Content -Path $Path -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                Default {
+                    Get-Content -Path $Path -Raw
+                }
             }
+            
             $script:FileProviderDataCache[$File.FullName] = @{
                 Metadata = $File
-                Value = $Data
+                Value = $data
             }
-            $Data
+            Write-Output $data -NoEnumerate
         }
     }
 }
