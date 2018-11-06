@@ -1,0 +1,79 @@
+# DSC
+
+DatumStores:
+  - StoreName: AllNodes
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./AllNodes"
+
+  - StoreName: SiteData
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./SiteData"
+
+  - StoreName: Environments
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Environments"
+
+  - StoreName: Roles
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Roles"
+
+Entities: # Optional: enables the Entity('id') functions & Class validation [node]::new($data)
+  - Name: Node
+    Exclude: All, * # excluding files
+    Path: AllNodes\$Environment\$Name # everything under is key/val
+    class: Node
+
+  - Name: Role
+    Path: Roles\$Name # everything under is key/val
+    class: Role
+
+  - Name: Location
+    Path: SiteData\$Name
+    Class: Location
+
+  - Name: Environment
+    Path: Environment\$Name
+    class: Environment
+
+ResolutionPrecedence:
+  - Node($scope['Environment'],$scope['Name'])
+  - Node('All')
+  - Environment($scope['Environment'])
+  - Location($scope['Location'])
+  - Role($scope['Role'])
+
+DatumHandlers:
+  Datum::TestHandler: # Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
+    CommandOptions:
+      Password: P@ssw0rd
+      Test: test
+
+default_lookup_options: MostSpecific
+
+lookup_options:
+  Configurations:
+    merge_baseType_array: unique
+
+  dsc_configs:
+    alias: Configurations
+    merge_baseType_array: MostSpecific
+
+  Applications:
+    alias: App($scope['environment'],$scope['name'])
+  # MergeTest1: deep
+  # mergeTest1\MergeIntArray:
+  #   merge_basetype_array: Sum
+
+# Optional: Enable Policy compilation & on-the-fly update
+Policies:
+  - Name: NodePolicies
+    #context: DSC # current context or default
+    Scopes: Node('*','*') # each node is a $scope, the base for each Policy
+    LookupKeys: 
+      - Configurations # The key Configurations is the composition pivot
+      #for a given $Scope, Lookup 'Configurations' -Scope $Scope => 'config1', 'config2', 'config3'
+

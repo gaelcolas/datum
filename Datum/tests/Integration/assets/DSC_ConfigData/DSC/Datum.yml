@@ -1,0 +1,59 @@
+DatumStructure:
+  - StoreName: AllNodes
+    StoreOptions:
+      Path: "./AllNodes"
+
+  - StoreName: Environments
+    StoreOptions:
+      Path: "../Environments"
+
+  - StoreName: Roles
+    StoreOptions:
+      Path: "./Roles"
+
+Entities:
+  - Name: Node
+    Exclude: All, * #exclude those keys to be treated as entity
+    Path: AllNodes\$Environment\$Name
+    Class: Node # or Datum::Node
+    
+  - Name: Role
+    Path: Roles\$Name
+
+  - Name: Environment
+    Path: Environments\$Name
+
+Policies:
+  - Name: NodeDataArtefact
+    LookupScopes: Get-DatumEntity -EntityType Node -Filter *
+    keys:
+      - configurations
+      
+  - Name: PackerTemplates
+    LookupScopes: Images('*')
+    LookupKeys:
+      - Builders
+      - post-processors
+      - provisioners
+
+# The scope for lookup should allow loading facts
+# Scope for DSC is $Node, facts are referenced,
+# and from within another store
+ResolutionPrecedence:
+  - AllNodes\$($Node.Environment)\$($Node.Name)
+  - Environments\$($Node.Environment)
+  - Roles\$($Node.Role)
+  - Roles\All
+
+default_lookup_options:
+  strategy: deep
+
+lookup_options:
+  Disks:
+    merge_hash: deep
+    merge_basetype_array: Sum
+    merge_hash_array: UniqueKeyValTuples
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - Number

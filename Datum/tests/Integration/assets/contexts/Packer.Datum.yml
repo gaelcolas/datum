@@ -1,0 +1,52 @@
+# Packer 
+
+# specific to the packer context
+DatumStores: # adds to the default stores (stores are only used depending on Resolution precedence)
+  - StoreName: Images
+    StoreProvider: Datum::File
+    StoreOptions:
+      Path: "./Images"
+
+Entities: # Optional: enables the Entity('id') functions & Class validation [node]::new($data)
+# can override the entities defined in default. Useful for using a different class
+  - Name: Image
+    Path: Images\$OsFamily\$Name # everything under is key/val
+
+  - Name: Builder
+    Path: Builders\$Name
+
+  - Name: post-processor
+    Path: post-processors\$Name
+
+  - Name: provisioner
+    Path: provisioners\$Name
+
+  - Name: Isos
+    Path: Isos\$Name
+
+ResolutionPrecedence:
+  - Image($scope['OsFamily'],$scope['Name'])
+  - Location($scope['Location'])\Roles
+  - Location($scope['Location'])
+  - post-processor($scope['post-processor'])
+  - Provisioner($scope['Provisioner'])
+  - Builder($scope['Builder'])
+  - Role($scope['Role']) #if Node has unique role, otherwise use <%= $CurrentNode.PSObject.Properties.where{$_.Name -in $Node.Role}.Value %>
+  - Role('All')
+
+Policies:
+  - Name: PackerTemplates
+    Scopes: Images('*')
+    LookupKeys:
+      - Builders
+      - post-processors
+      - provisioners
+
+    
+  # Datum::FollowRedirection:
+  #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
+  #   Action: Resolve-Datum -PropertyPath ($InputObject -replace '^\[REF=').TrimEnd(']') -DatumTre $Datum -Variable $Node
+  # Datum::Interpolation:
+  #   Filter: $InputObject -is [string] -and $InputObject -match '\%\{.*\}'
+  #   Action: Get-InterpolatedDatum $InputObject
+

@@ -1,25 +1,195 @@
-DatumStructure:
-  - StoreName: AllNodes
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./AllNodes"
- 
-  - StoreName: SiteData
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./SiteData"
+# if no contexts key, then load as default context
 
-  - StoreName: Environments
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./Environments"
+# Datum Context class, contexts collection
+# 
+# Datum entity class [extend Ordered Dict], Entities collection, static method to search by name
+#
+# Get-DatumEntity -Type Node|Role|Location|Environment -Context default|DSC|UCS -Name [wildcard string]
+# New-DatumEntity -Type Node|Role|Location|Environment -Context default|DSC|UCS -Name [string]
+# Set-DatumEntity -Type Node|Role|Location|Environment -Context default|DSC|UCS -Name [wildcard string] -Property [string] -Value [Object] 
+# Remove-DatumEntity -Type Node|Role|Location|Environment -Context all|default|DSC|UCS -Name [wildcard String] -SkipUsageValidation
 
-  - StoreName: Roles
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./Roles"
+# How and when to use  nested contexts (query and merge a databag from two Trees )
+# Make the RSOPs declarative (as per #35)
 
 
+DatumContexts:
+  - DSC: .\DSC\Datum.yml
+    Default: true
+  - Packer: .\Packer\Datum.yml
+  - UCS: .\UCS\Datum.yml
+  - AD: .\AD\Datum.yml
+
+
+
+# Alias or redirect path to namespace: 'iso' -> ISO/
+rules:
+  # group SysAdmin can't do x # use username from git and lookuo ad
+  # change with impact y raises flag
+  # 
+contexts:
+  default:
+    Name: DSC
+    DatumStores:
+      - StoreName: AllNodes
+        StoreProvider: Datum::File
+        StoreOptions:
+          Path: "./AllNodes"
+    
+      - StoreName: SiteData
+        StoreProvider: Datum::File
+        StoreOptions:
+          Path: "./SiteData"
+
+      - StoreName: Environments
+        StoreProvider: Datum::File
+        StoreOptions:
+          Path: "./Environments"
+
+      - StoreName: Roles
+        StoreProvider: Datum::File
+        StoreOptions:
+          Path: "./Roles"
+    
+    Entities: # Optional: enables the Entity('id') functions & Class validation [node]::new($data)
+      - Name: Node
+        Exclude: All, * # excluding files
+        Path: AllNodes\$Environment\$Name # everything under is key/val
+        class: Node
+
+      - Name: Role
+        Path: Roles\$Name # everything under is key/val
+        class: Role
+
+      - Name: Location
+        Path: SiteData\$Name
+        Class: Location
+
+      - Name: Environment
+        Path: Environment\$Name
+        class: Environment
+
+    ResolutionPrecedence:
+      - Node($scope['Environment'],$scope['Name'])
+      - Node('All')
+      - Environment($scope['Environment'])
+      - Location($scope['Location'])
+      - Role($scope['Role'])
+  
+    DatumHandlers:
+      Datum::TestHandler: # Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
+        CommandOptions:
+          Password: P@ssw0rd
+          Test: test
+
+    default_lookup_options: MostSpecific
+
+    lookup_options:
+      Configurations:
+        merge_baseType_array: unique
+
+      dsc_configs:
+        alias: Configurations
+        merge_baseType_array: MostSpecific
+
+      Applications:
+        alias: App($scope['environment'],$scope['name'])
+      # MergeTest1: deep
+      # mergeTest1\MergeIntArray:
+      #   merge_basetype_array: Sum
+
+    # Optional: Enable Policy compilation & on-the-fly update
+    Policies:
+      - Name: NodePolicies
+        #context: DSC # current context or default
+        Scopes: Node('*','*') # each node is a $scope, the base for each Policy
+        LookupKeys: 
+          - Configurations # The key Configurations is the composition pivot
+          #for a given $Scope, Lookup 'Configurations' -Scope $Scope => 'config1', 'config2', 'config3'
+
+  Packer: # specific to the packer context
+    DatumStores:
+      - StoreName: MachineImages
+        StoreProvider: Datum::File
+        StoreOptions:
+          Path: "./Images"
+
+    Entities: # Optional: enables the Entity('id') functions & Class validation [node]::new($data)
+      - Name: Image
+        Path: Images\$OsFamily\$Name # everything under is key/val
+
+      - Name: Builder
+        Path: Packer\Builders\$Name
+
+      - Name: post-processor
+        Path: Packer\post-processors\$Name
+
+      - Name: provisioner
+        Path: Packer\provisioners\$Name
+
+      - Name: Isos
+        Path: Isos\$Name
+
+    ResolutionPrecedence:
+      - Image($scope['OsFamily'],$scope['Name'])
+      - Location($scope['Location'])\Roles
+      - Location($scope['Location'])
+      - post-processor($scope['post-processor'])
+      - Provisioner($scope['Provisioner'])
+      - Builder($scope['Builder'])
+      - Role($scope['Role']) #if Node has unique role, otherwise use <%= $CurrentNode.PSObject.Properties.where{$_.Name -in $Node.Role}.Value %>
+      - Role('All')
+
+    Policies:
+      - Name: PackerTemplates
+        Scopes: Images('*')
+        LookupKeys:
+          - Builders
+          - post-processors
+          - provisioners
+
+  ADObjects:
+    DatumStores:
+      - StoreName: DSC
+        StoreProvider: Datum::Context
+        StoreOptions:
+          Name: DSC
+
+      - StoreName: AD
+        StoreProvider: Datum::Context
+        StoreOptions:
+          Name: AD
+
+    ResolutionPrecedence:
+      - DSC
+      - AD
+    
+
+  UCS:
+    # DatumStores:
+    ResolutionPrecedence:
+      - 'AllNodes\#scope['Environment']\#scope['Name']'
+      - 'AllNodes\$($Node.Environment)\All'
+      - '#Entity(Node,#scope[Name])'
+      - 'Environments\$($Node.Environment)'
+      - 'SiteData\$($Node.Location)'
+      - 'Roles\$($Node.Role)'
+      - 'Roles\All'
+
+    DatumHandlers:
+    default_lookup_options: hash
+    lookup_options:
+      MergeTest2:
+        merge_hash: deep
+        merge_basetype_array: Sum
+        merge_hash_array: Merge #Unique
+        merge_options:
+          knockout_prefix: --
+          tuple_keys:
+              - name
+              - version
+
+  
 ResolutionPrecedence:
   - 'AllNodes\$($Node.Environment)\$($Node.Name)'
   - 'AllNodes\$($Node.Environment)\All'

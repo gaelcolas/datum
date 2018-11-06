@@ -42,8 +42,7 @@ Description = 'Experimental Module to manage Hierachical Configuration Data for 
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ ModuleName = 'ProtectedData'; ModuleVersion = '4.1.0' }
-    ,'powershell-yaml'
+    'powershell-yaml'
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -51,8 +50,7 @@ RequiredModules = @(
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 ScriptsToProcess = @(
-    './ScriptsToProcess/Get-DscSplattedResource.ps1'
-    ,'./ScriptsToProcess/Resolve-NodeProperty.ps1'
+  './ScriptsToProcess/Resolve-NodeProperty.ps1'
 )
 
 # Type files (.ps1xml) to be loaded when importing this module
@@ -103,7 +101,7 @@ PrivateData = @{
             ReleaseNotes = 'Experimental'
 
             # Dependencies managed outside this module
-            ExternalModuleDependencies = @('powershell-yaml','ProtectedData')
+            ExternalModuleDependencies = @('powershell-yaml')
     
         } # End of PSData hashtable
     

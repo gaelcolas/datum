@@ -92,6 +92,10 @@ function New-DatumStructure {
             Store =  (ConvertTo-Datum ([hashtable]$Store).clone())
             Path  = $store.StoreOptions.Path
         }
+        # Create a default StoreProvider when not specified
+        if($null -eq $Store.StoreProvider) {
+            $Store.StoreProvider = 'Datum::File'
+        }
 
         # Accept Module Specification for Store Provider as String (unversioned) or Hashtable
         if($Store.StoreProvider -is [string]) {
