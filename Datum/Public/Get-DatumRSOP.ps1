@@ -13,14 +13,14 @@ function Get-DatumRsop {
     foreach ($Node in $AllNodes) {
         $RSOPNode = $Node.clone()
 
-        $Configurations = Lookup Configurations -Node $Node -DatumTree $Datum -DefaultValue @()
+        $Configurations = Lookup $CompositionKey -Node $Node -DatumTree $Datum -DefaultValue @()
         if($RSOPNode.contains($CompositionKey)) {
             $RSOPNode[$CompositionKey] = $Configurations
         }
         else {
             $RSOPNode.add($CompositionKey,$Configurations)
         }
-        
+
         $Configurations.Foreach{
             if(!$RSOPNode.contains($_)) {
                 $RSOPNode.Add($_,(Lookup $_ -DefaultValue @{} -Node $Node -DatumTree $Datum))
