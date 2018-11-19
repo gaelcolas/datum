@@ -42,8 +42,7 @@ Description = 'Experimental Module to manage Hierachical Configuration Data for 
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ ModuleName = 'ProtectedData'; ModuleVersion = '4.1.0' }
-    ,'powershell-yaml'
+    'powershell-yaml'
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -84,29 +83,29 @@ AliasesToExport =   '*'
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess
 PrivateData = @{
-    
+
         PSData = @{
-    
+
             # Tags applied to this module. These help with module discovery in online galleries.
              Tags = @('Datum', 'Hiera', 'DSC', 'DesiredStateConfiguration', 'hierarchical', 'ConfigurationData', 'ConfigData')
-    
+
             # A URL to the license for this module.
              LicenseUri = 'https://github.com/gaelcolas/Datum/blob/master/LICENSE'
-    
+
             # A URL to the main website for this project.
              ProjectUri = 'https://github.com/gaelcolas/Datum/'
-    
+
             # A URL to an icon representing this module.
             # IconUri = ''
-    
+
             # ReleaseNotes of this module
             ReleaseNotes = 'Experimental'
 
             # Dependencies managed outside this module
-            ExternalModuleDependencies = @('powershell-yaml','ProtectedData')
-    
+            ExternalModuleDependencies = @('powershell-yaml')
+
         } # End of PSData hashtable
-    
+
     } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
@@ -116,6 +115,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-
-
-
