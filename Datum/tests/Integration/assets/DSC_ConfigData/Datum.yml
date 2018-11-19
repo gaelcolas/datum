@@ -3,7 +3,7 @@ DatumStructure:
     StoreProvider: Datum::File
     StoreOptions:
       Path: "./AllNodes"
- 
+
   - StoreName: SiteData
     StoreProvider: Datum::File
     StoreOptions:
@@ -33,11 +33,12 @@ DatumHandlers:
     CommandOptions:
       Password: P@ssw0rd
       Test: test
-      
-  Datum::ProtectedDatum: # Datum\Test-ProtectedDatumFilter & Invoke-ProtectedDatumAction
-     CommandOptions:
-       PlainTextPassword: P@ssw0rd
-       #Certificate: ### THUMBPRINT ###
+
+# To make decryption work, add Datum.ProtectedData module to PSModulePath
+#  Datum.ProtectedData::ProtectedDatum: # Datum\Test-ProtectedDatumFilter & Invoke-ProtectedDatumAction
+#     CommandOptions:
+#       PlainTextPassword: P@ssw0rd
+#       #Certificate: ### THUMBPRINT ###
 
   # Datum::FollowRedirection:
   #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
@@ -68,9 +69,9 @@ lookup_options:
   #MergeTest1: deep
   mergeTest1\MergeIntArray:
     merge_basetype_array: Sum
-        
+
   MergeTest1\MergeHash: deep
-  
+
   MergeTest2:
     merge_hash: deep
     merge_basetype_array: Sum
@@ -84,7 +85,7 @@ lookup_options:
   #MergeTest1\MergeHash: first
   #configurations: Unique
 
-  # '^.*\\': 
+  # '^.*\\':
   #   strategy: deep
   #   options:
   #     knockout_prefix: --
@@ -101,7 +102,7 @@ lookup_options:
 #       Strategy: deep
 #       knockoutPrefix: --
 #   SoftwareBase\Packages\Sources:
-#     merge: 
+#     merge:
 #       strategy: ArrayOfUniqueHashByPropertyName
 #       PropertyName: Name
 #   #how to support regex when path separator is \
