@@ -46,14 +46,14 @@ lookup MergeTest1\MergeHash
     #      MostSpecific
     #       --> Return $ref
     #      UniqueKeyValTuples
-    #       --> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is not already int output
+    #       --> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is not already int output
     #      DeepTuple
-    #       --> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is merged up
+    #       --> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is merged up
     #      Sum
     #       --> $ref + $diff
     #   merge_options:
     #     knockout_prefix: --
-    #     TupleKeys:
+    #     Tuple_Keys:
     #       - Name
     #       - Version
 ```

@@ -97,12 +97,12 @@ function Merge-Datum {
                 '^MostSpecific|^First' { return $ReferenceDatum }
 
                 '^UniqueKeyValTuples'  {
-                    #--> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is not already int output
+                    #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is not already int output
                     Write-Output (Merge-DatumArray @MergeDatumArrayParams) -NoEnumerate
                 }
 
                 '^DeepTuple|^DeepItemMergeByTuples' {
-                    #--> $ref + $diff | ? % key in TupleKeys -> $ref[Key] -eq $diff[key] is merged up
+                    #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is merged up
                     Write-Output (Merge-DatumArray @MergeDatumArrayParams) -NoEnumerate
                 }
 
