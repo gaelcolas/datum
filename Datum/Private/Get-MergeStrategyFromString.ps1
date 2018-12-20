@@ -17,7 +17,7 @@ MergeStrategy: Deep
         merge_hash_array: DeepTuple
         merge_options:
         knockout_prefix: --
-        TupleKeys:
+        Tuple_Keys:
             - Name
             - Version
 #>
