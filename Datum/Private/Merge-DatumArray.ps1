@@ -11,7 +11,7 @@ function Merge-DatumArray {
 
         $StartingPath
     )
-    
+
     Write-Debug "`tMerge-DatumArray -StartingPath <$StartingPath>"
     $knockout_prefix = [regex]::Escape($Strategy.merge_options.knockout_prefix).insert(0,'^')
     $HashArrayStrategy = $Strategy.merge_hash_array
@@ -37,11 +37,11 @@ function Merge-DatumArray {
 
         switch -Regex ($HashArrayStrategy) {
             '^Sum|^Add' {
-                (@($DifferenceArray) + @($ReferenceArray)).Foreach{
+                (@($DifferenceArray) + @($ReferenceArray)) | Foreach-Object {
                     $null = $MergedArray.add(([ordered]@{}+$_))
                 }
             }
-            
+
             # MergeHashesByProperties
             '^Deep|^Merge' {
                 Write-Debug "`t`t`tStrategy for Array Items: Merge Hash By tuple`r`n"
@@ -67,14 +67,14 @@ function Merge-DatumArray {
                         $DifferenceItem = [ordered]@{} + $_
                         # Search for DiffItem that has the same Property/Value pairs than RefItem
                         $CompareHashParams = @{
-                            ReferenceHashtable = [ordered]@{}+$ReferenceItem 
+                            ReferenceHashtable = [ordered]@{}+$ReferenceItem
                             DifferenceHashtable = $DifferenceItem
                             Property = $PropertyNames
                         }
                         (!(Compare-Hashtable @CompareHashParams))
                     }
                     Write-Debug "`t`t`t ..Items to merge: $($DiffItemsToMerge.Count)"
-                    $DiffItemsToMerge.Foreach{
+                    $DiffItemsToMerge | Foreach-Object {
                         $MergeItemsParams = @{
                             ParentPath = $StartingPath
                             Strategy = $Strategy
@@ -88,7 +88,7 @@ function Merge-DatumArray {
                     $null = $UsedDiffItems.AddRange($DiffItemsToMerge)
                     $null = $MergedArray.Add($MergedItem)
                 }
-                $UnMergedItems = $DifferenceArray.Foreach{
+                $UnMergedItems = $DifferenceArray | Foreach-Object {
                     if(!$UsedDiffItems.Contains($_)) {
                         ([ordered]@{} + $_)
                     }
@@ -112,14 +112,14 @@ function Merge-DatumArray {
                 }
 
                 $MergedArray = [System.Collections.ArrayList]::new()
-                $ReferenceArray.Foreach{
+                $ReferenceArray | Foreach-Object {
                     $CurrentRefItem = $_
                     if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentRefItem -DifferenceHashtable $_ )})) {
                         $null = $MergedArray.Add(([ordered]@{} +$_))
                     }
                 }
 
-                $DifferenceArray.Foreach{
+                $DifferenceArray | Foreach-Object {
                     $CurrentDiffItem = $_
                     if(!( $MergedArray.Where{!(Compare-Hashtable -Property $PropertyNames -ReferenceHashtable $CurrentDiffItem -DifferenceHashtable $_ )})) {
                         $null = $MergedArray.Add(([ordered]@{} +$_))
@@ -128,6 +128,6 @@ function Merge-DatumArray {
             }
         }
     }
-    
+
     $MergedArray
 }
