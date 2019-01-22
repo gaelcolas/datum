@@ -2,7 +2,9 @@
 
 ## [0.0.36]
 ### Removed
-- Get-DscSplattedResource script to process is removed and now available in the DscBuildHelpers module (Datum is not DSC specific, now it's fully decoupled)
+- [breaking] Get-DscSplattedResource script to process is removed and now available in the DscBuildHelpers module (Datum is not DSC specific, now it's fully decoupled)
+### Fixed
+- fixed issue with merging arrays of hashtables
 
 ## [0.0.35]
 ### Removed
