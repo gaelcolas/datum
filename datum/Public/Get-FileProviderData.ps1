@@ -15,10 +15,10 @@ function Get-FileProviderData {
 
     process {
         $File = Get-Item -Path $Path
-        if($script:FileProviderDataCache.ContainsKey($File.FullName) -and 
+        if($script:FileProviderDataCache.ContainsKey($File.FullName) -and
         $File.LastWriteTime -eq $script:FileProviderDataCache[$File.FullName].Metadata.LastWriteTime) {
             Write-Verbose "Getting File Provider Cache for Path: $Path"
-            Write-Output $script:FileProviderDataCache[$File.FullName].Value -NoEnumerate
+            ,$script:FileProviderDataCache[$File.FullName].Value
         } else {
             Write-Verbose "Getting File Provider Data for Path: $Path"
             $data = switch ($File.Extension) {
@@ -35,12 +35,12 @@ function Get-FileProviderData {
                     Get-Content -Path $Path -Raw
                 }
             }
-            
+
             $script:FileProviderDataCache[$File.FullName] = @{
                 Metadata = $File
                 Value = $data
             }
-            Write-Output $data -NoEnumerate
+            ,$data
         }
     }
 }

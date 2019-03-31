@@ -22,14 +22,14 @@ function Merge-Datum {
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
     if($ReferenceDatumType -ne $DifferenceDatumType) {
-        Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum." 
+        Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
         return $ReferenceDatum
     }
 
     if($Strategy -is [string]) {
         $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
     }
-    
+
     switch ($ReferenceDatumType) {
         'BaseType' {
             return $ReferenceDatum
@@ -43,7 +43,7 @@ function Merge-Datum {
                 ParentPath = $StartingPath
                 ChildStrategies = $Strategies
             }
-            
+
             if($Strategy.merge_hash -match '^MostSpecific$|^First') {
                 return $ReferenceDatum
             }
@@ -60,27 +60,27 @@ function Merge-Datum {
                     if($regexPattern = $Strategy.merge_options.knockout_prefix) {
                         $regexPattern = $regexPattern.insert(0,'^')
                         $result = @(($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique)
-                        Write-Output $result -NoEnumerate 
+                        ,$result
                     }
                     else {
                         $result = @(($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique)
-                        Write-Output $result -NoEnumerate
+                        ,$result
                     }
-                    
+
                 }
 
                 '^Sum|^Add' {
                     #--> $ref + $diff -$kop
                     if($regexPattern = $Strategy.merge_options.knockout_prefix) {
                         $regexPattern = $regexPattern.insert(0,'^')
-                        Write-Output (($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern}) -NoEnumerate
+                        ,(($ReferenceDatum + $DifferenceDatum).Where{$_ -notMatch $regexPattern})
                     }
                     else {
-                        Write-Output ($ReferenceDatum + $DifferenceDatum) -NoEnumerate
+                        ,($ReferenceDatum + $DifferenceDatum)
                     }
                 }
 
-                Default { Write-Output $ReferenceDatum -NoEnumerate; return }
+                Default { return (,$ReferenceDatum) }
             }
         }
 
@@ -92,18 +92,18 @@ function Merge-Datum {
                 ChildStrategies = $Strategies
                 StartingPath = $StartingPath
             }
-            
+
             switch -Regex ($Strategy.merge_hash_array) {
                 '^MostSpecific|^First' { return $ReferenceDatum }
 
                 '^UniqueKeyValTuples'  {
                     #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is not already int output
-                    Write-Output (Merge-DatumArray @MergeDatumArrayParams) -NoEnumerate
+                    ,(Merge-DatumArray @MergeDatumArrayParams)
                 }
 
                 '^DeepTuple|^DeepItemMergeByTuples' {
                     #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is merged up
-                    Write-Output (Merge-DatumArray @MergeDatumArrayParams) -NoEnumerate
+                    ,(Merge-DatumArray @MergeDatumArrayParams)
                 }
 
                 '^Sum' {
@@ -111,10 +111,10 @@ function Merge-Datum {
                     (@($DifferenceArray) + @($ReferenceArray)).Foreach{
                         $null = $MergedArray.add(([ordered]@{}+$_))
                     }
-                    Write-Output $MergedArray -NoEnumerate
+                    ,$MergedArray
                 }
 
-                Default { Write-Output $ReferenceDatum -NoEnumerate; return }
+                Default { return (,$ReferenceDatum) }
             }
         }
     }

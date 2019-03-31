@@ -201,9 +201,9 @@ Function Resolve-Datum {
         #if we've reached the Maximum Depth allowed, return current result and stop further execution
         if ($Depth -eq $MaxDepth) {
             Write-Debug "  Max depth of $MaxDepth reached. Stopping."
-            Write-Output $MergeResult -NoEnumerate
+            ,$MergeResult
             return
         }
     }
-    Write-Output $MergeResult -NoEnumerate
+    ,$MergeResult
 }
