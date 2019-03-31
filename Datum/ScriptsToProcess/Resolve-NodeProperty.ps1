@@ -100,10 +100,10 @@ function Global:Resolve-NodeProperty {
     }
 
     if($null -ne $result -or $NullAllowed) {
-        Write-Output $result -NoEnumerate
+        ,$result
     }
     else {
-        throw "The lookup of path '$PropertyPath' for node '$($node.Name)' returned a Null value, but Null is not specified as Default. This is not allowed." 
+        throw "The lookup of path '$PropertyPath' for node '$($node.Name)' returned a Null value, but Null is not specified as Default. This is not allowed."
     }
 }
 Set-Alias -Name Lookup -Value Resolve-NodeProperty -scope Global
