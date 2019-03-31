@@ -2,7 +2,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'Datum.psm1'
+RootModule = 'datum.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.0.1'
@@ -20,7 +20,7 @@ CompanyName = 'SynEdgy Limited'
 Copyright = '(c) 2017 Gael Colas. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Experimental Module to manage Hierachical Configuration Data for DSC.'
+Description = 'Experimental Module to manage Hierarchical Configuration Data for DSC.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
