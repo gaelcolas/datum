@@ -31,7 +31,11 @@ function Get-FileProviderData {
                 '.yml' {
                     ConvertFrom-Yaml (Get-Content -Path $Path -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
+                '.yaml' {
+                    ConvertFrom-Yaml (Get-Content -Path $Path -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
                 Default {
+                    Write-verbose "File extension $($File.Extension) not supported. Defaulting on RAW."
                     Get-Content -Path $Path -Raw
                 }
             }
