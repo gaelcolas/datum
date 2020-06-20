@@ -1,43 +1,78 @@
 # DSC
+apiVersion: v0
+kind: Datum.Collector\DatumCollectorMap
+spec:
+  AllNodes:
+    apiVersion: v0
+    kind: Datum.Collector\DatumFileSystemCollector
+    spec:
+      Path: ./AllNodes # Add virtual Node entity for * / All
+      defaultType: Datum\Node
+      RelativePathMapping: #./AllNodes/$Environment/$Name.yml
+        - Name|NodeName # I want to map the BaseName of the file to both the .Name and .NodeName properties
+        - Environment # this should only apply if relative path goes that far
+      options:
+        property_ref_path: # maybe allow a $node.location.GetReference()
+          $this.location: /SiteData/$_
+          $this.Environment: /Environments/$_
+          $this.role: /roles/$_
+        # Datum handler and kind transformation (needs walk through)
+        # string to API transforms: [USER('username','pwd')] => {kind: Datum.Collector\ClearTextCredential, spec: {username: 'username', password: 'pwd'}}
+        mergeHierarchy:
+          - $this
+          - /AllNodes/All
+          - /Environments/$this.Environment
+          - /SiteData/$this.Location
+          - /Role/$this.Role
+  SiteData:
+    apiVersion: v0
+    kind: Datum.Collector\DatumFileSystemCollector
+    spec:
+      Path: ./SiteData
+      defaultType: Datum\Location
+      RelativePathMapping:
+        - Name
+  Environments:
+    apiVersion: v0
+    kind: Datum.Collector\DatumFileSystemCollector
+    spec:
+      Path: ./Environments
+      defaultType: Datum\Environment
+      RelativePathMapping:
+        - Name
+  Roles:
+    apiVersion: v0
+    kind: Datum.Collector\DatumFileSystemCollector
+    spec:
+      Path: ./Roles
+      defaultType: Datum\Role
+      RelativePathMapping:
+        - Name
+  PackerTemplates:
+    apiVersion: v0
+    kind: Datum.Collector\DatumCollectorMap
+    spec:
+      Images:
+        apiVersion: v0
+        kind: Datum.Collector\DatumFileSystemCollector
+        spec:
+          Path: ./Packer/Images
+          defaultType: Datum\PackerTemplate
+          RelativePathMapping:
+            - Name
+            - os_family
+          options:
+            property_ref_path: # replace references with value
+              $this.builder: /PackerTemplates/builder/$_
+              $this.provisioner: /PackerTemplates/provisioner/$_
+              $this.'post-processor': /PackerTemplates/post-processor/$_
+            mergeHierarchy:
+              - 
 
-DatumStores:
-  - StoreName: AllNodes
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./AllNodes"
+# two type of merge:
+#   replace ref
+#   merge through pivot key ('configurations')
 
-  - StoreName: SiteData
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./SiteData"
-
-  - StoreName: Environments
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./Environments"
-
-  - StoreName: Roles
-    StoreProvider: Datum::File
-    StoreOptions:
-      Path: "./Roles"
-
-Entities: # Optional: enables the Entity('id') functions & Class validation [node]::new($data)
-  - Name: Node
-    Exclude: All, * # excluding files
-    Path: AllNodes\$Environment\$Name # everything under is key/val
-    class: Node
-
-  - Name: Role
-    Path: Roles\$Name # everything under is key/val
-    class: Role
-
-  - Name: Location
-    Path: SiteData\$Name
-    Class: Location
-
-  - Name: Environment
-    Path: Environment\$Name
-    class: Environment
 
 ResolutionPrecedence:
   - Node($scope['Environment'],$scope['Name'])
