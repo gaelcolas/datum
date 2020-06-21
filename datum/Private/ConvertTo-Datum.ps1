@@ -62,7 +62,7 @@ function ConvertTo-Datum
 
             ,$collection
         }
-        elseif ($InputObject -is [psobject] -or $InputObject -is [DatumProvider])
+        elseif (($InputObject -is [psobject] -or $InputObject -is [DatumProvider]) -and $InputObject -isnot [pscredential])
         {
             $hash = [ordered]@{}
 
