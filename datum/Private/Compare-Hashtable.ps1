@@ -10,7 +10,7 @@ function Compare-Hashtable {
         $Property = ($ReferenceHashtable.Keys + $DifferenceHashtable.Keys | Select-Object -Unique)
     )
 
-    Write-Debug "Compare-Hashtable -Ref @{$($ReferenceHashtable.keys -join ';') -Diff @{$($DifferenceHashtable.keys -join ';')} -Property [$($Property -join ', ')]"
+    Write-Debug "Compare-Hashtable -Ref @{$($ReferenceHashtable.keys -join ';')} -Diff @{$($DifferenceHashtable.keys -join ';')} -Property [$($Property -join ', ')]"
     #Write-Debug "REF:`r`n$($ReferenceHashtable|ConvertTo-JSON)"
     #Write-Debug "DIFF:`r`n$($DifferenceHashtable|ConvertTo-JSON)"
 
@@ -28,7 +28,7 @@ function Compare-Hashtable {
                 }
             }
             else {
-                Write-Debug "Comparing: $($ReferenceHashtable[$PropertyName]) With $($ReferenceHashtable[$PropertyName])"
+                Write-Debug "Comparing: $($ReferenceHashtable[$PropertyName]) With $($DifferenceHashtable[$PropertyName])"
                 if($ReferenceHashtable[$PropertyName] -ne $DifferenceHashtable[$PropertyName]) {
                     [PSCustomObject]@{
                         SideIndicator = '<='
