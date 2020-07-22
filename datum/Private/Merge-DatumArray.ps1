@@ -93,7 +93,17 @@ function Merge-DatumArray {
                         ([ordered]@{} + $_)
                     }
                 }
-                $null = $MergedArray.AddRange($UnMergedItems)
+                if ($null -ne $UnMergedItems)
+                {
+                    if ($UnMergedItems -is [System.Array])
+                    {
+                        $null = $MergedArray.AddRange($UnMergedItems)
+                    }
+                    else
+                    {
+                        $null = $MergedArray.Add($UnMergedItems)
+                    }
+                }
             }
 
             # UniqueByProperties
