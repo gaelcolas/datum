@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Corrected a typo and incorrect debug information
+
+### Fixed
+
+- Fixed issue in Merge-DatumArray where it used ArrayList.AddRange to add hashtables (each key/value pair is added as a new object),
+  where Add should have been used (each hashtable is a new object).
+
 ## [0.0.38]
 
 ### Fixed
