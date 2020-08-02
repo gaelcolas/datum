@@ -692,7 +692,7 @@ depp or MergeRecursively:
   merge_hash_array: DeepTuple
   merge_options:
     knockout_prefix: --
-    tupleKeys:
+    tuple_Keys:
       - Name
       - Version
 ```
@@ -755,7 +755,7 @@ lookup_options:
   SoftwareBaseline\Packages:
     merge_hash_array: DeepTuple
     merge_options:
-      TupleKeys:
+      Tuple_Keys:
         - Name
         - Version
 ```
