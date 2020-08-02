@@ -1,3 +1,87 @@
+# Root datum.yml assumes the default is a DatumCollectorMap
+# and Childs are DatumFileSystemCollector unless otherwise specified
+AllNodes:
+  Path: ./AllNodes # Add virtual Node entity for * / All
+  defaultType: Datum\Node
+  RelativePathMapping: #./AllNodes/$Environment/$Name.yml
+    - Name|NodeName # I want to map the BaseName of the file to both the .Name and .NodeName properties
+    - Environment # this should only apply if relative path goes that far
+  options:
+    property_ref_path: # maybe allow a $node.location.GetReference()
+      $this.location: /SiteData/$_
+      $this.Environment: /Environments/$_
+      $this.role: /roles/$_
+    # Datum handler and kind transformation (needs walk through)
+    # string to API transforms: [USER('username','pwd')] => {kind: Datum.Collector\ClearTextCredential, spec: {username: 'username', password: 'pwd'}}
+    mergeHierarchy: # RSOP hierarchy
+      - $this
+      - /AllNodes/All
+      - /Environments/$this.Environment
+      - /SiteData/$this.Location
+      - /Role/$this.Role
+SiteData:
+  Path: ./SiteData
+  defaultType: Datum\Location
+  RelativePathMapping:
+    - Name
+Environments:
+  Path: ./Environments
+  defaultType: Datum\Environment
+  RelativePathMapping:
+    - Name
+Roles:
+  Path: ./Roles
+  defaultType: Datum\Role
+  RelativePathMapping:
+    - Name
+PackerTemplates:
+  apiVersion: v0
+  kind: Datum.Collector\DatumCollectorMap
+  spec:
+    Images: # also assume those childs are DatumFileSystemColletor
+      Path: ./Packer/Images
+      defaultType: Datum\PackerTemplate
+      RelativePathMapping:
+        - Name
+        - os_family
+      options:
+        property_ref_path: # replace references with value
+          $this.builder: /PackerTemplates/builder/$_
+          $this.provisioner: /PackerTemplates/provisioner/$_
+          $this.'post-processor': /PackerTemplates/post-processor/$_
+        mergeHierarchy:
+          - 
+DatumHandlers:
+  Datum::TestHandler: # Datum\Test-TestHandlerFilter & Invoke-TestHandlerAction
+    CommandOptions:
+      Password: P@ssw0rd
+      Test: test
+
+default_lookup_options: MostSpecific
+
+lookup_options:
+  Configurations:
+    merge_baseType_array: unique
+
+  dsc_configs:
+    alias: Configurations
+    merge_baseType_array: MostSpecific
+
+  Applications:
+    alias: App($scope['environment'],$scope['name'])
+  # MergeTest1: deep
+  # mergeTest1\MergeIntArray:
+  #   merge_basetype_array: Sum
+
+# Optional: Enable Policy compilation & on-the-fly update
+Policies:
+  - Name: NodePolicies
+    #context: DSC # current context or default
+    Scopes: Node('*','*') # each node is a $scope, the base for each Policy
+    LookupKeys: 
+      - Configurations # The key Configurations is the composition pivot
+      #for a given $Scope, Lookup 'Configurations' -Scope $Scope => 'config1', 'config2', 'config3'
+
 # if no contexts key, then load as default context
 
 # Datum Context class, contexts collection
@@ -26,4 +110,3 @@ contexts:
     DefinitionFile: .\DSC.Datum.yml
   Packer:
     DefinitionFile: .\Packer.Datum.yml
-

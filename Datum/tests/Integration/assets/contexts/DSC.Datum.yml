@@ -8,7 +8,7 @@ spec:
     spec:
       Path: ./AllNodes # Add virtual Node entity for * / All
       defaultType: Datum\Node
-      RelativePathMapping: #./AllNodes/$Environment/$Name.yml
+      RelativePathMapping: #./AllNodes/$Environment/$Name.yml going backward starting from the leaf (BaseName)
         - Name|NodeName # I want to map the BaseName of the file to both the .Name and .NodeName properties
         - Environment # this should only apply if relative path goes that far
       options:
@@ -18,7 +18,7 @@ spec:
           $this.role: /roles/$_
         # Datum handler and kind transformation (needs walk through)
         # string to API transforms: [USER('username','pwd')] => {kind: Datum.Collector\ClearTextCredential, spec: {username: 'username', password: 'pwd'}}
-        mergeHierarchy:
+        mergeHierarchy: # RSOP hierarchy
           - $this
           - /AllNodes/All
           - /Environments/$this.Environment
@@ -112,3 +112,31 @@ Policies:
       - Configurations # The key Configurations is the composition pivot
       #for a given $Scope, Lookup 'Configurations' -Scope $Scope => 'config1', 'config2', 'config3'
 
+# if no contexts key, then load as default context
+
+# Datum Context class, contexts collection
+# 
+# Datum entity class [extend Ordered Dict], Entities collection, static method to search by name
+#
+# Get-DatumEntity -Type Node|Role|Location|Environment -Context default|DSC|UCS -Name [wildcard string]
+# New-DatumEntity -Type Node|Role|Location|Environment -Context default|DSC|UCS -Name [string]
+# Set-DatumEntity -Type Node|Role|Location|Environment -Context default|DSC|UCS -Name [wildcard string] -Property [string] -Value [Object] 
+# Remove-DatumEntity -Type Node|Role|Location|Environment -Context all|default|DSC|UCS -Name [wildcard String] -SkipUsageValidation
+
+# How and when to use  nested contexts (query and merge a databag from two Trees )
+# Make the RSOPs declarative (as per #35)
+
+
+# Alias or redirect path to namespace: 'iso' -> ISO/
+rules:
+  # Rules set up here can't be enforced, they should be in separate repo
+  # user/group provider should/could be extended with AD connection & Module to resolve membership?
+  # group SysAdmin can't do x # use username from git and lookuo ad
+  # change with impact y raises flag
+  # 
+contexts:
+  default: DSC # if default is not set, use the first context (assuming the file format supports ordering)
+  DSC:
+    DefinitionFile: .\DSC.Datum.yml
+  Packer:
+    DefinitionFile: .\Packer.Datum.yml

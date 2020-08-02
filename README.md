@@ -7,13 +7,12 @@
 
 **Datum** is a PowerShell module used to aggregate **DSC configuration data** from multiple sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
-A Sample repository of an [Infrastructure, managed _from_ code](https://devopscollective.org/maybe-infrastructure-as-code-isnt-the-right-way/) using Datum is available in the [**DscInfraSample**](https://github.com/gaelcolas/DscInfraSample) project, along with more explanations of its usage and the recommended Control repository layout.
+To see it in action, I recommend looking at the full day workshop (reduced to 3.5 hours) by Raimund Andree and Jan-Hendrick Peters.
+The [video recording here](https://livestream.com/gaelcolas/events/8824779/videos/196854817), and the [DSC Workshop repository there](https://github.com/dsccommunity/DscWorkshop/).
 
-Datum is currently developed on Windows PowerShell 5.1, but will soon be tested against PowerShell 6.
+Datum is working with PowerShell 7.
 
-**Datum is subject to have breaking change without prior notification, and without a major version bump until v1.0.0 is released (aiming for April 2018, or earlier).**
-Should this be an problem, feel free to raise an issue where we'll notify before releasing breaking changes, and explain the modification to do.
-From now on, the core functionalities may not change much, but the Interface, and especially the configuration file might change abruptly.
+A new version is in the works, encouragement welcomed. :)
 
 ## Table of Content
 
