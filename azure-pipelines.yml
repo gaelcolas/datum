@@ -159,7 +159,7 @@ stages:
       - job: Test_Integration
         displayName: 'Integration'
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'windows-2019'
         timeoutInMinutes: '0'
         steps:
           - task: DownloadBuildArtifacts@0
@@ -175,7 +175,7 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
-              pwsh: true
+              pwsh: false
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
             condition: succeededOrFailed()
