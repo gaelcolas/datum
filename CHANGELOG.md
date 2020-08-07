@@ -23,13 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Datum on linux (change case on Datum.psd1 and Datum.psm1)
 
-## [0.0.37]
+## [0.0.37] - 2019-03-31
 
 ### Fixed
 
 - Datum in PSCore 6 on Windows (Write-Output -NoEnumerate bug)
 
-## [0.0.36]
+## [0.0.36] - 2019-01-22
 
 ### Removed
 
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - fixed issue with merging arrays of hashtables
 
-## [0.0.35]
+## [0.0.35] - 2018-11-19
 
 ### Removed
 

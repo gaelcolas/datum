@@ -11,9 +11,9 @@ Describe 'Test Datum overrides' {
     Context 'Most specific Merge behavior' {
         BeforeAll {
 
-            $Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve) 
+            $Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve)
             $Environment = 'DEV'
-            $AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object { 
+            $AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object {
                 $Node = $Datum.AllNodes.($Environment).($_.Name)
                 $null = $Node.Add('Environment',$Environment)
                 if(!$Node.contains('Name') ) {
@@ -21,7 +21,7 @@ Describe 'Test Datum overrides' {
                 }
                 (@{} + $Node)
             })
-            
+
             $ConfigurationData = @{
                 AllNodes = $AllNodes
                 Datum = $Datum
@@ -34,7 +34,7 @@ Describe 'Test Datum overrides' {
             @{PropertyPath = 'Description';      ExpectedResult = 'This is the DEV environment' }
             @{PropertyPath = 'Shared1\Param1';   ExpectedResult = 'This is the Role override!'}
             @{PropertyPath = 'locationName';     ExpectedResult = 'London'}
-            
+
         )
 
         It "Datum '<PropertyPath>' for Node $($node.Name) should be '<ExpectedResult>'." -TestCases $TestCases {

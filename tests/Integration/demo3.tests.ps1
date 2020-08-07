@@ -7,7 +7,7 @@ else {
 
 Write-verbose "Here: $here"
 
-import-module $here\..\..\datum.psd1 -force
+import-module datum -force
 
 Describe 'Test Datum overrides' {
     Context 'Most specific Merge behavior' {
