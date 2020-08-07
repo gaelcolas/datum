@@ -123,7 +123,7 @@ ResolutionPrecedence:
   - RoleData\Data
 ```
 
-You can now use Datum to lookup the 'Merged Data', per key:
+You can now use Datum to lookup the `Merged Data`, per key:
 
 ```PowerShell
 $Datum = New-DatumStructure -DefinitionFile .\Demo\Datum.yml
