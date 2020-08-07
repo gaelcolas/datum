@@ -7,6 +7,8 @@ else {
 
 Write-verbose "Here: $here"
 
+ipmo datum
+
 Describe 'Test Datum overrides' {
     Context 'Most specific Merge behavior' {
         BeforeAll {

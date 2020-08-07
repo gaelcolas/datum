@@ -1,3 +1,5 @@
+using module datum
+
 if ($PSScriptRoot) {
     $here = $PSScriptRoot
 }
@@ -7,7 +9,7 @@ else {
 
 Write-verbose "Here: $here"
 
-import-module datum -force
+import-module datum
 
 Describe 'Test Datum overrides' {
     Context 'Most specific Merge behavior' {

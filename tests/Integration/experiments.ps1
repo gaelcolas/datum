@@ -5,9 +5,11 @@ else {
     $here = Join-Path $pwd.Path '*\tests\Integration\' -Resolve
 }
 
-$Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve) 
+ipmo datum
+
+$Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve)
 $Environment = 'DEV'
-$AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object { 
+$AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object {
     $Node = $Datum.AllNodes.($Environment).($_.Name)
     $null = $Node.Add('Environment',$Environment)
     if(!$Node.contains('Name') ) {
@@ -39,7 +41,7 @@ Write-Warning "Show MergeTest1.MergeStringArray merging result:"
 $a.MergeStringArray
 
 Write-Warning "Show MergeTest1.MergeHashArrays merging result:"
-$a.MergeHashArrays|% {$_; "`r`n"}; 
+$a.MergeHashArrays|% {$_; "`r`n"};
 
 
  $r = Get-DatumRsop -Datum $Datum -AllNodes $Node
@@ -96,7 +98,7 @@ $e = [ordered]@{
         }
         subkey12 = [ordered]@{
             subkey123 = 123
-            subkey124 = 124 
+            subkey124 = 124
         }
     }
     RootKey2 = [ordered]@{
@@ -127,7 +129,7 @@ $f = [ordered]@{
         }
         subkey12 = [ordered]@{
             subkey123 = 123
-            subkey124 = 124 
+            subkey124 = 124
         }
     }
     RootKey2 = [ordered]@{
