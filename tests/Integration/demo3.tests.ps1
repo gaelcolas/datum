@@ -9,11 +9,10 @@ else {
 
 Write-verbose "Here: $here"
 
-import-module datum
-
 Describe 'Test Datum overrides' {
     Context 'Most specific Merge behavior' {
         BeforeAll {
+            import-module datum
 
             $Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\Demo3\Datum.yml' -Resolve)
 
