@@ -6,7 +6,7 @@ if ($PSScriptRoot) {
 else {
     $here = Join-Path $pwd.Path '*\tests\Integration\' -Resolve
 }
-
+remove-module datum
 Write-verbose "Here: $here"
 
 Describe 'Test Datum overrides' {
