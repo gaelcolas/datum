@@ -1,7 +1,10 @@
 # Datum
 
-[![Build status](https://ci.appveyor.com/api/projects/status/twbfc16g6w68ub8m/branch/master?svg=true)](https://ci.appveyor.com/project/gaelcolas/datum/branch/master) [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Datum.svg)](https://www.powershellgallery.com/packages/datum)
-
+[![Build Status](https://dev.azure.com/SynEdgy/Datum/_apis/build/status/SynEdgy.Datum?branchName=master)](https://dev.azure.com/SynEdgy/Datum/_build/latest?definitionId=5&branchName=master)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/SynEdgy/Datum/5/master)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/datum/5/master)](https://SynEdgy.visualstudio.com/datum/_test/analytics?definitionId=5&contextType=build)
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/datum?label=datum%20Preview)](https://www.powershellgallery.com/packages/datum/)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/datum?label=datum)](https://www.powershellgallery.com/packages/datum/)
 
 > `A datum is a piece of information.`
 
@@ -120,7 +123,7 @@ ResolutionPrecedence:
   - RoleData\Data
 ```
 
-You can now use Datum to lookup the 'Merged Data', per key:
+You can now use Datum to lookup the `Merged Data`, per key:
 
 ```PowerShell
 $Datum = New-DatumStructure -DefinitionFile .\Demo\Datum.yml
