@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected a typo and incorrect debug information.
 - New CI process.
 
+### Changed
+
+- Updated new build.ps1 from sampler.
+
 ### Fixed
 
 - Fixed issue in Merge-DatumArray where it used ArrayList.AddRange to add hashtables (each key/value pair is added as a new object),
