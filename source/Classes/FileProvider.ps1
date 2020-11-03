@@ -4,7 +4,7 @@ Class FileProvider : DatumProvider {
     hidden [hashtable] $DatumHierarchyDefinition
     hidden [hashtable] $StoreOptions
     hidden [hashtable] $DatumHandlers
-    hidden [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding] $Encoding
+    hidden [string] $Encoding
 
     FileProvider ($Path, $Store, $DatumHierarchyDefinition, $Encoding)
     {
