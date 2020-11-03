@@ -17,7 +17,10 @@ function New-DatumStructure {
             ParameterSetName = 'FromConfigFile'
         )]
         [io.fileInfo]
-        $DefinitionFile
+        $DefinitionFile,
+
+        [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]
+        $Encoding = 'Default'
     )
 
     switch ($PSCmdlet.ParameterSetName) {
@@ -41,7 +44,7 @@ function New-DatumStructure {
             if((Test-Path $DefinitionFile)) {
                 $DefinitionFile = (Get-Item $DefinitionFile -ErrorAction Stop)
                 Write-Debug "File $DefinitionFile found. Loading..."
-                $DatumHierarchyDefinition = Get-FileProviderData $DefinitionFile.FullName
+                $DatumHierarchyDefinition = Get-FileProviderData $DefinitionFile.FullName -Encoding $Encoding
                 if(!$DatumHierarchyDefinition.contains('ResolutionPrecedence')) {
                     Throw 'Invalid Datum Hierarchy Definition'
                 }
@@ -54,7 +57,6 @@ function New-DatumStructure {
         }
     }
 
-
     $root = @{}
     if($DatumHierarchyFolder -and !$DatumHierarchyDefinition.DatumStructure) {
        $Structures = foreach ($Store in (Get-ChildItem -Directory -Path $DatumHierarchyFolder)) {
@@ -66,7 +68,7 @@ function New-DatumStructure {
                }
            }
        }
-       
+
        if($DatumHierarchyDefinition.contains('DatumStructure')) {
            $DatumHierarchyDefinition['DatumStructure'] = $Structures
        }
@@ -89,8 +91,9 @@ function New-DatumStructure {
 
     foreach ($store in $DatumHierarchyDefinition.DatumStructure){
         $StoreParams = @{
-            Store =  (ConvertTo-Datum ([hashtable]$Store).clone())
-            Path  = $store.StoreOptions.Path
+            Store    =  (ConvertTo-Datum ([hashtable]$Store).clone())
+            Path     = $store.StoreOptions.Path
+            Encoding = $Encoding
         }
 
         # Accept Module Specification for Store Provider as String (unversioned) or Hashtable
@@ -115,7 +118,7 @@ function New-DatumStructure {
 
         $NewProvidercmd = Get-Command ("{0}\New-Datum{1}Provider" -f $ModuleName, $StoreProviderName)
 
-        if( $StoreParams.Path -and 
+        if( $StoreParams.Path -and
             ![io.path]::IsPathRooted($StoreParams.Path) -and
             $DatumHierarchyFolder
         ) {
@@ -133,7 +136,7 @@ function New-DatumStructure {
         Write-Debug "Adding key $($store.storeName) to Datum root object"
         $root.Add($store.StoreName,$storeObject)
     }
-    
+
     #return the Root Datum hashtable
     $root
 }
