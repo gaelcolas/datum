@@ -10,7 +10,8 @@ function New-DatumFileProvider {
 
         $Path = $Store.StoreOptions.Path,
 
-        [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]
+        [ValidateSet('Ascii', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [string]
         $Encoding = 'Default'
     )
 
