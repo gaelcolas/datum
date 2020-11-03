@@ -4,7 +4,10 @@ function Get-FileProviderData {
         $Path,
 
         [AllowNull()]
-        $DatumHandlers = @{}
+        $DatumHandlers = @{},
+
+        [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]
+        $Encoding = 'Default'
     )
 
     begin {
@@ -26,17 +29,17 @@ function Get-FileProviderData {
                     Import-PowerShellDataFile -Path $File | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
                 '.json' {
-                    ConvertFrom-Json (Get-Content -Path $Path -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                    ConvertFrom-Json (Get-Content -Path $Path -Encoding $Encoding -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
                 '.yml' {
-                    ConvertFrom-Yaml (Get-Content -Path $Path -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                    ConvertFrom-Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
                 '.yaml' {
-                    ConvertFrom-Yaml (Get-Content -Path $Path -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                    ConvertFrom-Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
                 Default {
                     Write-verbose "File extension $($File.Extension) not supported. Defaulting on RAW."
-                    Get-Content -Path $Path -Raw
+                    Get-Content -Path $Path -Encoding $Encoding -Raw
                 }
             }
 
