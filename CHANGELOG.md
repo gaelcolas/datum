@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected a typo and incorrect debug information.
 - New CI process.
+- Added support for specifying the encoding (#87).
 
 ### Changed
 
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue in Merge-DatumArray where it used ArrayList.AddRange to add hashtables (each key/value pair is added as a new object),
   where Add should have been used (each hashtable is a new object).
+- Fixed how issue not allowing Datum handlers to be used on arrays (#89).
 
 ## [0.0.38] - 2019-03-31
 
