@@ -1,48 +1,44 @@
 using module datum
 
-if ($PSScriptRoot) {
-    $here = $PSScriptRoot
-}
-else {
-    $here = Join-Path $pwd.Path '*\tests\Integration\' -Resolve
-}
-remove-module datum
-Write-verbose "Here: $here"
+$here = $PSScriptRoot
 
-Describe 'Test Datum overrides' {
+Remove-Module -Name datum
+
+Describe 'Test datum overrides' {
+
     Context 'Most specific Merge behavior' {
+
         BeforeAll {
-            import-module datum
+            Import-Module -Name datum
 
-            $Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\Demo3\Datum.yml' -Resolve)
+            $datum = New-DatumStructure -DefinitionFile (Join-Path $here '.\assets\Demo3\datum.yml' -Resolve)
 
-            $AllNodes = @($Datum.AllNodes.psobject.Properties | ForEach-Object {
-                $Node = $Datum.AllNodes.($_.Name)
-                (@{} + $Node)
-            })
+            $AllNodes = @($datum.AllNodes.psobject.Properties | ForEach-Object {
+                    $Node = $datum.AllNodes.($_.Name)
+                    (@{} + $Node)
+                })
 
-            $ConfigurationData = @{
+            $configurationData = @{
                 AllNodes = $AllNodes
-                Datum = $Datum
+                datum    = $datum
             }
         }
 
-        $TestCases = @(
-            @{Node = 'Node1'; PropertyPath = 'Disks'; Count = 1}
-            @{Node = 'Node2'; PropertyPath = 'Disks'; Count = 3}
-
+        $testCases = @(
+            @{Node = 'Node1'; PropertyPath = 'Disks'; Count = 1 }
+            @{Node = 'Node2'; PropertyPath = 'Disks'; Count = 3 }
         )
 
-        It "The count of Datum <PropertyPath> for Node <Node> should be '<Count>'." -TestCases $TestCases {
-            Param($Node,$PropertyPath,$Count)
+        It "The count of datum <PropertyPath> for Node <Node> should be '<Count>'." -TestCases $testCases {
+            Param($Node, $PropertyPath, $Count)
 
-            $MyNode = $AllNodes.Where({$_.Name -eq $Node})
-            (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $MyNode -DatumTree $Datum) | Should -HaveCount $Count
+            $myNode = $AllNodes.Where( { $_.Name -eq $Node })
+            (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $myNode -DatumTree $datum) | Should -HaveCount $Count
         }
 
-        it "should return False as value" {
-            $MyNode = $AllNodes.Where( {$_.Name -eq "Node3"})
-            lookup -PropertyPath StartVM -Node $MyNode -DatumTree $Datum | Should -BeFalse
+        It 'should return False as value' {
+            $myNode = $AllNodes.Where( { $_.Name -eq 'Node3' })
+            Lookup -PropertyPath StartVM -Node $myNode -DatumTree $datum | Should -BeFalse
         }
     }
 }
