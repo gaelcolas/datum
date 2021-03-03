@@ -1,0 +1,10 @@
+Configurations:
+  - WindowsFeatures
+  - NetworkIpConfiguration
+
+WindowsFeatures:
+  Name:
+    - -Telnet-Client
+
+SecurityBase:
+  Role: Baseline
