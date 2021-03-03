@@ -26,33 +26,33 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'WindowsFeatures\Name'
-                Count        = 1
+                Count        = 2
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'WindowsFeatures\Name'
-                Count        = 2
+                Count        = 3
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'WindowsFeatures\Name'
-                Count        = 3
+                Count        = 4
             }
 
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Count        = 1
+                Count        = 2
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Count        = 1
+                Count        = 2
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Count        = 2
+                Count        = 3
             }
         )
 
@@ -67,32 +67,32 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Value        = 'WindowsFeatures'
+                Value        = 'NetworkIpConfiguration', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Value        = 'WindowsFeatures'
+                Value        = 'NetworkIpConfiguration', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'FilesAndFolder', 'WindowsFeatures'
+                Value        = 'NetworkIpConfiguration', 'FilesAndFolder', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'WindowsFeatures\Name'
-                Value        = 'File-Services'
+                Value        = '-Telnet-Client', 'File-Services'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'WindowsFeatures\Name'
-                Value        = 'File-Services', 'Web-Server'
+                Value        = 'File-Services', 'Web-Server', '-Telnet-Client'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'WindowsFeatures\Name'
-                Value        = 'File-Services', 'Web-Server', 'XPS-Viewer' | Sort-Object
+                Value        = 'File-Services', 'Web-Server', 'XPS-Viewer', '-Telnet-Client'
             }
         )
 
@@ -100,7 +100,7 @@ Describe 'Merge ' {
             param ($Node, $PropertyPath, $Value)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
-            (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n) | Sort-Object | Should -Be $Value
+            (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n) | Sort-Object | Should -Be ($Value | Sort-Object)
         }
     }
 
