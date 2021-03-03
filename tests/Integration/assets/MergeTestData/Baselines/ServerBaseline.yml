@@ -1,6 +1,6 @@
 Configurations:
   - WindowsFeatures
-  - NetworkIpConfiguration
+  - NetworkIpConfigurationMerged
 
 WindowsFeatures:
   Name:
