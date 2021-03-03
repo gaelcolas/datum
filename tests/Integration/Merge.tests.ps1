@@ -42,7 +42,7 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Count        = 2
+                Count        = 3
             }
             @{
                 Node         = 'DSCWeb01'
@@ -67,17 +67,17 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfiguration', 'WindowsFeatures'
+                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures', 'FilesAndFolders'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfiguration', 'WindowsFeatures'
+                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfiguration', 'FilesAndFolder', 'WindowsFeatures'
+                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolder', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCFile01'

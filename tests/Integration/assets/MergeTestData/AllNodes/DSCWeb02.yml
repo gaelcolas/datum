@@ -10,7 +10,7 @@ WindowsFeatures:
     - XPS-Viewer
 
 Configurations:
-  - FilesAndFolder
+  - FilesAndFolders
 
 NetworkIpConfigurationMerged:
   IpAddress: 192.168.10.102
