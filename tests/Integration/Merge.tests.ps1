@@ -77,7 +77,7 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolder', 'WindowsFeatures'
+                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolders', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCFile01'
