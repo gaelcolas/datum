@@ -6,9 +6,17 @@ function Get-DatumRsop {
         [hashtable[]]
         $AllNodes,
 
-        $CompositionKey = 'Configurations'
+        $CompositionKey = 'Configurations',
 
+        [ScriptBlock]
+        $Filter = {}
     )
+
+    if($Filter.ToString() -ne ([System.Management.Automation.ScriptBlock]::Create({})).ToString()) {
+        Write-Verbose "Filter: $($Filter.ToString())"
+        $AllNodes = [System.Collections.Hashtable[]]$allNodes.Where($Filter)
+        Write-Verbose "Node count after applying filter: $($AllNodes.Count)"
+    }
 
     foreach ($Node in $AllNodes) {
         $RSOPNode = $Node.clone()
