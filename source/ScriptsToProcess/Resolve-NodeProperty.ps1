@@ -55,7 +55,7 @@ function Global:Resolve-NodeProperty {
     }
 
     # Starting DSC Behaviour: Resolve-Datum || $DefaultValue || $null if specified as default || throw
-    if($result = Resolve-Datum @ResolveDatumParams) {
+    if(($result = Resolve-Datum @ResolveDatumParams) -ne $null) {
         Write-Verbose "`tResult found for $PropertyPath"
     }
     elseif($DefaultValue) {
