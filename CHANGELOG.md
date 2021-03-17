@@ -25,12 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed how issue not allowing Datum handlers to be used on arrays (#89).
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Fixed an issue visible in the test log: https://synedgy.visualstudio.com/Datum/_build/results?buildId=633&view=logs&j=14d0eb3f-bc66-5450-3353-28256327ad6c&t=c344f041-83bb-5f7b-1678-8a78f1873256&l=79.
 =======
 >>>>>>> 3dae1b1 ( Fixes #89)
 =======
 - Fixed an issue visible in the test log: https://synedgy.visualstudio.com/Datum/_build/results?buildId=633&view=logs&j=14d0eb3f-bc66-5450-3353-28256327ad6c&t=c344f041-83bb-5f7b-1678-8a78f1873256&l=79.
 >>>>>>> fc6ab23 (Updated changelog)
+=======
+- Fixed an issue visible in the test log: https://synedgy.visualstudio.com/Datum/_build/results?buildId=633&view=logs&j=14d0eb3f-bc66-5450-3353-28256327ad6c&t=c344f041-83bb-5f7b-1678-8a78f1873256&l=79.
+>>>>>>> c59fadf1109aa6042368c02655085f29733b45f4
 
 ## [0.0.38] - 2019-03-31
 
