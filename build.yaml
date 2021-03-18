@@ -102,6 +102,8 @@ DscTest:
 ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
 
 
 
