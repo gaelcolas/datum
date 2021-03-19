@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added support for specifying the encoding (#87).
+
+### Fixed
+
+- Fixed how issue not allowing Datum handlers to be used on arrays (#89).
+- Fixed issue in Merge-Hashtable where it did not merge hashtables correctly when these
+  are included in an array.
+
+## [0.0.39] - 2020-09-29
+
+### Added
+
 - Corrected a typo and incorrect debug information.
 - New CI process.
 - Added support for specifying the encoding (#87).
@@ -20,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issue in Merge-DatumArray where it used ArrayList.AddRange to add hashtables (each key/value pair 
+  is added as a new object), where Add should have been used (each hashtable is a new object).
 - Fixed issue in Merge-DatumArray where it used ArrayList.AddRange to add hashtables (each key/value pair is added as a new object),
   where Add should have been used (each hashtable is a new object).
 - Fixed how issue not allowing Datum handlers to be used on arrays (#89).
