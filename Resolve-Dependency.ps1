@@ -82,7 +82,7 @@ try
                     $variableValue = $ExecutionContext.InvokeCommand.ExpandString($variableValue)
                 }
                 $PSBoundParameters.Add($ParamName, $variableValue)
-                Set-Variable -Name $ParamName -value $variableValue -Force -ErrorAction SilentlyContinue
+                Set-Variable -Name $ParamName -Value $variableValue -Force -ErrorAction SilentlyContinue
             }
             catch
             {
@@ -96,7 +96,7 @@ catch
     Write-Warning -Message "Error attempting to import Bootstrap's default parameters from $(Join-Path $PSScriptRoot '.\Resolve-Dependency.psd1'): $($_.Exception.Message)."
 }
 
-Write-Progress -Activity "Bootstrap:" -PercentComplete 0 -CurrentOperation "NuGet Bootstrap"
+Write-Progress -Activity 'Bootstrap:' -PercentComplete 0 -CurrentOperation 'NuGet Bootstrap'
 
 if (!(Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction SilentlyContinue))
 {
@@ -128,21 +128,21 @@ if (!(Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction SilentlyConti
         $providerBootstrapParams.Add('AllowPrerelease', $true)
     }
 
-    Write-Information "Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed)"
+    Write-Information 'Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed)'
     $null = Install-PackageProvider @providerBootstrapParams
     $latestNuGetVersion = (Get-PackageProvider -Name NuGet -ListAvailable | Select-Object -First 1).Version.ToString()
     Write-Information "Bootstrap: Importing NuGet Package Provider version $latestNuGetVersion to current session."
     $Null = Import-PackageProvider -Name NuGet -RequiredVersion $latestNuGetVersion -Force
 }
 
-Write-Progress -Activity "Bootstrap:" -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
+Write-Progress -Activity 'Bootstrap:' -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
 
 # Fail if the given PSGallery is not Registered
 $Policy = (Get-PSRepository $Gallery -ErrorAction Stop).InstallationPolicy
 Set-PSRepository -Name $Gallery -InstallationPolicy Trusted -ErrorAction Ignore
 try
 {
-    Write-Progress -Activity "Bootstrap:" -PercentComplete 25 -CurrentOperation "Checking PowerShellGet"
+    Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
     # Ensure the module is loaded and retrieve the version you have
     $PowerShellGetVersion = (Import-Module PowerShellGet -PassThru -ErrorAction SilentlyContinue).Version
 
@@ -150,7 +150,7 @@ try
     # Versions below 1.6.0 are considered old, unreliable & not recommended
     if (!$PowerShellGetVersion -or ($PowerShellGetVersion -lt [System.version]'1.6.0' -and !$AllowOldPowerShellGetModule))
     {
-        Write-Progress -Activity "Bootstrap:" -PercentComplete 40 -CurrentOperation "Installing newer version of PowerShellGet"
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 40 -CurrentOperation 'Installing newer version of PowerShellGet'
         $InstallPSGetParam = @{
             Name               = 'PowerShellGet'
             Force              = $True
@@ -177,11 +177,11 @@ try
         }
 
         Install-Module @InstallPSGetParam
-        Remove-Module PowerShellGet -force -ErrorAction SilentlyContinue
+        Remove-Module PowerShellGet -Force -ErrorAction SilentlyContinue
         Import-Module PowerShellGet -Force
         $NewLoadedVersion = (Get-Module PowerShellGet).Version.ToString()
         Write-Information "Bootstrap: PowerShellGet version loaded is $NewLoadedVersion"
-        Write-Progress -Activity "Bootstrap:" -PercentComplete 60 -CurrentOperation "Installing newer version of PowerShellGet"
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
     }
 
     # Try to import the PSDepend module from the available modules
@@ -220,7 +220,7 @@ try
                 $InstallPSDependParam.add('MinimumVersion', $MinimumPSDependVersion)
             }
 
-            Write-Progress -Activity "Bootstrap:" -PercentComplete 75 -CurrentOperation "Installing PSDepend from $Gallery"
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Installing PSDepend from $Gallery"
             Install-Module @InstallPSDependParam
         }
         else
@@ -237,13 +237,13 @@ try
                 $SaveModuleParam.add('MinimumVersion', $MinimumPSDependVersion)
             }
 
-            Write-Progress -Activity "Bootstrap:" -PercentComplete 75 -CurrentOperation "Saving & Importing PSDepend from $Gallery to $Scope"
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Saving & Importing PSDepend from $Gallery to $Scope"
             Save-Module @SaveModuleParam
         }
     }
     finally
     {
-        Write-Progress -Activity "Bootstrap:" -PercentComplete 100 -CurrentOperation "Loading PSDepend"
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 100 -CurrentOperation 'Loading PSDepend'
         # We should have successfully bootstrapped PSDepend. Fail if not available
         Import-Module PSDepend -ErrorAction Stop
     }
@@ -260,15 +260,15 @@ try
             }
 
             Save-Module @SaveModuleParam
-            Import-Module "PowerShell-Yaml" -ErrorAction Stop
+            Import-Module 'PowerShell-Yaml' -ErrorAction Stop
         }
         else
         {
-            Write-Verbose "PowerShell-Yaml is already available"
+            Write-Verbose 'PowerShell-Yaml is already available'
         }
     }
 
-    Write-Progress -Activity "PSDepend:" -PercentComplete 0 -CurrentOperation "Restoring Build Dependencies"
+    Write-Progress -Activity 'PSDepend:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
     if (Test-Path $DependencyFile)
     {
         $PSDependParams = @{
@@ -279,11 +279,11 @@ try
         # TODO: Handle when the Dependency file is in YAML, and -WithYAML is specified
         Invoke-PSDepend @PSDependParams
     }
-    Write-Progress -Activity "PSDepend:" -PercentComplete 100 -CurrentOperation "Dependencies restored" -Completed
+    Write-Progress -Activity 'PSDepend:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
 }
 finally
 {
     # Reverting the Installation Policy for the given gallery
     Set-PSRepository -Name $Gallery -InstallationPolicy $Policy
-    Write-Verbose "Project Bootstrapped, returning to Invoke-Build"
+    Write-Verbose 'Project Bootstrapped, returning to Invoke-Build'
 }

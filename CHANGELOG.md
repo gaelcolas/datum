@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed how issue not allowing Datum handlers to be used on arrays (#89).
 - Fixed issue in Merge-Hashtable where it did not merge hashtables correctly when these
   are included in an array.
+- Formatting in all files with VSCode formatting according to the 'settings.json' file taken from Sampler
 
 ## [0.0.39] - 2020-09-29
 

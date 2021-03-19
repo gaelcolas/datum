@@ -30,7 +30,7 @@ WebApplicationPools:
       Ensure: Present
       IdentityType: ApplicationPoolIdentity
       State: Started
-  
+
 WebApplications:
   Items:
     - Name: TestApp1
@@ -45,7 +45,7 @@ WebApplications:
       Ensure: Present
 
 RegistryValues:
-    Values:
+  Values:
     - Key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
       ValueName: NtpServer
       ValueData: time.windows.com,0x9;
@@ -58,8 +58,8 @@ SecurityBase:
 
 WindowsFeatures:
   Name:
-  - +Web-Server
-  - -WoW64-Support
+    - +Web-Server
+    - -WoW64-Support
 
 WindowsServices:
   Services:

@@ -21,57 +21,63 @@ MergeStrategy: Deep
             - Name
             - Version
 #>
-function Get-MergeStrategyFromString {
+function Get-MergeStrategyFromString
+{
     [CmdletBinding()]
     [OutputType([hashtable])]
     param(
         [String]
         $MergeStrategy
     )
-    
+
     Write-Debug "Get-MergeStrategyFromString -MergeStrategy <$MergeStrategy>"
-    switch -regex ($MergeStrategy) {
-        '^First$|^MostSpecific$' { 
+    switch -regex ($MergeStrategy)
+    {
+        '^First$|^MostSpecific$'
+        {
             @{
-                merge_hash = 'MostSpecific'
+                merge_hash           = 'MostSpecific'
                 merge_baseType_array = 'MostSpecific'
-                merge_hash_array = 'MostSpecific'
+                merge_hash_array     = 'MostSpecific'
             }
         }
 
-        '^hash$|^MergeTopKeys$' {
+        '^hash$|^MergeTopKeys$'
+        {
             @{
-                merge_hash = 'hash'
+                merge_hash           = 'hash'
                 merge_baseType_array = 'MostSpecific'
-                merge_hash_array = 'MostSpecific'
-                merge_options = @{
+                merge_hash_array     = 'MostSpecific'
+                merge_options        = @{
                     knockout_prefix = '--'
                 }
             }
         }
 
-        '^deep$|^MergeRecursively$' {
+        '^deep$|^MergeRecursively$'
+        {
             @{
-                merge_hash = 'deep'
+                merge_hash           = 'deep'
                 merge_baseType_array = 'Unique'
-                merge_hash_array = 'DeepTuple'
-                merge_options = @{
+                merge_hash_array     = 'DeepTuple'
+                merge_options        = @{
                     knockout_prefix = '--'
-                    tuple_keys = @(
+                    tuple_keys      = @(
                         'Name'
-                        ,'Version'
+                        , 'Version'
                     )
                 }
             }
         }
-        default {
+        default
+        {
             Write-Debug "Couldn't Match the strategy $MergeStrategy"
             @{
-                merge_hash = 'MostSpecific'
+                merge_hash           = 'MostSpecific'
                 merge_baseType_array = 'MostSpecific'
-                merge_hash_array = 'MostSpecific'
+                merge_hash_array     = 'MostSpecific'
             }
         }
     }
-    
+
 }

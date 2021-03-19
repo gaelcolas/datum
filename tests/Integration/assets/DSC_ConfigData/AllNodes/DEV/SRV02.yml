@@ -2,7 +2,7 @@ NodeName: SRV02
 Description: Dev version of SRV01
 role: WindowsBase
 Location: LON
-ExampleProperty1: 'From Node'
+ExampleProperty1: "From Node"
 
 LCM_Config:
   Settings:

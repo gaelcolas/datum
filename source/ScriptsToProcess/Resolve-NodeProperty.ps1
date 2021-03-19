@@ -1,4 +1,5 @@
-function Global:Resolve-NodeProperty {
+function Global:Resolve-NodeProperty
+{
     [CmdletBinding()]
     Param(
         [Parameter(
@@ -36,54 +37,65 @@ function Global:Resolve-NodeProperty {
         $MaxDepth
     )
 
-    if ($Node -is [string] -and ($ConfigData = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData'))) {
-        $Node = $ConfigData.AllNodes.Where{$_.Name -eq $Node -or $_.NodeName -eq $Node}
+    if ($Node -is [string] -and ($ConfigData = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData')))
+    {
+        $Node = $ConfigData.AllNodes.Where{ $_.Name -eq $Node -or $_.NodeName -eq $Node }
     }
 
     # Null result should return an exception, unless defined as Default value
     $NullAllowed = $false
 
     $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
-    foreach ($removeKey in $PSBoundParameters.keys.where{$_ -in @('DefaultValue','Node')}) {
+    foreach ($removeKey in $PSBoundParameters.keys.where{ $_ -in @('DefaultValue', 'Node') })
+    {
         $ResolveDatumParams.remove($removeKey)
     }
 
     # Translate the DSC specific Node into the 'Node' variable and Node name used by Resolve-Datum
-    if($Node) {
-        $ResolveDatumParams.Add('Variable',$Node)
-        $ResolveDatumParams.Add('VariableName','Node')
+    if ($Node)
+    {
+        $ResolveDatumParams.Add('Variable', $Node)
+        $ResolveDatumParams.Add('VariableName', 'Node')
     }
 
     # Starting DSC Behaviour: Resolve-Datum || $DefaultValue || $null if specified as default || throw
-    if(($result = Resolve-Datum @ResolveDatumParams) -ne $null) {
+    if (($result = Resolve-Datum @ResolveDatumParams) -ne $null)
+    {
         Write-Verbose "`tResult found for $PropertyPath"
     }
-    elseif($DefaultValue) {
+    elseif ($DefaultValue)
+    {
         $result = $DefaultValue
         Write-Debug "`t`tDefault Found"
     }
-    elseif($PSboundParameters.containsKey('DefaultValue') -and $null -eq $DefaultValue) {
+    elseif ($PSboundParameters.containsKey('DefaultValue') -and $null -eq $DefaultValue)
+    {
         $result = $null
         $NullAllowed = $true
         Write-Debug "`t`tDefault NULL found and allowed."
     }
-    else {
+    else
+    {
         #This is when the Lookup is initiated from a Composite Resource, for itself
 
-        if(-not ($here = $MyInvocation.PSScriptRoot)) {
+        if (-not ($here = $MyInvocation.PSScriptRoot))
+        {
             $here = $Pwd.Path
         }
         Write-Debug "`t`tAttempting to load datum from $($here)."
 
         $ResourceConfigDataPath = Join-Path $here 'ConfigData' -Resolve -ErrorAction SilentlyContinue
 
-        if($ResourceConfigDataPath) {
+        if ($ResourceConfigDataPath)
+        {
             $DatumDefinitionFile = Join-Path $ResourceConfigDataPath 'Datum.*' -Resolve -ErrorAction SilentlyContinue
-            if($DatumDefinitionFile) {
+            if ($DatumDefinitionFile)
+            {
                 Write-Debug "Resource Datum File Path: $DatumDefinitionFile"
                 $ResourceDatum = New-DatumStructure -DefinitionFile $DatumDefinitionFile
             }
-            else {
+            else
+            {
                 #Loading Default Datum structure
                 Write-Debug "Loading data store from $($ResourceConfigDataPath)."
                 $ResourceDatum = New-DatumStructure -DatumHierarchyDefinition @{
@@ -94,17 +106,20 @@ function Global:Resolve-NodeProperty {
 
             $result = Resolve-Datum @ResolveDatumParams -DatumTree $ResourceDatum
         }
-        else {
+        else
+        {
             Write-Warning "`tNo Datum store found for DSC Resource"
         }
     }
 
-    if($null -ne $result -or $NullAllowed) {
-        ,$result
+    if ($null -ne $result -or $NullAllowed)
+    {
+        , $result
     }
-    else {
+    else
+    {
         throw "The lookup of path '$PropertyPath' for node '$($node.Name)' returned a Null value, but Null is not specified as Default. This is not allowed."
     }
 }
-Set-Alias -Name Lookup -Value Resolve-NodeProperty -scope Global
-Set-Alias -Name Resolve-DscProperty -Value Resolve-NodeProperty -scope Global
+Set-Alias -Name Lookup -Value Resolve-NodeProperty -Scope Global
+Set-Alias -Name Resolve-DscProperty -Value Resolve-NodeProperty -Scope Global

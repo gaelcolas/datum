@@ -24,16 +24,16 @@ DscLcmMaintenanceWindows:
 
 DscLcmController:
   MaintenanceWindowMode: AutoCorrect # or Monitor. In Monitor mode the LCM won't do changes in maintenance window.
-  MonitorInterval: 00:15:00          #  
-  AutoCorrectInterval: 00:30:00      #
+  MonitorInterval: 00:15:00 #
+  AutoCorrectInterval: 00:30:00 #
   AutoCorrectIntervalOverride: false #   THESE VALUES ARE VERY LOW FOR EASY TESTING AND DEMONSTRATIONS
-  RefreshInterval: 00:30:00          #
-  RefreshIntervalOverride: false     #   PLEASE INCREASE THE VALUES TO PREVENT OVERLOADING THE PULL SERVER
-  ControllerInterval: 00:05:00       #   AS WELL AS THE NODES. ALSO THE SQL DATABASE GROWS PRETTY FAST IF A
-  MaintenanceWindowOverride: false   #   REPORT IS SENT EVERY 5 MINUTES.
-  WriteTranscripts: true             #
-  SendDscTaggingData: true           #
-  MaxLcmRuntime: 00:30:00            #
+  RefreshInterval: 00:30:00 #
+  RefreshIntervalOverride: false #   PLEASE INCREASE THE VALUES TO PREVENT OVERLOADING THE PULL SERVER
+  ControllerInterval: 00:05:00 #   AS WELL AS THE NODES. ALSO THE SQL DATABASE GROWS PRETTY FAST IF A
+  MaintenanceWindowOverride: false #   REPORT IS SENT EVERY 5 MINUTES.
+  WriteTranscripts: true #
+  SendDscTaggingData: true #
+  MaxLcmRuntime: 00:30:00 #
 
 LcmConfig:
   Settings:
@@ -50,5 +50,5 @@ LcmConfig:
       ServerURL: https://dscpull01.contoso.com:8080/PSDSCPullServer.svc
       RegistrationKey: ec717ee9-b343-49ee-98a2-26e53939eecf
   ReportServerWeb:
-      ServerURL: https://dscpull01.contoso.com:8080/PSDSCPullServer.svc
-      RegistrationKey: ec717ee9-b343-49ee-98a2-26e53939eecf
+    ServerURL: https://dscpull01.contoso.com:8080/PSDSCPullServer.svc
+    RegistrationKey: ec717ee9-b343-49ee-98a2-26e53939eecf

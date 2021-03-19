@@ -1,4 +1,5 @@
-Function Resolve-Datum {
+Function Resolve-Datum
+{
     [cmdletBinding()]
     Param(
         [Parameter(
@@ -31,10 +32,12 @@ Function Resolve-Datum {
 
         [int]
         $MaxDepth = $(
-            if ($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth) {
+            if ($MxdDpth = $DatumTree.__Definition.default_lookup_options.MaxDepth)
+            {
                 $MxdDpth
             }
-            else {
+            else
+            {
                 -1
             })
     )
@@ -84,60 +87,74 @@ Function Resolve-Datum {
 
     Write-Debug "Resolve-Datum -PropertyPath <$PropertyPath> -Node $($Node.Name)"
     # Make options an ordered case insensitive variable
-    if ($options) {
+    if ($options)
+    {
         $options = [ordered]@{} + $options
     }
 
-    if ( !$DatumTree.__Definition.default_lookup_options ) {
+    if ( !$DatumTree.__Definition.default_lookup_options )
+    {
         $default_options = Get-MergeStrategyFromString
-        Write-Verbose "  Default option not found in Datum Tree"
+        Write-Verbose '  Default option not found in Datum Tree'
     }
-    else {
-        if ($DatumTree.__Definition.default_lookup_options -is [string]) {
+    else
+    {
+        if ($DatumTree.__Definition.default_lookup_options -is [string])
+        {
             $default_options = $(Get-MergeStrategyFromString -MergeStrategy $DatumTree.__Definition.default_lookup_options)
         }
-        else {
+        else
+        {
             $default_options = $DatumTree.__Definition.default_lookup_options
         }
         #TODO: Add default_option input validation
         Write-Verbose "  Found default options in Datum Tree of type $($default_options.Strategy)."
     }
 
-    if ( $DatumTree.__Definition.lookup_options) {
-        Write-Debug "  Lookup options found."
+    if ( $DatumTree.__Definition.lookup_options)
+    {
+        Write-Debug '  Lookup options found.'
         $lookup_options = @{} + $DatumTree.__Definition.lookup_options
     }
-    else {
+    else
+    {
         $lookup_options = @{}
     }
 
     # Transform options from string to strategy hashtable
-    foreach ($optKey in ([string[]]$lookup_options.keys)) {
-        if ($lookup_options[$optKey] -is [string]) {
+    foreach ($optKey in ([string[]]$lookup_options.keys))
+    {
+        if ($lookup_options[$optKey] -is [string])
+        {
             $lookup_options[$optKey] = Get-MergeStrategyFromString -MergeStrategy $lookup_options[$optKey]
         }
     }
 
-    foreach ($optKey in ([string[]]$options.keys)) {
-        if ($options[$optKey] -is [string]) {
+    foreach ($optKey in ([string[]]$options.keys))
+    {
+        if ($options[$optKey] -is [string])
+        {
             $options[$optKey] = Get-MergeStrategyFromString -MergeStrategy $options[$optKey]
         }
     }
 
     # using options if specified or lookup_options otherwise
-    if (!$options) {
+    if (!$options)
+    {
         $options = $lookup_options
     }
 
     # Add default strategy for ^.* if not present, at the end
-    if (([string[]]$Options.keys) -notcontains '^.*') {
+    if (([string[]]$Options.keys) -notcontains '^.*')
+    {
         # Adding Default flag
         $default_options['Default'] = $true
         $options.add('^.*', $default_options)
     }
 
     # Create the variable to be used as Pivot in prefix path
-    if ( $Variable -and $VariableName ) {
+    if ( $Variable -and $VariableName )
+    {
         Set-Variable -Name $VariableName -Value $Variable -Force
     }
 
@@ -153,7 +170,8 @@ Function Resolve-Datum {
     $StartingMergeStrategy = Get-MergeStrategyFromPath -PropertyPath $PropertyPath -Strategies $options
 
     # Walk every search path in listed order, and return datum when found at end of path
-    foreach ($SearchPrefix in $PathPrefixes) {
+    foreach ($SearchPrefix in $PathPrefixes)
+    {
         #through the hierarchy
 
         $ArraySb = [System.Collections.ArrayList]@()
@@ -172,22 +190,27 @@ Function Resolve-Datum {
         # Get value for this property path
         $DatumFound = Resolve-DatumPath -Node $Node -DatumTree $DatumTree -PathStack $PathStack -PathVariables $ArraySb
 
-        if ($DatumFound -is [DatumProvider]) {
+        if ($DatumFound -is [DatumProvider])
+        {
             $DatumFound = $DatumFound.ToOrderedHashTable()
         }
 
         Write-Debug "  Depth: $depth; Merge options = $($options.count)"
 
         #Stop processing further path at first value in 'MostSpecific' mode (called 'first' in Puppet hiera)
-        if ($null -ne $DatumFound -and ($StartingMergeStrategy.Strategy -match '^MostSpecific|^First')) {
+        if ($null -ne $DatumFound -and ($StartingMergeStrategy.Strategy -match '^MostSpecific|^First'))
+        {
             return $DatumFound
         }
-        elseif ($null -ne $DatumFound) {
+        elseif ($null -ne $DatumFound)
+        {
 
-            if ($null -eq $MergeResult) {
+            if ($null -eq $MergeResult)
+            {
                 $MergeResult = $DatumFound
             }
-            else {
+            else
+            {
                 $MergeParams = @{
                     StartingPath    = $PropertyPath
                     ReferenceDatum  = $MergeResult
@@ -199,11 +222,12 @@ Function Resolve-Datum {
         }
 
         #if we've reached the Maximum Depth allowed, return current result and stop further execution
-        if ($Depth -eq $MaxDepth) {
+        if ($Depth -eq $MaxDepth)
+        {
             Write-Debug "  Max depth of $MaxDepth reached. Stopping."
-            ,$MergeResult
+            , $MergeResult
             return
         }
     }
-    ,$MergeResult
+    , $MergeResult
 }

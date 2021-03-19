@@ -1,26 +1,29 @@
-if ($PSScriptRoot) {
+if ($PSScriptRoot)
+{
     $here = $PSScriptRoot
 }
-else {
+else
+{
     $here = Join-Path $pwd.Path '*\tests\Integration\' -Resolve
 }
 
 ipmo datum
 
-$Datum = New-Datumstructure -DefinitionFile  (Join-path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve)
+$Datum = New-DatumStructure -DefinitionFile (Join-Path $here '.\assets\DSC_ConfigData\Datum.yml' -Resolve)
 $Environment = 'DEV'
 $AllNodes = @($Datum.AllNodes.($Environment).psobject.Properties | ForEach-Object {
-    $Node = $Datum.AllNodes.($Environment).($_.Name)
-    $null = $Node.Add('Environment',$Environment)
-    if(!$Node.contains('Name') ) {
-        $null = $Node.Add('Name',$_.Name)
-    }
-    (@{} + $Node)
-})
+        $Node = $Datum.AllNodes.($Environment).($_.Name)
+        $null = $Node.Add('Environment', $Environment)
+        if (!$Node.contains('Name') )
+        {
+            $null = $Node.Add('Name', $_.Name)
+        }
+        (@{} + $Node)
+    })
 
 $ConfigurationData = @{
     AllNodes = $AllNodes
-    Datum = $Datum
+    Datum    = $Datum
 }
 $Node = $ConfigurationData.AllNodes[2]
 
@@ -35,17 +38,17 @@ Write-Warning "Lookup <Configurations> -Node 'SRV02"
 Lookup MergeTest1 -Node 'SRV02'
 
 Write-Warning "Lookup MergeTest1 for $($Node.Name)"
-$a = (lookup MergeTest1)
+$a = (Lookup MergeTest1)
 
-Write-Warning "Show MergeTest1.MergeStringArray merging result:"
+Write-Warning 'Show MergeTest1.MergeStringArray merging result:'
 $a.MergeStringArray
 
-Write-Warning "Show MergeTest1.MergeHashArrays merging result:"
-$a.MergeHashArrays|% {$_; "`r`n"};
+Write-Warning 'Show MergeTest1.MergeHashArrays merging result:'
+$a.MergeHashArrays | % { $_; "`r`n" };
 
 
- $r = Get-DatumRsop -Datum $Datum -AllNodes $Node
- $r
+$r = Get-DatumRsop -Datum $Datum -AllNodes $Node
+$r
 <#
 $a = [ordered]@{
     keya = 1

@@ -1,4 +1,5 @@
-function Get-FileProviderData {
+function Get-FileProviderData
+{
     [CmdletBinding()]
     Param(
         $Path,
@@ -11,44 +12,56 @@ function Get-FileProviderData {
         $Encoding = 'Default'
     )
 
-    begin {
-        if(!$script:FileProviderDataCache) {
+    begin
+    {
+        if (!$script:FileProviderDataCache)
+        {
             $script:FileProviderDataCache = @{}
         }
     }
 
-    process {
+    process
+    {
         $File = Get-Item -Path $Path
-        if($script:FileProviderDataCache.ContainsKey($File.FullName) -and
-        $File.LastWriteTime -eq $script:FileProviderDataCache[$File.FullName].Metadata.LastWriteTime) {
+        if ($script:FileProviderDataCache.ContainsKey($File.FullName) -and
+            $File.LastWriteTime -eq $script:FileProviderDataCache[$File.FullName].Metadata.LastWriteTime)
+        {
             Write-Verbose "Getting File Provider Cache for Path: $Path"
-            ,$script:FileProviderDataCache[$File.FullName].Value
-        } else {
+            , $script:FileProviderDataCache[$File.FullName].Value
+        }
+        else
+        {
             Write-Verbose "Getting File Provider Data for Path: $Path"
-            $data = switch ($File.Extension) {
-                '.psd1' {
+            $data = switch ($File.Extension)
+            {
+                '.psd1'
+                {
                     Import-PowerShellDataFile -Path $File | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
-                '.json' {
+                '.json'
+                {
                     ConvertFrom-Json (Get-Content -Path $Path -Encoding $Encoding -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
-                '.yml' {
+                '.yml'
+                {
                     ConvertFrom-Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
-                '.yaml' {
+                '.yaml'
+                {
                     ConvertFrom-Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
                 }
-                Default {
-                    Write-verbose "File extension $($File.Extension) not supported. Defaulting on RAW."
+                Default
+                {
+                    Write-Verbose "File extension $($File.Extension) not supported. Defaulting on RAW."
                     Get-Content -Path $Path -Encoding $Encoding -Raw
                 }
             }
 
             $script:FileProviderDataCache[$File.FullName] = @{
                 Metadata = $File
-                Value = $data
+                Value    = $data
             }
-            ,$data
+            , $data
         }
     }
 }

@@ -75,7 +75,7 @@ function Merge-Hashtable
             Write-Debug "for Key $currentKey REF:[$RefHashItemValueType] | DIFF:[$DiffHashItemValueType]"
             if ($ParentPath)
             {
-                $ChildPath = (Join-Path  $ParentPath $currentKey)
+                $ChildPath = (Join-Path $ParentPath $currentKey)
             }
             else
             {

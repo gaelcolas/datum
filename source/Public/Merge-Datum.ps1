@@ -1,4 +1,5 @@
-function Merge-Datum {
+function Merge-Datum
+{
     [CmdletBinding()]
     param (
         [string]
@@ -18,103 +19,135 @@ function Merge-Datum {
 
     Write-Verbose "   Merge Strategy: @$($Strategy | ConvertTo-Json)"
 
-    $ReferenceDatumType  = Get-DatumType -DatumObject $ReferenceDatum
+    $ReferenceDatumType = Get-DatumType -DatumObject $ReferenceDatum
     $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
-    if($ReferenceDatumType -ne $DifferenceDatumType) {
+    if ($ReferenceDatumType -ne $DifferenceDatumType)
+    {
         Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
         return $ReferenceDatum
     }
 
-    if($Strategy -is [string]) {
+    if ($Strategy -is [string])
+    {
         $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
     }
 
-    switch ($ReferenceDatumType) {
-        'BaseType' {
+    switch ($ReferenceDatumType)
+    {
+        'BaseType'
+        {
             return $ReferenceDatum
         }
 
-        'hashtable' {
+        'hashtable'
+        {
             $mergeParams = @{
                 ReferenceHashtable  = $ReferenceDatum
                 DifferenceHashtable = $DifferenceDatum
-                Strategy = $Strategy
-                ParentPath = $StartingPath
-                ChildStrategies = $Strategies
+                Strategy            = $Strategy
+                ParentPath          = $StartingPath
+                ChildStrategies     = $Strategies
             }
 
-            if($Strategy.merge_hash -match '^MostSpecific$|^First') {
+            if ($Strategy.merge_hash -match '^MostSpecific$|^First')
+            {
                 return $ReferenceDatum
             }
-            else {
+            else
+            {
                 Merge-Hashtable @mergeParams
             }
         }
 
-        'baseType_array' {
-            switch -Regex ($Strategy.merge_baseType_array) {
-                '^MostSpecific$|^First' { return $ReferenceDatum }
+        'baseType_array'
+        {
+            switch -Regex ($Strategy.merge_baseType_array)
+            {
+                '^MostSpecific$|^First'
+                {
+                    return $ReferenceDatum
+                }
 
-                '^Unique'   {
-                    if($regexPattern = $Strategy.merge_options.knockout_prefix) {
-                        $regexPattern = $regexPattern.insert(0,'^')
-                        $result = @(($ReferenceDatum + $DifferenceDatum).Where{$_ -notmatch $regexPattern} | Select-object -Unique)
-                        ,$result
+                '^Unique'
+                {
+                    if ($regexPattern = $Strategy.merge_options.knockout_prefix)
+                    {
+                        $regexPattern = $regexPattern.insert(0, '^')
+                        $result = @(($ReferenceDatum + $DifferenceDatum).Where{ $_ -notmatch $regexPattern } | Select-Object -Unique)
+                        , $result
                     }
-                    else {
+                    else
+                    {
                         $result = @(($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique)
-                        ,$result
+                        , $result
                     }
 
                 }
 
-                '^Sum|^Add' {
+                '^Sum|^Add'
+                {
                     #--> $ref + $diff -$kop
-                    if($regexPattern = $Strategy.merge_options.knockout_prefix) {
-                        $regexPattern = $regexPattern.insert(0,'^')
-                        ,(($ReferenceDatum + $DifferenceDatum).Where{$_ -notMatch $regexPattern})
+                    if ($regexPattern = $Strategy.merge_options.knockout_prefix)
+                    {
+                        $regexPattern = $regexPattern.insert(0, '^')
+                        , (($ReferenceDatum + $DifferenceDatum).Where{ $_ -notMatch $regexPattern })
                     }
-                    else {
-                        ,($ReferenceDatum + $DifferenceDatum)
+                    else
+                    {
+                        , ($ReferenceDatum + $DifferenceDatum)
                     }
                 }
 
-                Default { return (,$ReferenceDatum) }
+                Default
+                {
+                    return (, $ReferenceDatum)
+                }
             }
         }
 
-        'hash_array' {
+        'hash_array'
+        {
             $MergeDatumArrayParams = @{
-                ReferenceArray = $ReferenceDatum
+                ReferenceArray  = $ReferenceDatum
                 DifferenceArray = $DifferenceDatum
-                Strategy = $Strategy
+                Strategy        = $Strategy
                 ChildStrategies = $Strategies
-                StartingPath = $StartingPath
+                StartingPath    = $StartingPath
             }
 
-            switch -Regex ($Strategy.merge_hash_array) {
-                '^MostSpecific|^First' { return $ReferenceDatum }
+            switch -Regex ($Strategy.merge_hash_array)
+            {
+                '^MostSpecific|^First'
+                {
+                    return $ReferenceDatum
+                }
 
-                '^UniqueKeyValTuples'  {
+                '^UniqueKeyValTuples'
+                {
                     #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is not already int output
-                    ,(Merge-DatumArray @MergeDatumArrayParams)
+                    , (Merge-DatumArray @MergeDatumArrayParams)
                 }
 
-                '^DeepTuple|^DeepItemMergeByTuples' {
+                '^DeepTuple|^DeepItemMergeByTuples'
+                {
                     #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is merged up
-                    ,(Merge-DatumArray @MergeDatumArrayParams)
+                    , (Merge-DatumArray @MergeDatumArrayParams)
                 }
 
-                '^Sum' {
+                '^Sum'
+                {
                     #--> $ref + $diff
                     (@($DifferenceArray) + @($ReferenceArray)).Foreach{
-                        $null = $MergedArray.add(([ordered]@{}+$_))
+                        $null = $MergedArray.add(([ordered]@{} + $_))
                     }
-                    ,$MergedArray
+                    , $MergedArray
                 }
 
-                Default { return (,$ReferenceDatum) }
+                Default
+                {
+                    return (, $ReferenceDatum)
+                }
             }
         }
     }
