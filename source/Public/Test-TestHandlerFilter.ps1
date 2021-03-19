@@ -1,4 +1,5 @@
-function Test-TestHandlerFilter {
+function Test-TestHandlerFilter
+{
     Param(
         [Parameter(
             ValueFromPipeline
@@ -6,5 +7,5 @@ function Test-TestHandlerFilter {
         $inputObject
     )
 
-    $InputObject -is [string] -and $InputObject -match "^\[TEST=[\w\W]*\]$"
+    $InputObject -is [string] -and $InputObject -match '^\[TEST=[\w\W]*\]$'
 }

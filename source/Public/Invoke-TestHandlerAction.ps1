@@ -1,4 +1,5 @@
-function Invoke-TestHandlerAction {
+function Invoke-TestHandlerAction
+{
     Param(
         $Password,
 
@@ -6,10 +7,10 @@ function Invoke-TestHandlerAction {
 
         $Datum
     )
-@"
+    @"
     Action: $handler
-    Node: $($Node|FL *|Out-String)
-    Params: 
-$($PSBoundParameters | Convertto-Json)
+    Node: $($Node|fl *|Out-String)
+    Params:
+$($PSBoundParameters | ConvertTo-Json)
 "@
 }

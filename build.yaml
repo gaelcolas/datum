@@ -9,7 +9,7 @@
 CopyPaths:
   # - en-US
   - ScriptsToProcess
-#  - DSCResources
+  # - DSCResources
   # - Modules
 Encoding: UTF8 # With BOM in WinPS, noBOM in PSCore.
 
@@ -31,13 +31,12 @@ VersionedOutputDirectory: true
 #     # suffix:
 #     # prefix:
 
-
 ####################################################
 #       Sampler Pipeline Configuration             #
 ####################################################
 # Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
 BuildWorkflow:
-  '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
+  ".": # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
     - test
     # - hqrmtest
@@ -47,7 +46,6 @@ BuildWorkflow:
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - Create_changelog_release_output
-
 
   pack:
     - build
@@ -64,11 +62,9 @@ BuildWorkflow:
     # code coverage files and needs to get merged into one file.
     #- Merge_CodeCoverage_Files
 
-
   publish:
     - Publish_release_to_GitHub
     - publish_module_to_gallery # runs if nuget is not available
-
 
 ####################################################
 #       PESTER  Configuration                      #
@@ -101,11 +97,9 @@ DscTest:
 
 ModuleBuildTasks:
   Sampler:
-    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+    - "*.build.Sampler.ib.tasks" # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
   Sampler.GitHubTasks:
-    - '*.ib.tasks'
-
-
+    - "*.ib.tasks"
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |
@@ -118,5 +112,3 @@ TaskHeader: |
   Write-Build DarkGray "  $Path"
   Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
   ""
-
-

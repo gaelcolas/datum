@@ -1,4 +1,5 @@
-function New-DatumFileProvider {
+function New-DatumFileProvider
+{
     Param(
 
         [alias('DataOptions')]
@@ -15,7 +16,8 @@ function New-DatumFileProvider {
         $Encoding = 'Default'
     )
 
-    if (!$DatumHierarchyDefinition) {
+    if (!$DatumHierarchyDefinition)
+    {
         $DatumHierarchyDefinition = @{}
     }
 

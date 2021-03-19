@@ -1,4 +1,5 @@
-class DatumProvider {
+class DatumProvider
+{
     hidden [bool]$IsDatumProvider = $true
 
     [hashtable]ToHashTable()

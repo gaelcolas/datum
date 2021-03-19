@@ -25,9 +25,9 @@ MergeTest1:
       Property: FromRole
     # - Name: HashName3
     #   Version: version3
-      # List:
-      #   - RoleElem1
-      #   - RoleElem2
+    # List:
+    #   - RoleElem1
+    #   - RoleElem2
     - Name: HashName4
       Version: version4
       ExtraProperty: FromRole
@@ -56,9 +56,9 @@ MergeTest2:
       Property: FromRole
     # - Name: HashName3
     #   Version: version3
-      # List:
-      #   - RoleElem1
-      #   - RoleElem2
+    # List:
+    #   - RoleElem1
+    #   - RoleElem2
     - Name: HashName4
       Version: version4
       ExtraProperty: FromRole

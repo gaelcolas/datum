@@ -1,98 +1,98 @@
 
 @{
 
-# Script module or binary module file associated with this manifest.
-RootModule = 'datum.psm1'
+    # Script module or binary module file associated with this manifest.
+    RootModule        = 'datum.psm1'
 
-# Version number of this module.
-ModuleVersion = '0.0.1'
+    # Version number of this module.
+    ModuleVersion     = '0.0.1'
 
-# ID used to uniquely identify this module
-GUID = 'e176662d-46b8-4900-8de5-e84f9b4366ee'
+    # ID used to uniquely identify this module
+    GUID              = 'e176662d-46b8-4900-8de5-e84f9b4366ee'
 
-# Author of this module
-Author = 'Gael Colas'
+    # Author of this module
+    Author            = 'Gael Colas'
 
-# Company or vendor of this module
-CompanyName = 'SynEdgy Limited'
+    # Company or vendor of this module
+    CompanyName       = 'SynEdgy Limited'
 
-# Copyright statement for this module
-Copyright = '(c) 2020 Gael Colas. All rights reserved.'
+    # Copyright statement for this module
+    Copyright         = '(c) 2020 Gael Colas. All rights reserved.'
 
-# Description of the functionality provided by this module
-Description = 'Module to manage Hierarchical Configuration Data.'
+    # Description of the functionality provided by this module
+    Description       = 'Module to manage Hierarchical Configuration Data.'
 
-# Minimum version of the Windows PowerShell engine required by this module
-# PowerShellVersion = ''
+    # Minimum version of the Windows PowerShell engine required by this module
+    # PowerShellVersion = ''
 
-# Name of the Windows PowerShell host required by this module
-# PowerShellHostName = ''
+    # Name of the Windows PowerShell host required by this module
+    # PowerShellHostName = ''
 
-# Minimum version of the Windows PowerShell host required by this module
-# PowerShellHostVersion = ''
+    # Minimum version of the Windows PowerShell host required by this module
+    # PowerShellHostVersion = ''
 
-# Minimum version of Microsoft .NET Framework required by this module
-# DotNetFrameworkVersion = ''
+    # Minimum version of Microsoft .NET Framework required by this module
+    # DotNetFrameworkVersion = ''
 
-# Minimum version of the common language runtime (CLR) required by this module
-# CLRVersion = ''
+    # Minimum version of the common language runtime (CLR) required by this module
+    # CLRVersion = ''
 
-# Processor architecture (None, X86, Amd64) required by this module
-# ProcessorArchitecture = ''
+    # Processor architecture (None, X86, Amd64) required by this module
+    # ProcessorArchitecture = ''
 
-# Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(
-    'powershell-yaml'
-)
+    # Modules that must be imported into the global environment prior to importing this module
+    RequiredModules   = @(
+        'powershell-yaml'
+    )
 
-# Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+    # Assemblies that must be loaded prior to importing this module
+    # RequiredAssemblies = @()
 
-# Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @(
-    './ScriptsToProcess/Resolve-NodeProperty.ps1'
-)
+    # Script files (.ps1) that are run in the caller's environment prior to importing this module.
+    ScriptsToProcess  = @(
+        './ScriptsToProcess/Resolve-NodeProperty.ps1'
+    )
 
-# Type files (.ps1xml) to be loaded when importing this module
-# TypesToProcess = @()
+    # Type files (.ps1xml) to be loaded when importing this module
+    # TypesToProcess = @()
 
-# Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+    # Format files (.ps1xml) to be loaded when importing this module
+    # FormatsToProcess = @()
 
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
+    # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
+    # NestedModules = @()
 
-# Functions to export from this module
-FunctionsToExport = ''
+    # Functions to export from this module
+    FunctionsToExport = ''
 
-# Cmdlets to export from this module
-#CmdletsToExport = '*'
+    # Cmdlets to export from this module
+    #CmdletsToExport = '*'
 
-# Variables to export from this module
-#VariablesToExport = '*'
+    # Variables to export from this module
+    #VariablesToExport = '*'
 
-# Aliases to export from this module
-AliasesToExport =   ''
+    # Aliases to export from this module
+    AliasesToExport   = ''
 
-# List of all modules packaged with this module
-# ModuleList = @()
+    # List of all modules packaged with this module
+    # ModuleList = @()
 
-# List of all files packaged with this module
-# FileList = @()
+    # List of all files packaged with this module
+    # FileList = @()
 
-# Private data to pass to the module specified in RootModule/ModuleToProcess
-PrivateData = @{
+    # Private data to pass to the module specified in RootModule/ModuleToProcess
+    PrivateData       = @{
 
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-             Tags = @('Datum', 'Hiera', 'DSC', 'DesiredStateConfiguration', 'hierarchical', 'ConfigurationData', 'ConfigData')
+            Tags         = @('Datum', 'Hiera', 'DSC', 'DesiredStateConfiguration', 'hierarchical', 'ConfigurationData', 'ConfigData')
 
             # A URL to the license for this module.
-             LicenseUri = 'https://github.com/gaelcolas/Datum/blob/master/LICENSE'
+            LicenseUri   = 'https://github.com/gaelcolas/Datum/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-             ProjectUri = 'https://github.com/gaelcolas/Datum/'
+            ProjectUri   = 'https://github.com/gaelcolas/Datum/'
 
             # A URL to an icon representing this module.
             # IconUri = ''
@@ -101,7 +101,7 @@ PrivateData = @{
             ReleaseNotes = ''
 
             # Pre release tag for SemVer
-            Prerelease = ''
+            Prerelease   = ''
 
             # Dependencies managed outside this module
             # ExternalModuleDependencies = @('powershell-yaml')
@@ -110,10 +110,10 @@ PrivateData = @{
 
     } # End of PrivateData hashtable
 
-# HelpInfo URI of this module
-# HelpInfoURI = ''
+    # HelpInfo URI of this module
+    # HelpInfoURI = ''
 
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
+    # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
+    # DefaultCommandPrefix = ''
 
 }

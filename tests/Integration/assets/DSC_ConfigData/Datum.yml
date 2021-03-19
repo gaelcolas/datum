@@ -19,7 +19,6 @@ DatumStructure:
     StoreOptions:
       Path: "./Roles"
 
-
 ResolutionPrecedence:
   - 'AllNodes\$($Node.Environment)\$($Node.Name)'
   - 'AllNodes\$($Node.Environment)\All'
@@ -40,13 +39,12 @@ DatumHandlers:
 #       PlainTextPassword: P@ssw0rd
 #       #Certificate: ### THUMBPRINT ###
 
-  # Datum::FollowRedirection:
-  #   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
-  #   Action: Resolve-Datum -PropertyPath ($InputObject -replace '^\[REF=').TrimEnd(']') -DatumTre $Datum -Variable $Node
-  # Datum::Interpolation:
-  #   Filter: $InputObject -is [string] -and $InputObject -match '\%\{.*\}'
-  #   Action: Get-InterpolatedDatum $InputObject
-
+# Datum::FollowRedirection:
+#   Filter: $false #$InputObject -is [string] -and $InputObject -match "^\[REF=.*\]$"
+#   Action: Resolve-Datum -PropertyPath ($InputObject -replace '^\[REF=').TrimEnd(']') -DatumTre $Datum -Variable $Node
+# Datum::Interpolation:
+#   Filter: $InputObject -is [string] -and $InputObject -match '\%\{.*\}'
+#   Action: Get-InterpolatedDatum $InputObject
 
 # That's the default
 default_lookup_options: hash
@@ -60,7 +58,6 @@ default_lookup_options: hash
 #     knockout_prefix: --
 #     sort_merged_arrays: false
 #     merge_hash_arrays: false
-
 
 # Can override for all
 lookup_options:
@@ -79,19 +76,16 @@ lookup_options:
     merge_options:
       knockout_prefix: --
       tuple_keys:
-          - name
-          - version
-
+        - name
+        - version
   #MergeTest1\MergeHash: first
   #configurations: Unique
-
   # '^.*\\':
   #   strategy: deep
   #   options:
   #     knockout_prefix: --
   #     sort_merged_arrays: false
   #     merge_hash_arrays: false
-
 # lookup_options:
 #   lookup_options: #when a Configuration defines a merge behaviour, it can be overriden here
 #     merge: hash

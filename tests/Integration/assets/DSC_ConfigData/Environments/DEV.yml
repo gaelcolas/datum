@@ -1,6 +1,5 @@
-Description: 'This is the DEV environment'
+Description: "This is the DEV environment"
 Test: "[TEST=CatchMe]"
-
 
 MergeTest1:
   MergeHash:
@@ -39,11 +38,6 @@ MergeTest1:
       #   - RoleElem3
       #   - RoleElem4
 
-
-
-
-
-
 MergeTest2:
   MergeHash:
     HashKey2: FromEnvironment
@@ -72,5 +66,3 @@ MergeTest2:
       # List:
       #   - RoleElem3
       #   - RoleElem4
-
-

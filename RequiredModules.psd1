@@ -1,8 +1,8 @@
 @{
     # Set up a mini virtual environment...
-    PSDependOptions = @{
-        AddToPath = $true
-        Target = 'output\RequiredModules'
+    PSDependOptions             = @{
+        AddToPath  = $true
+        Target     = 'output\RequiredModules'
         Parameters = @{
         }
     }
