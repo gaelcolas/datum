@@ -4,7 +4,7 @@ Role: FileServer
 Description: '[Command=(Import-Csv -Path $env:BHProjectPath\DscConfigData\ExternalData.csv -Delimiter ";" | Where-Object ComputerName -eq DSCFile01).Description]'
 
 Location: Frankfurt
-SomeData: "[Command=Get-Random]"
+SomeData: '[Command=Get-Random]'
 
 NetworkIpConfiguration:
   IpAddress: 192.168.111.100
