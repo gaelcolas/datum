@@ -3,7 +3,7 @@ Environment: Dev
 Role: WebServer
 Description: '[Command=(Import-Csv -Path $env:BHProjectPath\DscConfigData\ExternalData.csv -Delimiter ";" | Where-Object ComputerName -eq DSCWeb01).Description]'
 Location: Singapore
-SomeData: "[Command=Get-Random]"
+SomeData: '[Command=Get-Random]'
 
 NetworkIpConfigurationMerged:
   IpAddress: 192.168.10.101

@@ -36,7 +36,7 @@ VersionedOutputDirectory: true
 ####################################################
 # Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
 BuildWorkflow:
-  ".": # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
+  '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
     - test
     # - hqrmtest
@@ -93,13 +93,13 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
 DscTest:
   ExcludeTag:
-    - "Common Tests - New Error-Level Script Analyzer Rules"
+    - 'Common Tests - New Error-Level Script Analyzer Rules'
 
 ModuleBuildTasks:
   Sampler:
-    - "*.build.Sampler.ib.tasks" # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
   Sampler.GitHubTasks:
-    - "*.ib.tasks"
+    - '*.ib.tasks'
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |
