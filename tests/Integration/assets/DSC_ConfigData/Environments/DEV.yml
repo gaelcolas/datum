@@ -1,5 +1,5 @@
-Description: "This is the DEV environment"
-Test: "[TEST=CatchMe]"
+Description: 'This is the DEV environment'
+Test: '[TEST=CatchMe]'
 
 MergeTest1:
   MergeHash:

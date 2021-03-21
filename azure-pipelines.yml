@@ -7,41 +7,41 @@ trigger:
       - CHANGELOG.md
   tags:
     include:
-      - "v*"
+      - 'v*'
     exclude:
-      - "*-*"
+      - '*-*'
 
 stages:
   - stage: Build
     jobs:
       - job: Package_Module
-        displayName: "Package Module"
+        displayName: 'Package Module'
         pool:
-          vmImage: "ubuntu 16.04"
+          vmImage: 'ubuntu 16.04'
         steps:
           - task: GitVersion@5
             name: gitVersion
-            displayName: "Evaluate Next Version"
+            displayName: 'Evaluate Next Version'
             inputs:
-              runtime: "core"
-              configFilePath: "GitVersion.yml"
+              runtime: 'core'
+              configFilePath: 'GitVersion.yml'
 
           - task: PowerShell@2
             name: package
-            displayName: "Build & Package Module"
+            displayName: 'Build & Package Module'
             inputs:
-              filePath: "./build.ps1"
-              arguments: "-ResolveDependency -tasks pack"
+              filePath: './build.ps1'
+              arguments: '-ResolveDependency -tasks pack'
               pwsh: true
             env:
               ModuleVersion: $(gitVersion.NuGetVersionV2)
 
           - task: PublishBuildArtifacts@1
-            displayName: "Publish Build Artifact"
+            displayName: 'Publish Build Artifact'
             inputs:
-              pathToPublish: "output/"
-              artifactName: "output"
-              publishLocation: "Container"
+              pathToPublish: 'output/'
+              artifactName: 'output'
+              publishLocation: 'Container'
 
   - stage: Test
     dependsOn: Build
@@ -75,114 +75,114 @@ stages:
       #         testRunTitle: 'HQRM'
 
       - job: Test_Unit_Windows
-        displayName: "Unit Windows"
+        displayName: 'Unit Windows'
         pool:
-          vmImage: "windows-2019"
-        timeoutInMinutes: "0"
+          vmImage: 'windows-2019'
+        timeoutInMinutes: '0'
         steps:
           - powershell: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
               echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
               echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
             name: dscBuildVariable
-            displayName: "Set Environment Variables"
+            displayName: 'Set Environment Variables'
           - task: DownloadBuildArtifacts@0
-            displayName: "Download Build Artifact"
+            displayName: 'Download Build Artifact'
             inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "output"
-              downloadPath: "$(Build.SourcesDirectory)"
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
             name: test
-            displayName: "Run Unit Test"
+            displayName: 'Run Unit Test'
             inputs:
-              filePath: "./build.ps1"
+              filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Unit'"
               pwsh: false
           - task: PublishTestResults@2
-            displayName: "Publish Test Results"
+            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
-              testResultsFormat: "NUnit"
-              testResultsFiles: "output/testResults/NUnit*.xml"
-              testRunTitle: "Unit (Windows Server Core)"
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Unit (Windows Server Core)'
           - task: PublishCodeCoverageResults@1
-            displayName: "Publish Code Coverage"
+            displayName: 'Publish Code Coverage'
             condition: succeededOrFailed()
             inputs:
-              codeCoverageTool: "JaCoCo"
-              summaryFileLocation: "output/testResults/CodeCov*.xml"
-              pathToSources: "$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)"
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: Test_Unit_ubuntu
-        displayName: "Unit ubuntu"
+        displayName: 'Unit ubuntu'
         pool:
-          vmImage: "ubuntu-latest"
-        timeoutInMinutes: "0"
+          vmImage: 'ubuntu-latest'
+        timeoutInMinutes: '0'
         steps:
           - powershell: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
               echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
               echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
             name: dscBuildVariable
-            displayName: "Set Environment Variables"
+            displayName: 'Set Environment Variables'
           - task: DownloadBuildArtifacts@0
-            displayName: "Download Build Artifact"
+            displayName: 'Download Build Artifact'
             inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "output"
-              downloadPath: "$(Build.SourcesDirectory)"
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
             name: test
-            displayName: "Run Unit Test"
+            displayName: 'Run Unit Test'
             inputs:
-              filePath: "./build.ps1"
+              filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Unit'"
               pwsh: true
           - task: PublishTestResults@2
-            displayName: "Publish Test Results"
+            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
-              testResultsFormat: "NUnit"
-              testResultsFiles: "output/testResults/NUnit*.xml"
-              testRunTitle: "Unit (Ubuntu)"
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Unit (Ubuntu)'
           - task: PublishCodeCoverageResults@1
-            displayName: "Publish Code Coverage"
+            displayName: 'Publish Code Coverage'
             condition: succeededOrFailed()
             inputs:
-              codeCoverageTool: "JaCoCo"
-              summaryFileLocation: "output/testResults/CodeCov*.xml"
-              pathToSources: "$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)"
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: Test_Integration
-        displayName: "Integration"
+        displayName: 'Integration'
         pool:
-          vmImage: "windows-2019"
-        timeoutInMinutes: "0"
+          vmImage: 'windows-2019'
+        timeoutInMinutes: '0'
         steps:
           - task: DownloadBuildArtifacts@0
-            displayName: "Download Build Artifact"
+            displayName: 'Download Build Artifact'
             inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "output"
-              downloadPath: "$(Build.SourcesDirectory)"
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
             name: test
-            displayName: "Run Integration Test"
+            displayName: 'Run Integration Test'
             inputs:
-              filePath: "./build.ps1"
+              filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
               pwsh: false
           - task: PublishTestResults@2
-            displayName: "Publish Test Results"
+            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
-              testResultsFormat: "NUnit"
-              testResultsFiles: "output/testResults/NUnit*.xml"
-              testRunTitle: "Integration (ubuntu-latest)"
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Integration (ubuntu-latest)'
 
   - stage: Deploy
     dependsOn: Test
@@ -198,33 +198,33 @@ stages:
       )
     jobs:
       - job: Deploy_Module
-        displayName: "Deploy Module"
+        displayName: 'Deploy Module'
         pool:
-          vmImage: "ubuntu 16.04"
+          vmImage: 'ubuntu 16.04'
         steps:
           - task: DownloadBuildArtifacts@0
-            displayName: "Download Build Artifact"
+            displayName: 'Download Build Artifact'
             inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "output"
-              downloadPath: "$(Build.SourcesDirectory)"
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
             name: publishRelease
-            displayName: "Publish Release"
+            displayName: 'Publish Release'
             inputs:
-              filePath: "./build.ps1"
-              arguments: "-tasks publish"
+              filePath: './build.ps1'
+              arguments: '-tasks publish'
               pwsh: true
             env:
               GitHubToken: $(GitHubToken)
               GalleryApiToken: $(GalleryApiToken)
           - task: PowerShell@2
             name: sendChangelogPR
-            displayName: "Send Changelog PR"
+            displayName: 'Send Changelog PR'
             inputs:
-              filePath: "./build.ps1"
-              arguments: "-tasks Create_ChangeLog_GitHub_PR"
+              filePath: './build.ps1'
+              arguments: '-tasks Create_ChangeLog_GitHub_PR'
               pwsh: true
             env:
               GitHubToken: $(GitHubToken)

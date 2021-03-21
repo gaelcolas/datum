@@ -2,22 +2,22 @@ DatumStructure:
   - StoreName: AllNodes
     StoreProvider: Datum::File
     StoreOptions:
-      Path: "./AllNodes"
+      Path: './AllNodes'
 
   - StoreName: SiteData
     StoreProvider: Datum::File
     StoreOptions:
-      Path: "./SiteData"
+      Path: './SiteData'
 
   - StoreName: Environments
     StoreProvider: Datum::File
     StoreOptions:
-      Path: "./Environments"
+      Path: './Environments'
 
   - StoreName: Roles
     StoreProvider: Datum::File
     StoreOptions:
-      Path: "./Roles"
+      Path: './Roles'
 
 ResolutionPrecedence:
   - 'AllNodes\$($Node.Environment)\$($Node.Name)'
