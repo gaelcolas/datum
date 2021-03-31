@@ -1,6 +1,6 @@
-Class FileProvider : DatumProvider
+class FileProvider : DatumProvider
 {
-    hidden $Path
+    hidden [string]$Path
     hidden [hashtable] $Store
     hidden [hashtable] $DatumHierarchyDefinition
     hidden [hashtable] $StoreOptions
@@ -16,8 +16,8 @@ Class FileProvider : DatumProvider
         $this.DatumHandlers = $DatumHierarchyDefinition.DatumHandlers
         $this.Encoding = $Encoding
 
-        $Result = Get-ChildItem $path | ForEach-Object {
-            if ($_.PSisContainer)
+        $result = Get-ChildItem -Path $path | ForEach-Object {
+            if ($_.PSIsContainer)
             {
                 $val = [scriptblock]::Create("New-DatumFileProvider -Path `"$($_.FullName)`" -StoreOptions `$this.DataOptions -DatumHierarchyDefinition `$this.DatumHierarchyDefinition -Encoding `$this.Encoding")
                 $this | Add-Member -MemberType ScriptProperty -Name $_.BaseName -Value $val
