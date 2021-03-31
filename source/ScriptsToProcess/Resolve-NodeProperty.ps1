@@ -4,17 +4,20 @@ function Global:Resolve-NodeProperty
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, Position = 0)]
-        [string]$PropertyPath,
+        [string]
+        $PropertyPath,
 
         [Parameter(Position = 1)]
         [AllowNull()]
-        [string]$DefaultValue,
+        [object[]]
+        $DefaultValue,
 
         [Parameter(Position = 3)]
         $Node = $ExecutionContext.InvokeCommand.InvokeScript('$Node'),
 
         [Parameter()]
         [Alias('DatumStructure')]
+        [object]
         $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
 
         [Parameter()]
