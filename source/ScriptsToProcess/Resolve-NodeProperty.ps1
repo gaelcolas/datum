@@ -41,7 +41,7 @@ function Global:Resolve-NodeProperty
     $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
     foreach ($removeKey in $PSBoundParameters.Keys.Where{ $_ -in @('DefaultValue', 'Node') })
     {
-        $ResolveDatumParams.remove($removeKey)
+        $ResolveDatumParams.Remove($removeKey)
     }
 
     # Translate the DSC specific Node into the 'Node' variable and Node name used by Resolve-Datum
@@ -76,7 +76,7 @@ function Global:Resolve-NodeProperty
         }
         Write-Debug "`t`tAttempting to load datum from $($here)."
 
-        $resourceConfigDataPath = Join-Path $here 'ConfigData' -Resolve -ErrorAction SilentlyContinue
+        $resourceConfigDataPath = Join-Path -Path $here -ChildPath 'ConfigData' -Resolve -ErrorAction SilentlyContinue
 
         if ($resourceConfigDataPath)
         {
