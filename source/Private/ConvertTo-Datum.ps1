@@ -1,16 +1,19 @@
 function ConvertTo-Datum
 {
     param (
-        [Parameter(ValueFromPipeline)]
+        [Parameter(ValueFromPipeline = $true)]
+        [object]
         $InputObject,
 
+        [Parameter()]
         [AllowNull()]
+        [hashtable]
         $DatumHandlers = @{}
     )
 
     begin
     {
-        $HandlerNames = $DatumHandlers.Keys
+        $handlerNames = $DatumHandlers.Keys
     }
 
     process
@@ -23,9 +26,9 @@ function ConvertTo-Datum
         if ($InputObject -is [System.Collections.IDictionary])
         {
             $hashKeys = [string[]]$InputObject.Keys
-            foreach ($Key in $hashKeys)
+            foreach ($key in $hashKeys)
             {
-                $InputObject[$Key] = ConvertTo-Datum -InputObject $InputObject[$Key] -DatumHandlers $DatumHandlers
+                $InputObject[$key] = ConvertTo-Datum -InputObject $InputObject[$key] -DatumHandlers $DatumHandlers
             }
             # Making the Ordered Dict Case Insensitive
             ([ordered]@{} + $InputObject)
@@ -53,43 +56,43 @@ function ConvertTo-Datum
             $hash
         }
         # if There's a matching filter, process associated command and return result
-        elseif ($HandlerNames -and ($result = & {
-                    foreach ($Handler in $HandlerNames)
+        elseif ($handlerNames -and ($result = & {
+                    foreach ($handler in $handlerNames)
                     {
-                        $FilterModule, $FilterName = $Handler -split '::'
-                        if (!(Get-Module $FilterModule))
+                        $filterModule, $filterName = $handler -split '::'
+                        if (-not (Get-Module -Name $filterModule))
                         {
-                            Import-Module $FilterModule -Force -ErrorAction Stop
+                            Import-Module -Name $filterModule -Force -ErrorAction Stop
                         }
-                        $FilterCommand = Get-Command -ErrorAction SilentlyContinue ('{0}\Test-{1}Filter' -f $FilterModule, $FilterName)
-                        if ($FilterCommand -and ($InputObject | &$FilterCommand))
+                        $filterCommand = Get-Command -Name ('{0}\Test-{1}Filter' -f $filterModule, $filterName) -ErrorAction SilentlyContinue
+                        if ($filterCommand -and ($InputObject | &$filterCommand))
                         {
                             try
                             {
-                                if ($ActionCommand = Get-Command -ErrorAction SilentlyContinue ('{0}\Invoke-{1}Action' -f $FilterModule, $FilterName))
+                                if ($actionCommand = Get-Command -Name ('{0}\Invoke-{1}Action' -f $filterModule, $filterName) -ErrorAction SilentlyContinue)
                                 {
-                                    $ActionParams = @{}
-                                    $CommandOptions = $Datumhandlers.$handler.CommandOptions.Keys
+                                    $actionParams = @{}
+                                    $commandOptions = $Datumhandlers.$handler.CommandOptions.Keys
                                     # Populate the Command's params with what's in the Datum.yml, or from variables
-                                    $Variables = Get-Variable
-                                    foreach ( $ParamName in $ActionCommand.Parameters.keys )
+                                    $variables = Get-Variable
+                                    foreach ($paramName in $actionCommand.Parameters.Keys )
                                     {
-                                        if ( $ParamName -in $CommandOptions )
+                                        if ($paramName -in $commandOptions)
                                         {
-                                            $ActionParams.add($ParamName, $Datumhandlers.$handler.CommandOptions[$ParamName])
+                                            $actionParams.Add($paramName, $Datumhandlers.$handler.CommandOptions[$paramName])
                                         }
-                                        elseif ($Var = $Variables.Where{ $_.Name -eq $ParamName })
+                                        elseif ($var = $variables.Where{ $_.Name -eq $paramName })
                                         {
-                                            $ActionParams.Add($ParamName, $Var.Value)
+                                            $actionParams.Add($paramName, $var.Value)
                                         }
                                     }
-                                    $result = (&$ActionCommand @ActionParams)
+                                    $result = &$actionCommand @ActionParams
                                     $result
                                 }
                             }
                             catch
                             {
-                                Write-Warning "Error using Datum Handler $Handler, returning Input Object. The error was: '$($_.Exception.Message)'."
+                                Write-Warning "Error using Datum Handler $handler, returning Input Object. The error was: '$($_.Exception.Message)'."
                                 $InputObject
                             }
                         }
