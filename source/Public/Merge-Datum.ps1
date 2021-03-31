@@ -3,19 +3,19 @@ function Merge-Datum
     [OutputType([System.Array])]
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [string]
         $StartingPath,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [object]
         $ReferenceDatum,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [object]
         $DifferenceDatum,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [hashtable]
         $Strategies = @{
             '^.*' = 'MostSpecific'
