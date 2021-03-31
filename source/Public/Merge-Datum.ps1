@@ -1,39 +1,47 @@
 function Merge-Datum
 {
+    [OutputType([System.Array])]
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory)]
         [string]
         $StartingPath,
 
+        [Parameter(Mandatory)]
+        [object]
         $ReferenceDatum,
 
+        [Parameter(Mandatory)]
+        [object]
         $DifferenceDatum,
 
+        [Parameter(Mandatory)]
+        [hashtable]
         $Strategies = @{
             '^.*' = 'MostSpecific'
         }
     )
 
-    Write-Debug "Merge-Datum -StartingPath <$StartingPath>"
-    $Strategy = Get-MergeStrategyFromPath -Strategies $strategies -PropertyPath $startingPath -Verbose
+    Write-Debug -Message "Merge-Datum -StartingPath <$StartingPath>"
+    $strategy = Get-MergeStrategyFromPath -Strategies $Strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose "   Merge Strategy: @$($Strategy | ConvertTo-Json)"
+    Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json)"
 
-    $ReferenceDatumType = Get-DatumType -DatumObject $ReferenceDatum
-    $DifferenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
+    $referenceDatumType = Get-DatumType -DatumObject $ReferenceDatum
+    $differenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
-    if ($ReferenceDatumType -ne $DifferenceDatumType)
+    if ($referenceDatumType -ne $differenceDatumType)
     {
-        Write-Warning "Cannot merge different types in path '$StartingPath' REF:[$ReferenceDatumType] | DIFF:[$DifferenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
+        Write-Warning -Message "Cannot merge different types in path '$StartingPath' REF:[$referenceDatumType] | DIFF:[$differenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
         return $ReferenceDatum
     }
 
-    if ($Strategy -is [string])
+    if ($strategy -is [string])
     {
-        $Strategy = Get-MergeStrategyFromString -MergeStrategy $Strategy
+        $strategy = Get-MergeStrategyFromString -MergeStrategy $strategy
     }
 
-    switch ($ReferenceDatumType)
+    switch ($referenceDatumType)
     {
         'BaseType'
         {
@@ -45,12 +53,12 @@ function Merge-Datum
             $mergeParams = @{
                 ReferenceHashtable  = $ReferenceDatum
                 DifferenceHashtable = $DifferenceDatum
-                Strategy            = $Strategy
+                Strategy            = $strategy
                 ParentPath          = $StartingPath
                 ChildStrategies     = $Strategies
             }
 
-            if ($Strategy.merge_hash -match '^MostSpecific$|^First')
+            if ($strategy.merge_hash -match '^MostSpecific$|^First')
             {
                 return $ReferenceDatum
             }
@@ -62,7 +70,7 @@ function Merge-Datum
 
         'baseType_array'
         {
-            switch -Regex ($Strategy.merge_baseType_array)
+            switch -Regex ($strategy.merge_baseType_array)
             {
                 '^MostSpecific$|^First'
                 {
@@ -71,7 +79,7 @@ function Merge-Datum
 
                 '^Unique'
                 {
-                    if ($regexPattern = $Strategy.merge_options.knockout_prefix)
+                    if ($regexPattern = $strategy.merge_options.knockout_prefix)
                     {
                         $regexPattern = $regexPattern.insert(0, '^')
                         $result = @(($ReferenceDatum + $DifferenceDatum).Where{ $_ -notmatch $regexPattern } | Select-Object -Unique)
@@ -88,7 +96,7 @@ function Merge-Datum
                 '^Sum|^Add'
                 {
                     #--> $ref + $diff -$kop
-                    if ($regexPattern = $Strategy.merge_options.knockout_prefix)
+                    if ($regexPattern = $strategy.merge_options.knockout_prefix)
                     {
                         $regexPattern = $regexPattern.insert(0, '^')
                         , (($ReferenceDatum + $DifferenceDatum).Where{ $_ -notMatch $regexPattern })
@@ -111,12 +119,12 @@ function Merge-Datum
             $MergeDatumArrayParams = @{
                 ReferenceArray  = $ReferenceDatum
                 DifferenceArray = $DifferenceDatum
-                Strategy        = $Strategy
+                Strategy        = $strategy
                 ChildStrategies = $Strategies
                 StartingPath    = $StartingPath
             }
 
-            switch -Regex ($Strategy.merge_hash_array)
+            switch -Regex ($strategy.merge_hash_array)
             {
                 '^MostSpecific|^First'
                 {
@@ -139,14 +147,14 @@ function Merge-Datum
                 {
                     #--> $ref + $diff
                     (@($DifferenceArray) + @($ReferenceArray)).Foreach{
-                        $null = $MergedArray.add(([ordered]@{} + $_))
+                        $null = $MergedArray.Add(([ordered]@{} + $_))
                     }
                     , $MergedArray
                 }
 
                 Default
                 {
-                    return (, $ReferenceDatum)
+                    return , $ReferenceDatum
                 }
             }
         }
