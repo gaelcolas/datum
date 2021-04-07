@@ -4,11 +4,11 @@ function Merge-DatumArray
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [hashtable[]]
+        [object]
         $ReferenceArray,
 
         [Parameter(Mandatory = $true)]
-        [hashtable[]]
+        [object]
         $DifferenceArray,
 
         [Parameter()]
