@@ -5,12 +5,12 @@ function Merge-Hashtable
     param (
         # [hashtable] These should stay ordered
         [Parameter(Mandatory = $true)]
-        [hashtable]
+        [object]
         $ReferenceHashtable,
 
         # [hashtable] These should stay ordered
         [Parameter(Mandatory = $true)]
-        [hashtable]
+        [object]
         $DifferenceHashtable,
 
         [Parameter()]
