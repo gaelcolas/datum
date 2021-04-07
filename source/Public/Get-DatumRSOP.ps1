@@ -6,7 +6,7 @@ function Get-DatumRsop
         [hashtable]
         $Datum,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $AllNodes,
 
