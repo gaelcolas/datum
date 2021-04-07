@@ -2,7 +2,8 @@ function Get-DatumType
 {
     [OutputType([string])]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
+        [AllowNull()]
         [object]
         $DatumObject
     )
