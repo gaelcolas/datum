@@ -12,10 +12,11 @@ function Merge-Datum
         $ReferenceDatum,
 
         [Parameter(Mandatory = $true)]
+        [AllowNull()]
         [object]
         $DifferenceDatum,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [hashtable]
         $Strategies = @{
             '^.*' = 'MostSpecific'
