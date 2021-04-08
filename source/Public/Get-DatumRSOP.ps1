@@ -1,50 +1,56 @@
 function Get-DatumRsop
 {
     [CmdletBinding()]
-    Param(
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
         $Datum,
 
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $AllNodes,
 
+        [Parameter()]
+        [string]
         $CompositionKey = 'Configurations',
 
-        [ScriptBlock]
+        [Parameter()]
+        [scriptblock]
         $Filter = {}
     )
 
     if ($Filter.ToString() -ne ([System.Management.Automation.ScriptBlock]::Create( {})).ToString())
     {
-        Write-Verbose "Filter: $($Filter.ToString())"
+        Write-Verbose -Message "Filter: $($Filter.ToString())"
         $AllNodes = [System.Collections.Hashtable[]]$allNodes.Where($Filter)
-        Write-Verbose "Node count after applying filter: $($AllNodes.Count)"
+        Write-Verbose -Message "Node count after applying filter: $($AllNodes.Count)"
     }
 
-    foreach ($Node in $AllNodes)
+    foreach ($node in $AllNodes)
     {
-        $RSOPNode = $Node.clone()
+        $rsopNode = $node.clone()
 
-        $Configurations = Lookup $CompositionKey -Node $Node -DatumTree $Datum -DefaultValue @()
-        if ($RSOPNode.contains($CompositionKey))
+        $configurations = Lookup $CompositionKey -Node $node -DatumTree $Datum -DefaultValue @()
+        if ($rsopNode.contains($CompositionKey))
         {
-            $RSOPNode[$CompositionKey] = $Configurations
+            $rsopNode[$CompositionKey] = $configurations
         }
         else
         {
-            $RSOPNode.add($CompositionKey, $Configurations)
+            $rsopNode.Add($CompositionKey, $configurations)
         }
 
-        $Configurations.Foreach{
-            if (!$RSOPNode.contains($_))
+        $configurations.Foreach{
+            if (-not $rsopNode.Contains($_))
             {
-                $RSOPNode.Add($_, (Lookup $_ -DefaultValue @{} -Node $Node -DatumTree $Datum))
+                $rsopNode.Add($_, (Lookup -PropertyPath $_ -DefaultValue @{} -Node $node -DatumTree $Datum))
             }
             else
             {
-                $RSOPNode[$_] = Lookup $_ -DefaultValue @{} -Node $Node -DatumTree $Datum
+                $rsopNode[$_] = Lookup -PropertyPath $_ -DefaultValue @{} -Node $node -DatumTree $Datum
             }
         }
 
-        $RSOPNode
+        $rsopNode
     }
 }
