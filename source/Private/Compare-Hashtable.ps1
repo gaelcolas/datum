@@ -1,74 +1,77 @@
 function Compare-Hashtable
 {
     [CmdletBinding()]
-    Param(
-
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
         $ReferenceHashtable,
 
+        [Parameter(Mandatory = $true)]
+        [hashtable]
         $DifferenceHashtable,
 
+        [Parameter()]
         [string[]]
         $Property = ($ReferenceHashtable.Keys + $DifferenceHashtable.Keys | Select-Object -Unique)
     )
 
-    Write-Debug "Compare-Hashtable -Ref @{$($ReferenceHashtable.keys -join ';')} -Diff @{$($DifferenceHashtable.keys -join ';')} -Property [$($Property -join ', ')]"
-    #Write-Debug "REF:`r`n$($ReferenceHashtable|ConvertTo-JSON)"
-    #Write-Debug "DIFF:`r`n$($DifferenceHashtable|ConvertTo-JSON)"
+    Write-Debug -Message "Compare-Hashtable -Ref @{$($ReferenceHashtable.keys -join ';')} -Diff @{$($DifferenceHashtable.keys -join ';')} -Property [$($Property -join ', ')]"
+    #Write-Debug -Message "REF:`r`n$($ReferenceHashtable | ConvertTo-Json)"
+    #Write-Debug -Message "DIFF:`r`n$($DifferenceHashtable | ConvertTo-Json)"
 
-    foreach ($PropertyName in $Property)
+    foreach ($propertyName in $Property)
     {
-        Write-Debug "  Testing <$PropertyName>'s value"
-        if ( ($inRef = $ReferenceHashtable.Contains($PropertyName)) -and
-            ($inDiff = $DifferenceHashtable.Contains($PropertyName))
-        )
+        Write-Debug -Message "  Testing <$propertyName>'s value"
+        if (($inRef = $ReferenceHashtable.Contains($propertyName)) -and
+            ($inDiff = $DifferenceHashtable.Contains($propertyName)))
         {
-            if ($ReferenceHashtable[$PropertyName] -as [hashtable[]] -or $DifferenceHashtable[$PropertyName] -as [hashtable[]] )
+            if ($ReferenceHashtable[$propertyName] -as [hashtable[]] -or $DifferenceHashtable[$propertyName] -as [hashtable[]])
             {
-                if ( (Compare-Hashtable -ReferenceHashtable $ReferenceHashtable[$PropertyName] -DifferenceHashtable $DifferenceHashtable[$PropertyName]) )
+                if ((Compare-Hashtable -ReferenceHashtable $ReferenceHashtable[$propertyName] -DifferenceHashtable $DifferenceHashtable[$propertyName]))
                 {
-                    Write-Debug "  Skipping $PropertyName...."
+                    Write-Debug -Message "  Skipping $propertyName...."
                     # If Compae returns something, they're not the same
-                    Continue
+                    continue
                 }
             }
             else
             {
-                Write-Debug "Comparing: $($ReferenceHashtable[$PropertyName]) With $($DifferenceHashtable[$PropertyName])"
-                if ($ReferenceHashtable[$PropertyName] -ne $DifferenceHashtable[$PropertyName])
+                Write-Debug -Message "Comparing: $($ReferenceHashtable[$propertyName]) With $($DifferenceHashtable[$propertyName])"
+                if ($ReferenceHashtable[$propertyName] -ne $DifferenceHashtable[$propertyName])
                 {
                     [PSCustomObject]@{
                         SideIndicator = '<='
-                        PropertyName  = $PropertyName
-                        Value         = $ReferenceHashtable[$PropertyName]
+                        PropertyName  = $propertyName
+                        Value         = $ReferenceHashtable[$propertyName]
                     }
 
                     [PSCustomObject]@{
                         SideIndicator = '=>'
-                        PropertyName  = $PropertyName
-                        Value         = $DifferenceHashtable[$PropertyName]
+                        PropertyName  = $propertyName
+                        Value         = $DifferenceHashtable[$propertyName]
                     }
                 }
             }
         }
         else
         {
-            Write-Debug "  Property $PropertyName Not in one Side: Ref: [$($ReferenceHashtable.Keys -join ',')] | [$($DifferenceHashtable.Keys -join ',')]"
+            Write-Debug -Message "  Property $propertyName Not in one Side: Ref: [$($ReferenceHashtable.Keys -join ',')] | [$($DifferenceHashtable.Keys -join ',')]"
             if ($inRef)
             {
-                Write-Debug "$PropertyName found in Reference hashtable"
+                Write-Debug -Message "$propertyName found in Reference hashtable"
                 [PSCustomObject]@{
                     SideIndicator = '<='
-                    PropertyName  = $PropertyName
-                    Value         = $ReferenceHashtable[$PropertyName]
+                    PropertyName  = $propertyName
+                    Value         = $ReferenceHashtable[$propertyName]
                 }
             }
             else
             {
-                Write-Debug "$PropertyName found in Difference hashtable"
+                Write-Debug -Message "$propertyName found in Difference hashtable"
                 [PSCustomObject]@{
                     SideIndicator = '=>'
-                    PropertyName  = $PropertyName
-                    Value         = $DifferenceHashtable[$PropertyName]
+                    PropertyName  = $propertyName
+                    Value         = $DifferenceHashtable[$propertyName]
                 }
             }
         }

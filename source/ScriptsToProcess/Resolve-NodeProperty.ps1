@@ -1,38 +1,31 @@
 function Global:Resolve-NodeProperty
 {
+    [OutputType([System.Array])]
     [CmdletBinding()]
-    Param(
-        [Parameter(
-            Mandatory,
-            Position = 0
-        )]
+    param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string]
         $PropertyPath,
 
-        [Parameter(
-            Position = 1
-        )]
+        [Parameter(Position = 1)]
         [AllowNull()]
+        [object[]]
         $DefaultValue,
 
-        [Parameter(
-            Position = 3
-        )]
+        [Parameter(Position = 3)]
         $Node = $ExecutionContext.InvokeCommand.InvokeScript('$Node'),
 
+        [Parameter()]
         [Alias('DatumStructure')]
+        [object]
         $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
 
-        [Alias('SearchBehavior')]
-        [AllowNull()]
-        $options,
-
+        [Parameter()]
         [string[]]
         $SearchPaths,
 
-        [Parameter(
-            Position = 5
-        )]
-        [allowNull()]
+        [Parameter(Position = 5)]
+        [AllowNull()]
         [int]
         $MaxDepth
     )
@@ -43,12 +36,12 @@ function Global:Resolve-NodeProperty
     }
 
     # Null result should return an exception, unless defined as Default value
-    $NullAllowed = $false
+    $nullAllowed = $false
 
     $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
-    foreach ($removeKey in $PSBoundParameters.keys.where{ $_ -in @('DefaultValue', 'Node') })
+    foreach ($removeKey in $PSBoundParameters.Keys.Where{ $_ -in @('DefaultValue', 'Node') })
     {
-        $ResolveDatumParams.remove($removeKey)
+        $ResolveDatumParams.Remove($removeKey)
     }
 
     # Translate the DSC specific Node into the 'Node' variable and Node name used by Resolve-Datum
@@ -68,43 +61,42 @@ function Global:Resolve-NodeProperty
         $result = $DefaultValue
         Write-Debug "`t`tDefault Found"
     }
-    elseif ($PSboundParameters.containsKey('DefaultValue') -and $null -eq $DefaultValue)
+    elseif ($PSBoundParameters.ContainsKey(('DefaultValue') -and $null -eq $DefaultValue))
     {
         $result = $null
-        $NullAllowed = $true
+        $nullAllowed = $true
         Write-Debug "`t`tDefault NULL found and allowed."
     }
     else
     {
         #This is when the Lookup is initiated from a Composite Resource, for itself
-
-        if (-not ($here = $MyInvocation.PSScriptRoot))
+        if (-not ($here = $PSScriptRoot))
         {
-            $here = $Pwd.Path
+            $here = $PWD.Path
         }
         Write-Debug "`t`tAttempting to load datum from $($here)."
 
-        $ResourceConfigDataPath = Join-Path $here 'ConfigData' -Resolve -ErrorAction SilentlyContinue
+        $resourceConfigDataPath = Join-Path -Path $here -ChildPath 'ConfigData' -Resolve -ErrorAction SilentlyContinue
 
-        if ($ResourceConfigDataPath)
+        if ($resourceConfigDataPath)
         {
-            $DatumDefinitionFile = Join-Path $ResourceConfigDataPath 'Datum.*' -Resolve -ErrorAction SilentlyContinue
-            if ($DatumDefinitionFile)
+            $datumDefinitionFile = Join-Path -Path $resourceConfigDataPath -ChildPath 'Datum.*' -Resolve -ErrorAction SilentlyContinue
+            if ($datumDefinitionFile)
             {
-                Write-Debug "Resource Datum File Path: $DatumDefinitionFile"
-                $ResourceDatum = New-DatumStructure -DefinitionFile $DatumDefinitionFile
+                Write-Debug "Resource Datum File Path: $datumDefinitionFile"
+                $resourceDatum = New-DatumStructure -DefinitionFile $datumDefinitionFile
             }
             else
             {
                 #Loading Default Datum structure
-                Write-Debug "Loading data store from $($ResourceConfigDataPath)."
-                $ResourceDatum = New-DatumStructure -DatumHierarchyDefinition @{
-                    Path = $ResourceConfigDataPath
+                Write-Debug "Loading data store from $($resourceConfigDataPath)."
+                $resourceDatum = New-DatumStructure -DatumHierarchyDefinition @{
+                    Path = $resourceConfigDataPath
                 }
             }
-            $ResolveDatumParams.remove('DatumTree')
+            $resolveDatumParams.Remove('DatumTree')
 
-            $result = Resolve-Datum @ResolveDatumParams -DatumTree $ResourceDatum
+            $result = Resolve-Datum @resolveDatumParams -DatumTree $resourceDatum
         }
         else
         {
@@ -112,14 +104,15 @@ function Global:Resolve-NodeProperty
         }
     }
 
-    if ($null -ne $result -or $NullAllowed)
+    if ($null -ne $result -or $nullAllowed)
     {
-        , $result
+        ,$result
     }
     else
     {
-        throw "The lookup of path '$PropertyPath' for node '$($node.Name)' returned a Null value, but Null is not specified as Default. This is not allowed."
+        throw "The lookup of path '$PropertyPath' for node '$($Node.Name)' returned a Null value, but Null is not specified as Default. This is not allowed."
     }
 }
+
 Set-Alias -Name Lookup -Value Resolve-NodeProperty -Scope Global
 Set-Alias -Name Resolve-DscProperty -Value Resolve-NodeProperty -Scope Global
