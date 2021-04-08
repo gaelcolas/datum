@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added yaml format config settings 'singleQuote' and 'bracketSpacing' and reformatted all yaml files according to the new settings.
 - Cleanup
   - Merge-Datum.ps1
+  - datum.psd1
+  - Get-FileProviderData.ps1
+  - Invoke-TestHandlerAction.ps1
+  - New-DatumStructure.ps1
+  - Resolve-Datum.ps1
+  - Resolve-DatumPath.ps1
+  - Test-InvokeCommandFilter
+  - Resolve-NodeProperty.ps1
+  - New-DatumFileProvider.ps1
 
 ## [0.0.39] - 2020-09-29
 

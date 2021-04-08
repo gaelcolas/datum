@@ -1,16 +1,26 @@
 function Invoke-TestHandlerAction
 {
-    Param(
+    [OutputType([string])]
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [string]
         $Password,
 
-        $test,
+        [Parameter()]
+        [object]
+        $Test,
 
+        [Parameter()]
+        [object]
         $Datum
     )
+
     @"
-    Action: $handler
-    Node: $($Node|fl *|Out-String)
-    Params:
+Action: $handler
+Node: $($Node|fl *|Out-String)
+Params:
 $($PSBoundParameters | ConvertTo-Json)
 "@
+
 }
