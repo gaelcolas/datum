@@ -1,14 +1,19 @@
 function Merge-Hashtable
 {
-    [outputType([hashtable])]
-    [cmdletBinding()]
-    Param(
+    [OutputType([hashtable])]
+    [CmdletBinding()]
+    param (
         # [hashtable] These should stay ordered
+        [Parameter(Mandatory = $true)]
+        [object]
         $ReferenceHashtable,
 
         # [hashtable] These should stay ordered
+        [Parameter(Mandatory = $true)]
+        [object]
         $DifferenceHashtable,
 
+        [Parameter()]
         $Strategy = @{
             merge_hash           = 'hash'
             merge_baseType_array = 'MostSpecific'
@@ -18,13 +23,17 @@ function Merge-Hashtable
             }
         },
 
+        [Parameter()]
+        [hashtable]
         $ChildStrategies = @{},
 
+        [Parameter()]
         [string]
         $ParentPath
     )
 
-    Write-Debug "`tMerge-Hashtable -ParentPath <$ParentPath>"
+    Write-Debug -Message "`tMerge-Hashtable -ParentPath <$ParentPath>"
+
     # Removing Case Sensitivity while keeping ordering
     $ReferenceHashtable = [ordered]@{} + $ReferenceHashtable
     $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
@@ -32,73 +41,73 @@ function Merge-Hashtable
 
     if ($Strategy.merge_options.knockout_prefix)
     {
-        $KnockoutPrefix = $Strategy.merge_options.knockout_prefix
-        $KnockoutPrefixMatcher = [regex]::escape($KnockoutPrefix).insert(0, '^')
+        $knockoutPrefix = $Strategy.merge_options.knockout_prefix
+        $knockoutPrefixMatcher = [regex]::Escape($knockoutPrefix).Insert(0, '^')
     }
     else
     {
-        $KnockoutPrefixMatcher = [regex]::escape('--').insert(0, '^')
+        $knockoutPrefixMatcher = [regex]::Escape('--').insert(0, '^')
     }
-    Write-Debug "`t  Knockout Prefix Matcher: $knockoutPrefixMatcher"
+    Write-Debug -Message "`t  Knockout Prefix Matcher: $knockoutPrefixMatcher"
 
-    $knockedOutKeys = $ReferenceHashtable.keys.where{ $_ -match $KnockoutPrefixMatcher }.foreach{ $_ -replace $KnockoutPrefixMatcher }
-    Write-Debug "`t  Knockedout Keys: [$($knockedOutKeys -join ', ')] from reference Hashtable Keys [$($ReferenceHashtable.keys -join ', ')]"
+    $knockedOutKeys = $ReferenceHashtable.Keys.Where{ $_ -match $knockoutPrefixMatcher }.ForEach{ $_ -replace $knockoutPrefixMatcher }
+    Write-Debug -Message "`t  Knockedout Keys: [$($knockedOutKeys -join ', ')] from reference Hashtable Keys [$($ReferenceHashtable.keys -join ', ')]"
 
     foreach ($currentKey in $DifferenceHashtable.keys)
     {
-        Write-Debug "`t  CurrentKey: $currentKey"
+        Write-Debug -Message "`t  CurrentKey: $currentKey"
         if ($currentKey -in $knockedOutKeys)
         {
-            Write-Debug "`t`tThe Key $currentkey is knocked out from the reference Hashtable."
+            Write-Debug -Message "`t`tThe Key $currentkey is knocked out from the reference Hashtable."
         }
-        elseif ($currentKey -match $KnockoutPrefixMatcher -and !$ReferenceHashtable.contains(($currentKey -replace $KnockoutPrefixMatcher)))
+        elseif ($currentKey -match $knockoutPrefixMatcher -and -not $ReferenceHashtable.Contains(($currentKey -replace $knockoutPrefixMatcher)))
         {
             # it's a knockout coming from a lower level key, it should only apply down from here
-            Write-Debug "`t`tKnockout prefix found for $currentKey in Difference hashtable, and key not set in Reference hashtable"
-            if (!$ReferenceHashtable.contains($currentKey))
+            Write-Debug -Message "`t`tKnockout prefix found for $currentKey in Difference hashtable, and key not set in Reference hashtable"
+            if (-not $ReferenceHashtable.Contains($currentKey))
             {
-                Write-Debug "`t`t..adding knockout prefixed key for $curretKey to block further merges"
-                $clonedReference.add($currentKey, $null)
+                Write-Debug -Message "`t`t..adding knockout prefixed key for $curretKey to block further merges"
+                $clonedReference.Add($currentKey, $null)
             }
         }
-        elseif (!$ReferenceHashtable.contains($currentKey) )
+        elseif (-not $ReferenceHashtable.Contains($currentKey) )
         {
             #if the key does not exist in reference ht, create it using the DiffHt's value
-            Write-Debug "`t    Added Missing Key $currentKey of value: $($DifferenceHashtable[$currentKey]) from difference HT"
-            $clonedReference.add($currentKey, $DifferenceHashtable[$currentKey])
+            Write-Debug -Message "`t    Added Missing Key $currentKey of value: $($DifferenceHashtable[$currentKey]) from difference HT"
+            $clonedReference.Add($currentKey, $DifferenceHashtable[$currentKey])
         }
         else
         {
             #the key exists, and it's not a knockout entry
-            $RefHashItemValueType = Get-DatumType $ReferenceHashtable[$currentKey]
-            $DiffHashItemValueType = Get-DatumType $DifferenceHashtable[$currentKey]
-            Write-Debug "for Key $currentKey REF:[$RefHashItemValueType] | DIFF:[$DiffHashItemValueType]"
+            $refHashItemValueType = Get-DatumType -DatumObject $ReferenceHashtable[$currentKey]
+            $diffHashItemValueType = Get-DatumType -DatumObject $DifferenceHashtable[$currentKey]
+            Write-Debug -Message "for Key $currentKey REF:[$refHashItemValueType] | DIFF:[$diffHashItemValueType]"
             if ($ParentPath)
             {
-                $ChildPath = (Join-Path $ParentPath $currentKey)
+                $childPath = Join-Path -Path $ParentPath -ChildPath $currentKey
             }
             else
             {
-                $ChildPath = $currentKey
+                $childPath = $currentKey
             }
 
-            switch ($RefHashItemValueType)
+            switch ($refHashItemValueType)
             {
                 'hashtable'
                 {
                     if ($Strategy.merge_hash -eq 'deep')
                     {
-                        Write-Debug "`t`t .. Merging Datums at current path $ChildPath"
+                        Write-Debug -Message "`t`t .. Merging Datums at current path $childPath"
                         # if there's no Merge override for the subkey's path in the (not subkeys),
                         #   merge HASHTABLE with same strategy
                         # otherwise, merge Datum
-                        $ChildStrategy = Get-MergeStrategyFromPath -Strategies $ChildStrategies -PropertyPath $ChildPath
+                        $childStrategy = Get-MergeStrategyFromPath -Strategies $ChildStrategies -PropertyPath $childPath
 
-                        if ($ChildStrategy.Default)
+                        if ($childStrategy.Default)
                         {
-                            Write-Debug "`t`t ..Merging using the current Deep Strategy, Bypassing default"
+                            Write-Debug -Message "`t`t ..Merging using the current Deep Strategy, Bypassing default"
                             $MergePerDefault = @{
-                                ParentPath          = $ChildPath
+                                ParentPath          = $childPath
                                 Strategy            = $Strategy
                                 ReferenceHashtable  = $ReferenceHashtable[$currentKey]
                                 DifferenceHashtable = $DifferenceHashtable[$currentKey]
@@ -108,16 +117,16 @@ function Merge-Hashtable
                         }
                         else
                         {
-                            Write-Debug "`t`t ..Merging using Override Strategy $($ChildStrategy|ConvertTo-Json)"
+                            Write-Debug -Message "`t`t ..Merging using Override Strategy $($childStrategy | ConvertTo-Json)"
                             $MergeDatumParam = @{
-                                StartingPath    = $ChildPath
+                                StartingPath    = $childPath
                                 ReferenceDatum  = $ReferenceHashtable[$currentKey]
                                 DifferenceDatum = $DifferenceHashtable[$currentKey]
                                 Strategies      = $ChildStrategies
                             }
                             $subMerge = Merge-Datum @MergeDatumParam
                         }
-                        Write-Debug "`t  # Submerge $($submerge|ConvertTo-Json)."
+                        Write-Debug -Message "`t  # Submerge $($submerge|ConvertTo-Json)."
                         $clonedReference[$currentKey] = $subMerge
                     }
                 }
@@ -128,11 +137,11 @@ function Merge-Hashtable
                 }
 
                 # Default used for hash_array, baseType_array
-                Default
+                default
                 {
-                    Write-Debug "`t  .. Merging Datums at current path $ChildPath`r`n$($Strategy|ConvertTo-Json)"
+                    Write-Debug -Message "`t  .. Merging Datums at current path $childPath`r`n$($Strategy | ConvertTo-Json)"
                     $MergeDatumParams = @{
-                        StartingPath    = $ChildPath
+                        StartingPath    = $childPath
                         Strategies      = $ChildStrategies
                         ReferenceDatum  = $ReferenceHashtable[$currentKey]
                         DifferenceDatum = $DifferenceHashtable[$currentKey]
@@ -146,7 +155,7 @@ function Merge-Hashtable
                     {
                         $clonedReference[$currentKey] = Merge-Datum @MergeDatumParams
                     }
-                    Write-Debug "`t  .. Datum Merged for path $ChildPath"
+                    Write-Debug -Message "`t  .. Datum Merged for path $childPath"
                 }
             }
         }
