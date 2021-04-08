@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Formatting in all files with VSCode formatting according to the 'settings.json' file taken from Sampler
 - Added yaml format config settings 'singleQuote' and 'bracketSpacing' and reformatted all yaml files according to the new settings.
 - Cleanup
+  - New-DatumStructure.ps1
   - Resolve-Datum.ps1
   - Resolve-DatumPath.ps1
   - Test-InvokeCommandFilter
