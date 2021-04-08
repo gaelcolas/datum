@@ -1,64 +1,71 @@
 function Resolve-DatumPath
 {
+    [OutputType([System.Array])]
     [CmdletBinding()]
-    param(
+    param (
+        [Parameter()]
         [Alias('Variable')]
         $Node,
 
+        [Parameter()]
         [Alias('DatumStructure')]
+        [object]
         $DatumTree,
 
+        [Parameter()]
         [string[]]
         $PathStack,
 
+        [Parameter()]
         [System.Collections.ArrayList]
         $PathVariables
     )
 
     $currentNode = $DatumTree
-    $PropertySeparator = '.' #[io.path]::DirectorySeparatorChar
+    $propertySeparator = '.' #[System.IO.Path]::DirectorySeparatorChar
     $index = -1
-    Write-Debug "`t`t`t"
+    Write-Debug -Message "`t`t`t"
 
-    foreach ($StackItem in $PathStack)
+    foreach ($stackItem in $PathStack)
     {
         $index++
-        $RelativePath = $PathStack[0..$index]
-        Write-Debug "`t`t`tCurrent Path: `$Datum$PropertySeparator$($RelativePath -join $PropertySeparator)"
-        $RemainingStack = $PathStack[$index..($PathStack.Count - 1)]
-        Write-Debug "`t`t`t`tbranch of path Left to walk: $PropertySeparator$($RemainingStack[1..$RemainingStack.Length] -join $PropertySeparator)"
-        if ( $StackItem -match '\{\d+\}')
+        $relativePath = $PathStack[0..$index]
+        Write-Debug -Message "`t`t`tCurrent Path: `$Datum$propertySeparator$($relativePath -join $propertySeparator)"
+        $remainingStack = $PathStack[$index..($PathStack.Count - 1)]
+        Write-Debug -Message "`t`t`t`tbranch of path Left to walk: $propertySeparator$($remainingStack[1..$remainingStack.Length] -join $propertySeparator)"
+
+        if ($stackItem -match '\{\d+\}')
         {
-            Write-Debug -Message "`t`t`t`t`tReplacing expression $StackItem"
-            $StackItem = [scriptblock]::Create( ($StackItem -f ([string[]]$PathVariables)) ).Invoke()
-            Write-Debug -Message ($StackItem | Format-List * | Out-String)
-            $PathItem = $stackItem
+            Write-Debug -Message "`t`t`t`t`tReplacing expression $stackItem"
+            $stackItem = [scriptblock]::Create(($stackItem -f ([string[]]$PathVariables)) ).Invoke()
+            Write-Debug -Message ($stackItem | Format-List * | Out-String)
+            $pathItem = $stackItem
         }
         else
         {
-            $PathItem = $CurrentNode.($ExecutionContext.InvokeCommand.ExpandString($StackItem))
+            $pathItem = $currentNode.($ExecutionContext.InvokeCommand.ExpandString($stackItem))
         }
 
-        # if $PathItem is $null, it won't have subkeys, stop execution for this Prefix
-        if ($null -eq $PathItem)
+        # if $pathItem is $null, it won't have subkeys, stop execution for this Prefix
+        if ($null -eq $pathItem)
         {
-            Write-Verbose -Message " NULL FOUND at `$Datum.$($ExecutionContext.InvokeCommand.ExpandString(($RelativePath -join $PropertySeparator) -f [string[]]$PathVariables))`t`t <`$Datum$PropertySeparator$(($RelativePath -join $PropertySeparator) -f [string[]]$PathVariables)>"
-            if ($RemainingStack.Count -gt 1)
+            Write-Verbose -Message " NULL FOUND at `$Datum.$($ExecutionContext.InvokeCommand.ExpandString(($relativePath -join $propertySeparator) -f [string[]]$PathVariables))`t`t <`$Datum$propertySeparator$(($relativePath -join $propertySeparator) -f [string[]]$PathVariables)>"
+            if ($remainingStack.Count -gt 1)
             {
-                Write-Verbose -Message "`t`t----> before:  $propertySeparator$($ExecutionContext.InvokeCommand.ExpandString(($RemainingStack[1..($RemainingStack.Count-1)] -join $PropertySeparator)))`t`t <$(($RemainingStack[1..($RemainingStack.Count-1)] -join $PropertySeparator) -f [string[]]$PathVariables)>"
+                Write-Verbose -Message "`t`t----> before:  $propertySeparator$($ExecutionContext.InvokeCommand.ExpandString(($remainingStack[1..($remainingStack.Count-1)] -join $propertySeparator)))`t`t <$(($remainingStack[1..($remainingStack.Count-1)] -join $propertySeparator) -f [string[]]$PathVariables)>"
             }
-            Return $null
+            return $null
         }
         else
         {
-            $CurrentNode = $PathItem
+            $currentNode = $pathItem
         }
 
 
-        if ($RemainingStack.Count -eq 1)
+        if ($remainingStack.Count -eq 1)
         {
-            Write-Verbose -Message " VALUE found at `$Datum$PropertySeparator$($ExecutionContext.InvokeCommand.ExpandString(($RelativePath -join $PropertySeparator) -f [string[]]$PathVariables))"
-            , $CurrentNode
+            Write-Verbose -Message " VALUE found at `$Datum$propertySeparator$($ExecutionContext.InvokeCommand.ExpandString(($relativePath -join $propertySeparator) -f [string[]]$PathVariables))"
+            , $currentNode
         }
 
     }

@@ -1,25 +1,19 @@
 function New-DatumStructure
 {
-    [CmdletBinding(
-        DefaultParameterSetName = 'FromConfigFile'
-    )]
+    [OutputType([hashtable])]
+    [CmdletBinding(DefaultParameterSetName = 'FromConfigFile')]
 
-    Param (
-        [Parameter(
-            Mandatory,
-            ParameterSetName = 'DatumHierarchyDefinition'
-        )]
+    param (
+        [Parameter(Mandatory = $true, ParameterSetName = 'DatumHierarchyDefinition')]
         [Alias('Structure')]
         [hashtable]
         $DatumHierarchyDefinition,
 
-        [Parameter(
-            Mandatory,
-            ParameterSetName = 'FromConfigFile'
-        )]
-        [io.fileInfo]
+        [Parameter(Mandatory = $true, ParameterSetName = 'FromConfigFile')]
+        [System.IO.FileInfo]
         $DefinitionFile,
 
+        [Parameter()]
         [ValidateSet('Ascii', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [string]
         $Encoding = 'Default'
@@ -29,136 +23,133 @@ function New-DatumStructure
     {
         'DatumHierarchyDefinition'
         {
-            if ($DatumHierarchyDefinition.contains('DatumStructure'))
+            if ($DatumHierarchyDefinition.Contains('DatumStructure'))
             {
-                Write-Debug 'Loading Datum from Parameter'
+                Write-Debug -Message 'Loading Datum from Parameter'
             }
             elseif ($DatumHierarchyDefinition.Path)
             {
-                $DatumHierarchyFolder = $DatumHierarchyDefinition.Path
-                Write-Debug "Loading default Datum from given path $DatumHierarchyFolder"
+                $datumHierarchyFolder = $DatumHierarchyDefinition.Path
+                Write-Debug -Message "Loading default Datum from given path $datumHierarchyFolder"
             }
             else
             {
-                Write-Warning 'Desperate attempt to load Datum from Invocation origin...'
-                $CallStack = Get-PSCallStack
-                $DatumHierarchyFolder = $CallStack[-1].psscritroot
-                Write-Warning " ---> $DatumHierarchyFolder"
+                Write-Warning -Message 'Desperate attempt to load Datum from Invocation origin...'
+                $callStack = Get-PSCallStack
+                $datumHierarchyFolder = $callStack[-1].PSScriptRoot
+                Write-Warning -Message " ---> $datumHierarchyFolder"
             }
         }
 
         'FromConfigFile'
         {
-            if ((Test-Path $DefinitionFile))
+            if ((Test-Path -Path $DefinitionFile))
             {
-                $DefinitionFile = (Get-Item $DefinitionFile -ErrorAction Stop)
-                Write-Debug "File $DefinitionFile found. Loading..."
-                $DatumHierarchyDefinition = Get-FileProviderData $DefinitionFile.FullName -Encoding $Encoding
-                if (!$DatumHierarchyDefinition.contains('ResolutionPrecedence'))
+                $DefinitionFile = (Get-Item -Path $DefinitionFile -ErrorAction Stop)
+                Write-Debug -Message "File $DefinitionFile found. Loading..."
+                $DatumHierarchyDefinition = Get-FileProviderData -Path $DefinitionFile.FullName -Encoding $Encoding
+                if (-not $DatumHierarchyDefinition.Contains('ResolutionPrecedence'))
                 {
-                    Throw 'Invalid Datum Hierarchy Definition'
+                    throw 'Invalid Datum Hierarchy Definition'
                 }
-                $DatumHierarchyFolder = $DefinitionFile.directory.FullName
-                Write-Debug "Datum Hierachy Parent folder: $DatumHierarchyFolder"
+                $datumHierarchyFolder = $DefinitionFile.Directory.FullName
+                Write-Debug -Message "Datum Hierachy Parent folder: $datumHierarchyFolder"
             }
             else
             {
-                Throw 'Datum Hierarchy Configuration not found'
+                throw 'Datum Hierarchy Configuration not found'
             }
         }
     }
 
     $root = @{}
-    if ($DatumHierarchyFolder -and !$DatumHierarchyDefinition.DatumStructure)
+    if ($datumHierarchyFolder -and -not $DatumHierarchyDefinition.DatumStructure)
     {
-        $Structures = foreach ($Store in (Get-ChildItem -Directory -Path $DatumHierarchyFolder))
+        $structures = foreach ($store in (Get-ChildItem -Directory -Path $datumHierarchyFolder))
         {
             @{
-                StoreName     = $Store.BaseName
+                StoreName     = $store.BaseName
                 StoreProvider = 'Datum::File'
                 StoreOptions  = @{
-                    Path = $Store.FullName
+                    Path = $store.FullName
                 }
             }
         }
 
-        if ($DatumHierarchyDefinition.contains('DatumStructure'))
+        if ($DatumHierarchyDefinition.Contains('DatumStructure'))
         {
-            $DatumHierarchyDefinition['DatumStructure'] = $Structures
+            $DatumHierarchyDefinition['DatumStructure'] = $structures
         }
         else
         {
-            $DatumHierarchyDefinition.add('DatumStructure', $Structures)
+            $DatumHierarchyDefinition.Add('DatumStructure', $structures)
         }
     }
 
     # Define the default hierachy to be the StoreNames, when nothing is specified
-    if ($DatumHierarchyFolder -and !$DatumHierarchyDefinition.ResolutionPrecedence)
+    if ($datumHierarchyFolder -and -not $DatumHierarchyDefinition.ResolutionPrecedence)
     {
-        if ($DatumHierarchyDefinition.contains('ResolutionPrecedence'))
+        if ($DatumHierarchyDefinition.Contains('ResolutionPrecedence'))
         {
-            $DatumHierarchyDefinition['ResolutionPrecedence'] = $Structures.StoreName
+            $DatumHierarchyDefinition['ResolutionPrecedence'] = $structures.StoreName
         }
         else
         {
-            $DatumHierarchyDefinition.add('ResolutionPrecedence', $Structures.StoreName)
+            $DatumHierarchyDefinition.Add('ResolutionPrecedence', $structures.StoreName)
         }
     }
     # Adding the Datum Definition to Root object
-    $root.add('__Definition', $DatumHierarchyDefinition)
+    $root.Add('__Definition', $DatumHierarchyDefinition)
 
     foreach ($store in $DatumHierarchyDefinition.DatumStructure)
     {
-        $StoreParams = @{
-            Store    = (ConvertTo-Datum ([hashtable]$Store).clone())
+        $storeParams = @{
+            Store    = (ConvertTo-Datum ([hashtable]$store).clone())
             Path     = $store.StoreOptions.Path
             Encoding = $Encoding
         }
 
         # Accept Module Specification for Store Provider as String (unversioned) or Hashtable
-        if ($Store.StoreProvider -is [string])
+        if ($store.StoreProvider -is [string])
         {
-            $StoreProviderModule, $StoreProviderName = $store.StoreProvider -split '::'
+            $storeProviderModule, $storeProviderName = $store.StoreProvider -split '::'
         }
         else
         {
-            $StoreProviderModule = $Store.StoreProvider.ModuleName
-            $StoreProviderName = $Store.StoreProvider.ProviderName
-            if ($Store.StoreProvider.ModuleVersion)
+            $storeProviderModule = $store.StoreProvider.ModuleName
+            $storeProviderName = $store.StoreProvider.ProviderName
+            if ($store.StoreProvider.ModuleVersion)
             {
-                $StoreProviderModule = @{
-                    ModuleName    = $StoreProviderModule
-                    ModuleVersion = $Store.StoreProvider.ModuleVersion
+                $storeProviderModule = @{
+                    ModuleName    = $storeProviderModule
+                    ModuleVersion = $store.StoreProvider.ModuleVersion
                 }
             }
         }
 
-        if (!($Module = Get-Module $StoreProviderModule -ErrorAction SilentlyContinue))
+        if (-not ($module = Get-Module -Name $storeProviderModule -ErrorAction SilentlyContinue))
         {
-            $Module = Import-Module $StoreProviderModule -Force -ErrorAction Stop -PassThru
+            $module = Import-Module $storeProviderModule -Force -ErrorAction Stop -PassThru
         }
-        $ModuleName = ($Module | Select-Object -First 1).Name
+        $moduleName = ($module | Select-Object -First 1).Name
 
-        $NewProvidercmd = Get-Command ('{0}\New-Datum{1}Provider' -f $ModuleName, $StoreProviderName)
+        $newProviderCmd = Get-Command ('{0}\New-Datum{1}Provider' -f $moduleName, $storeProviderName)
 
-        if ( $StoreParams.Path -and
-            ![io.path]::IsPathRooted($StoreParams.Path) -and
-            $DatumHierarchyFolder
-        )
+        if ($storeParams.Path -and -not [System.IO.Path]::IsPathRooted($storeParams.Path) -and $datumHierarchyFolder)
         {
-            Write-Debug 'Replacing Store Path with AbsolutePath'
-            $StorePath = Join-Path $DatumHierarchyFolder $StoreParams.Path -Resolve -ErrorAction Stop
-            $StoreParams['Path'] = $StorePath
+            Write-Debug -Message 'Replacing Store Path with AbsolutePath'
+            $storePath = Join-Path -Path $datumHierarchyFolder -ChildPath $storeParams.Path -Resolve -ErrorAction Stop
+            $storeParams['Path'] = $storePath
         }
 
-        if ($NewProvidercmd.Parameters.keys -contains 'DatumHierarchyDefinition')
+        if ($newProviderCmd.Parameters.Keys -contains 'DatumHierarchyDefinition')
         {
-            Write-Debug 'Adding DatumHierarchyDefinition to Store Params'
-            $StoreParams.add('DatumHierarchyDefinition', $DatumHierarchyDefinition)
+            Write-Debug -Message 'Adding DatumHierarchyDefinition to Store Params'
+            $storeParams.Add('DatumHierarchyDefinition', $DatumHierarchyDefinition)
         }
 
-        $storeObject = &$NewProvidercmd @StoreParams
-        Write-Debug "Adding key $($store.storeName) to Datum root object"
+        $storeObject = &$newProviderCmd @storeParams
+        Write-Debug -Message "Adding key $($store.StoreName) to Datum root object"
         $root.Add($store.StoreName, $storeObject)
     }
 
