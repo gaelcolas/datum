@@ -1,41 +1,47 @@
 function Get-MergeStrategyFromPath
 {
+    [OutputType([hashtable])]
     [CmdletBinding()]
-    Param(
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
         $Strategies,
 
+        [Parameter(Mandatory = $true)]
+        [string]
         $PropertyPath
     )
-    Write-Debug "`tGet-MergeStrategyFromPath -PropertyPath <$PropertyPath> -Strategies [$($Strategies.keys -join ', ')], count $($Strategies.count)"
+
+    Write-Debug -Message "`tGet-MergeStrategyFromPath -PropertyPath <$PropertyPath> -Strategies [$($Strategies.Keys -join ', ')], count $($Strategies.Count)"
     # Select Relevant strategy
     #   Use exact path match first
     #   or try Regex in order
     if ($Strategies.($PropertyPath))
     {
-        $StrategyKey = $PropertyPath
-        Write-Debug "`t  Strategy found for exact key $StrategyKey"
+        $strategyKey = $PropertyPath
+        Write-Debug -Message "`t  Strategy found for exact key $strategyKey"
     }
-    elseif ($Strategies.keys -and
-        ($StrategyKey = [string]($Strategies.keys.where{ $_.StartsWith('^') -and $_ -as [regex] -and $PropertyPath -match $_ } | Select-Object -First 1))
+    elseif ($Strategies.Keys -and
+        ($strategyKey = [string]($Strategies.Keys.Where{ $_.StartsWith('^') -and $_ -as [regex] -and $PropertyPath -match $_ } | Select-Object -First 1))
     )
     {
-        Write-Debug "`t  Strategy matching regex $StrategyKey"
+        Write-Debug -Message "`t  Strategy matching regex $strategyKey"
     }
     else
     {
-        Write-Debug "`t  No Strategy found"
+        Write-Debug -Message "`t  No Strategy found"
         return
     }
 
-    Write-Debug "`t  StrategyKey: $StrategyKey"
-    if ( $Strategies[$StrategyKey] -is [string])
+    Write-Debug -Message "`t  StrategyKey: $strategyKey"
+    if ($Strategies[$strategyKey] -is [string])
     {
-        Write-Debug "`t  Returning Strategy $StrategyKey from String '$($Strategies[$StrategyKey])'"
-        Get-MergeStrategyFromString $Strategies[$StrategyKey]
+        Write-Debug -Message "`t  Returning Strategy $strategyKey from String '$($Strategies[$strategyKey])'"
+        Get-MergeStrategyFromString -MergeStrategy $Strategies[$strategyKey]
     }
     else
     {
-        Write-Debug "`t  Returning Strategy $StrategyKey of type '$($Strategies[$StrategyKey].Strategy)'"
-        $Strategies[$StrategyKey]
+        Write-Debug -Message "`t  Returning Strategy $strategyKey of type '$($Strategies[$strategyKey].Strategy)'"
+        $Strategies[$strategyKey]
     }
 }
