@@ -19,7 +19,7 @@ Class FileProvider : DatumProvider
         $Result = Get-ChildItem $path | ForEach-Object {
             if ($_.PSisContainer)
             {
-                $val = [scriptblock]::Create("New-DatumFileProvider -Path `"$($_.FullName)`" -StoreOptions `$this.DataOptions -DatumHierarchyDefinition `$this.DatumHierarchyDefinition -Encoding `$this.Encoding")
+                $val = [scriptblock]::Create("New-DatumFileProvider -Path `"$($_.FullName)`" -Store `$this.DataOptions -DatumHierarchyDefinition `$this.DatumHierarchyDefinition -Encoding `$this.Encoding")
                 $this | Add-Member -MemberType ScriptProperty -Name $_.BaseName -Value $val
             }
             else
