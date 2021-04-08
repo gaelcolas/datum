@@ -1,29 +1,29 @@
-Class Node : hashtable
+class Node : hashtable
 {
     Node([hashtable]$NodeData)
     {
-        $NodeData.keys | % {
-            $This[$_] = $NodeData[$_]
+        $NodeData.Keys | ForEach-Object {
+            $this[$_] = $NodeData[$_]
         }
 
         $this | Add-Member -MemberType ScriptProperty -Name Roles -Value {
-            $PathArray = $ExecutionContext.InvokeCommand.InvokeScript('Get-PSCallStack')[2].Position.text -split '\.'
-            $PropertyPath = $PathArray[2..($PathArray.count - 1)] -join '\'
-            Write-Warning "Resolve $PropertyPath"
+            $pathArray = $ExecutionContext.InvokeCommand.InvokeScript('Get-PSCallStack')[2].Position.Text -split '\.'
+            $propertyPath = $pathArray[2..($pathArray.Count - 1)] -join '\'
+            Write-Warning -Message "Resolve $propertyPath"
 
             $obj = [PSCustomObject]@{}
             $currentNode = $obj
-            if ($PathArray.Count -gt 3)
+            if ($pathArray.Count -gt 3)
             {
-                foreach ($property in $PathArray[2..($PathArray.count - 2)])
+                foreach ($property in $pathArray[2..($pathArray.count - 2)])
                 {
-                    Write-Debug "Adding $Property property"
+                    Write-Debug -Message "Adding $Property property"
                     $currentNode | Add-Member -MemberType NoteProperty -Name $property -Value ([PSCustomObject]@{})
                     $currentNode = $currentNode.$property
                 }
             }
-            Write-Debug "Adding Resolved property to last object's property $($PathArray[-1])"
-            $currentNode | Add-Member -MemberType NoteProperty -Name $PathArray[-1] -Value ($PropertyPath)
+            Write-Debug -Message "Adding Resolved property to last object's property $($pathArray[-1])"
+            $currentNode | Add-Member -MemberType NoteProperty -Name $pathArray[-1] -Value $propertyPath
 
             return $obj
         }
