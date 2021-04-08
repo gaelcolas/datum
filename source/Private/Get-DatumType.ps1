@@ -1,6 +1,9 @@
 function Get-DatumType
 {
+    [OutputType([string])]
     param (
+        [Parameter(Mandatory = $true)]
+        [AllowNull()]
         [object]
         $DatumObject
     )
@@ -11,7 +14,7 @@ function Get-DatumType
     }
     elseif ($DatumObject -isnot [string] -and $DatumObject -is [System.Collections.IEnumerable])
     {
-        if ($Datumobject -as [hashtable[]])
+        if ($DatumObject -as [hashtable[]])
         {
             'hash_array'
         }
