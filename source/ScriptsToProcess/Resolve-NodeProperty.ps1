@@ -9,7 +9,7 @@ function Global:Resolve-NodeProperty
 
         [Parameter(Position = 1)]
         [AllowNull()]
-        [object[]]
+        [object]
         $DefaultValue,
 
         [Parameter(Position = 3)]
@@ -61,7 +61,7 @@ function Global:Resolve-NodeProperty
         $result = $DefaultValue
         Write-Debug "`t`tDefault Found"
     }
-    elseif ($PSBoundParameters.ContainsKey(('DefaultValue') -and $null -eq $DefaultValue))
+    elseif ($PSBoundParameters.ContainsKey('DefaultValue') -and $null -eq $DefaultValue)
     {
         $result = $null
         $nullAllowed = $true
