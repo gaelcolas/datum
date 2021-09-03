@@ -53,6 +53,7 @@ function New-DatumStructure
                     throw 'Invalid Datum Hierarchy Definition'
                 }
                 $datumHierarchyFolder = $DefinitionFile.Directory.FullName
+                $DatumHierarchyDefinition.DatumDefinitionFile = $DefinitionFile
                 Write-Debug -Message "Datum Hierachy Parent folder: $datumHierarchyFolder"
             }
             else
