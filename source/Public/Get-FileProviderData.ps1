@@ -33,29 +33,36 @@ function Get-FileProviderData
     else
     {
         Write-Verbose -Message "Getting File Provider Data for Path: $Path"
-        $data = switch ($file.Extension)
+        try
         {
-            '.psd1'
+            $data = switch ($file.Extension)
             {
-                Import-PowerShellDataFile -Path $file | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                '.psd1'
+                {
+                    Import-PowerShellDataFile -Path $file | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                '.json'
+                {
+                    ConvertFrom-Json -InputObject (Get-Content -Path $Path -Encoding $Encoding -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                '.yml'
+                {
+                    ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                '.yaml'
+                {
+                    ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                Default
+                {
+                    Write-Verbose -Message "File extension $($file.Extension) not supported. Defaulting on RAW."
+                    Get-Content -Path $Path -Encoding $Encoding -Raw
+                }
             }
-            '.json'
-            {
-                ConvertFrom-Json -InputObject (Get-Content -Path $Path -Encoding $Encoding -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
-            }
-            '.yml'
-            {
-                ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
-            }
-            '.yaml'
-            {
-                ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
-            }
-            Default
-            {
-                Write-Verbose -Message "File extension $($file.Extension) not supported. Defaulting on RAW."
-                Get-Content -Path $Path -Encoding $Encoding -Raw
-            }
+        }
+        catch
+        {
+            Write-Warning "'ConvertTo-Datum' threw an error reading $($File.FullName): $($_.Exception.Message)"
         }
 
         $script:FileProviderDataCache[$file.FullName] = @{
