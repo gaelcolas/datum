@@ -1,7 +1,7 @@
 function ConvertTo-Datum
 {
     param (
-        [Parameter(ValueFromPipeline = $true)]
+        [Parameter(ValueFromPipeline)]
         [object]
         $InputObject,
 
@@ -18,6 +18,12 @@ function ConvertTo-Datum
 
     process
     {
+        $result = $null
+        if (-not $File -and $InputObject.__File)
+        {
+            $File = $InputObject.__File
+        }
+
         if ($null -eq $InputObject)
         {
             return $null
@@ -44,7 +50,7 @@ function ConvertTo-Datum
 
             , $collection
         }
-        elseif (($InputObject -is [psobject] -or $InputObject -is [DatumProvider]) -and $InputObject -isnot [pscredential])
+        elseif (($InputObject -is [DatumProvider]) -and $InputObject -isnot [pscredential])
         {
             $hash = [ordered]@{}
 
@@ -55,55 +61,32 @@ function ConvertTo-Datum
 
             $hash
         }
-        # if There's a matching filter, process associated command and return result
-        elseif ($handlerNames -and ($result = & {
-                    foreach ($handler in $handlerNames)
-                    {
-                        $filterModule, $filterName = $handler -split '::'
-                        if (-not (Get-Module -Name $filterModule))
-                        {
-                            Import-Module -Name $filterModule -Force -ErrorAction Stop
-                        }
-                        $filterCommand = Get-Command -Name ('{0}\Test-{1}Filter' -f $filterModule, $filterName) -ErrorAction SilentlyContinue
-                        if ($filterCommand -and ($InputObject | &$filterCommand))
-                        {
-                            try
-                            {
-                                if ($actionCommand = Get-Command -Name ('{0}\Invoke-{1}Action' -f $filterModule, $filterName) -ErrorAction SilentlyContinue)
-                                {
-                                    $actionParams = @{}
-                                    $commandOptions = $Datumhandlers.$handler.CommandOptions.Keys
-                                    # Populate the Command's params with what's in the Datum.yml, or from variables
-                                    $variables = Get-Variable
-                                    foreach ($paramName in $actionCommand.Parameters.Keys )
-                                    {
-                                        if ($paramName -in $commandOptions)
-                                        {
-                                            $actionParams.Add($paramName, $Datumhandlers.$handler.CommandOptions[$paramName])
-                                        }
-                                        elseif ($var = $variables.Where{ $_.Name -eq $paramName })
-                                        {
-                                            $actionParams.Add($paramName, $var.Value)
-                                        }
-                                    }
-                                    $result = &$actionCommand @ActionParams
-                                    $result
-                                }
-                            }
-                            catch
-                            {
-                                Write-Warning "Error using Datum Handler $handler, returning Input Object. The error was: '$($_.Exception.Message)'."
-                                $InputObject
-                            }
-                        }
-                    }
-                }))
+        # if there's a matching filter, process associated command and return result
+        elseif ($HandlerNames.Count -and (Invoke-DatumHandler -InputObject $InputObject -DatumHandlers $DatumHandlers -HandlerNames $HandlerNames -Result ([ref]$result)))
         {
-            $result
+            if (-not $result.__File -and $InputObject.__File)
+            {
+                $result | Add-Member -Name __File -Value "$($InputObject.__File)" -MemberType NoteProperty -PassThru
+            }
+            elseif (-not $result.__File -and $File)
+            {
+                $result | Add-Member -Name __File -Value "$($File)" -MemberType NoteProperty -PassThru
+            }
+            else
+            {
+                $result
+            }
         }
         else
         {
-            $InputObject
+            if ($File -and -not $InputObject.__File)
+            {
+                $InputObject | Add-Member -Name __File -Value "$File" -MemberType NoteProperty -PassThru
+            }
+            else
+            {
+                $InputObject
+            }
         }
     }
 }

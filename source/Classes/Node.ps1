@@ -30,6 +30,6 @@ class Node : hashtable
     }
     static ResolveDscProperty($Path)
     {
-        "Resolve-DscProperty $Path"
+        "Resolve-DscProperty -DefaultValue $Path"
     }
 }
