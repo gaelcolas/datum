@@ -16,41 +16,73 @@ function Get-DatumRsop
 
         [Parameter()]
         [scriptblock]
-        $Filter = {}
+        $Filter = {},
+
+        [Parameter()]
+        [switch]
+        $IgnoreCache,
+
+        [Parameter()]
+        [switch]
+        $IncludeSource
     )
+
+    if (-not $script:rsopCache)
+    {
+        $script:rsopCache = @{}
+    }
 
     if ($Filter.ToString() -ne ([System.Management.Automation.ScriptBlock]::Create( {})).ToString())
     {
-        Write-Verbose -Message "Filter: $($Filter.ToString())"
+        Write-Verbose "Filter: $($Filter.ToString())"
         $AllNodes = [System.Collections.Hashtable[]]$allNodes.Where($Filter)
-        Write-Verbose -Message "Node count after applying filter: $($AllNodes.Count)"
+        Write-Verbose "Node count after applying filter: $($AllNodes.Count)"
     }
 
-    foreach ($node in $AllNodes)
+    foreach ($Node in $AllNodes)
     {
-        $rsopNode = $node.clone()
-
-        $configurations = Lookup $CompositionKey -Node $node -DatumTree $Datum -DefaultValue @()
-        if ($rsopNode.contains($CompositionKey))
+        if (-not $Node.Name)
         {
-            $rsopNode[$CompositionKey] = $configurations
+            $Node.Name = $Node.NodeName
+        }
+
+        $null = $node | ConvertTo-Datum -DatumHandlers $Datum.__Definition.DatumHandlers
+
+        if (-not $script:rsopCache.ContainsKey($Node.Name) -or $IgnoreCache)
+        {
+            Write-Verbose "Key not found in the cache: '$($Node.Name)'. Creating RSOP..."
+            $rsopNode = $Node.Clone()
+
+            $Configurations = Resolve-NodeProperty -PropertyPath $CompositionKey -Node $Node -DatumTree $Datum -DefaultValue @()
+            $rsopNode."$CompositionKey" = $Configurations
+
+            $Configurations.ForEach{
+                $value = Resolve-NodeProperty -PropertyPath $_ -DefaultValue @{} -Node $Node -DatumTree $Datum
+                $rsopNode."$_" = $value
+            }
+
+            $lcmConfig = Resolve-NodeProperty -PropertyPath LcmConfig -DefaultValue $null
+            if ($lcmConfig)
+            {
+                $rsopNode.LcmConfig = $lcmConfig
+            }
+
+            $clonedRsopNode = Copy-Object -DeepCopyObject $rsopNode
+            $clonedRsopNode = ConvertTo-Datum -InputObject $clonedRsopNode -DatumHandlers $Datum.__Definition.DatumHandlers
+            $script:rsopCache."$($Node.Name)" = $clonedRsopNode
         }
         else
         {
-            $rsopNode.Add($CompositionKey, $configurations)
+            Write-Verbose "Key found in the cache: '$($Node.Name)'. Retrieving RSOP from cache."
         }
 
-        $configurations.Foreach{
-            if (-not $rsopNode.Contains($_))
-            {
-                $rsopNode.Add($_, (Lookup -PropertyPath $_ -DefaultValue @{} -Node $node -DatumTree $Datum))
-            }
-            else
-            {
-                $rsopNode[$_] = Lookup -PropertyPath $_ -DefaultValue @{} -Node $node -DatumTree $Datum
-            }
+        if ($IncludeSource)
+        {
+            Expand-RsopHashtable -InputObject $script:rsopCache."$($Node.Name)" -Depth 0
         }
-
-        $rsopNode
+        else
+        {
+            $script:rsopCache."$($Node.Name)"
+        }
     }
 }
