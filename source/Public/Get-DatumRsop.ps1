@@ -35,29 +35,29 @@ function Get-DatumRsop
     if ($Filter.ToString() -ne ([System.Management.Automation.ScriptBlock]::Create( {})).ToString())
     {
         Write-Verbose "Filter: $($Filter.ToString())"
-        $AllNodes = [System.Collections.Hashtable[]]$allNodes.Where($Filter)
+        $AllNodes = [System.Collections.Hashtable[]]$AllNodes.Where($Filter)
         Write-Verbose "Node count after applying filter: $($AllNodes.Count)"
     }
 
-    foreach ($Node in $AllNodes)
+    foreach ($node in $AllNodes)
     {
-        if (-not $Node.Name)
+        if (-not $node.Name)
         {
-            $Node.Name = $Node.NodeName
+            $node.Name = $node.NodeName
         }
 
         $null = $node | ConvertTo-Datum -DatumHandlers $Datum.__Definition.DatumHandlers
 
-        if (-not $script:rsopCache.ContainsKey($Node.Name) -or $IgnoreCache)
+        if (-not $script:rsopCache.ContainsKey($node.Name) -or $IgnoreCache)
         {
-            Write-Verbose "Key not found in the cache: '$($Node.Name)'. Creating RSOP..."
-            $rsopNode = $Node.Clone()
+            Write-Verbose "Key not found in the cache: '$($node.Name)'. Creating RSOP..."
+            $rsopNode = $node.Clone()
 
-            $Configurations = Resolve-NodeProperty -PropertyPath $CompositionKey -Node $Node -DatumTree $Datum -DefaultValue @()
+            $Configurations = Resolve-NodeProperty -PropertyPath $CompositionKey -Node $node -DatumTree $Datum -DefaultValue @()
             $rsopNode."$CompositionKey" = $Configurations
 
             $Configurations.ForEach{
-                $value = Resolve-NodeProperty -PropertyPath $_ -DefaultValue @{} -Node $Node -DatumTree $Datum
+                $value = Resolve-NodeProperty -PropertyPath $_ -DefaultValue @{} -Node $node -DatumTree $Datum
                 $rsopNode."$_" = $value
             }
 
@@ -69,20 +69,20 @@ function Get-DatumRsop
 
             $clonedRsopNode = Copy-Object -DeepCopyObject $rsopNode
             $clonedRsopNode = ConvertTo-Datum -InputObject $clonedRsopNode -DatumHandlers $Datum.__Definition.DatumHandlers
-            $script:rsopCache."$($Node.Name)" = $clonedRsopNode
+            $script:rsopCache."$($node.Name)" = $clonedRsopNode
         }
         else
         {
-            Write-Verbose "Key found in the cache: '$($Node.Name)'. Retrieving RSOP from cache."
+            Write-Verbose "Key found in the cache: '$($node.Name)'. Retrieving RSOP from cache."
         }
 
         if ($IncludeSource)
         {
-            Expand-RsopHashtable -InputObject $script:rsopCache."$($Node.Name)" -Depth 0
+            Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0
         }
         else
         {
-            $script:rsopCache."$($Node.Name)"
+            $script:rsopCache."$($node.Name)"
         }
     }
 }
