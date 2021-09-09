@@ -3,7 +3,7 @@ function Get-MergeStrategyFromString
     [CmdletBinding()]
     [OutputType([hashtable])]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [string]
         $MergeStrategy
     )
