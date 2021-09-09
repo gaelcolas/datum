@@ -1,6 +1,6 @@
 function Invoke-DatumHandler
 {
-    param(
+    param (
         [Parameter(Mandatory)]
         [object]
         $InputObject,
