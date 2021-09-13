@@ -47,7 +47,7 @@ function Invoke-DatumHandler
                         }
                         elseif ($var = $Variables.Where{ $_.Name -eq $paramName })
                         {
-                            $actionParams."$paramName" = $var.Value
+                            $actionParams."$paramName" = $var[0].Value
                         }
                     }
                     $result.Value = (&$actionCommand @actionParams)
