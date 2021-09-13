@@ -28,6 +28,16 @@ function Merge-Datum
 
     Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json)"
 
+    $result = $null
+    if (Invoke-DatumHandler -InputObject $ReferenceDatum -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+    {
+        $ReferenceDatum = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+    }
+    if (Invoke-DatumHandler -InputObject $DifferenceDatum -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+    {
+        $DifferenceDatum = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+    }
+
     $referenceDatumType = Get-DatumType -DatumObject $ReferenceDatum
     $differenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
