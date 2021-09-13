@@ -57,7 +57,7 @@ function ConvertTo-Datum
             $hash
         }
         # if there's a matching filter, process associated command and return result
-        elseif ($HandlerNames.Count -and (Invoke-DatumHandler -InputObject $InputObject -DatumHandlers $DatumHandlers -Result ([ref]$result)))
+        elseif ($DatumHandlers.Count -and (Invoke-DatumHandler -InputObject $InputObject -DatumHandlers $DatumHandlers -Result ([ref]$result)))
         {
             if (-not $result.__File -and $InputObject.__File)
             {
