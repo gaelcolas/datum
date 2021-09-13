@@ -11,15 +11,11 @@ function Invoke-DatumHandler
         $DatumHandlers,
 
         [Parameter()]
-        [string[]]
-        $HandlerNames,
-
-        [Parameter()]
         [ref]$Result
     )
     $return = $false
 
-    foreach ($handler in $HandlerNames)
+    foreach ($handler in $DatumHandlers.Keys)
     {
         if ($DatumHandlers.$handler.SkipDuringLoad -and (Get-PSCallStack).Command -contains 'Get-FileProviderData')
         {
