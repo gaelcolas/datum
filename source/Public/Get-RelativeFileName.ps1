@@ -1,8 +1,8 @@
 function Get-RelativeFileName
 {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
+    param (
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [string]$Path
     )
@@ -21,5 +21,6 @@ function Get-RelativeFileName
     }
     catch
     {
+        Write-Verbose 'Get-RelativeFileName: nothing to catch here'
     }
 }

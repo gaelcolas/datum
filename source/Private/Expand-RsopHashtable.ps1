@@ -1,6 +1,6 @@
 function Expand-RsopHashtable
 {
-    param(
+    param (
         [Parameter()]
         [object]
         $InputObject,
