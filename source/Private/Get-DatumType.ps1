@@ -22,7 +22,6 @@ function Get-DatumType
         {
             'baseType_array'
         }
-
     }
     else
     {

@@ -29,13 +29,52 @@ function Merge-Datum
     Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json)"
 
     $result = $null
-    if (Invoke-DatumHandler -InputObject $ReferenceDatum -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+    if ($ReferenceDatum -is [array])
     {
-        $ReferenceDatum = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+        $datumItems = @()
+        foreach ($item in $ReferenceDatum)
+        {
+            if (Invoke-DatumHandler -InputObject $item -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+            {
+                $datumItems += ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+            }
+            else
+            {
+                $datumItems += $item
+            }
+        }
+        $ReferenceDatum = $datumItems
     }
-    if (Invoke-DatumHandler -InputObject $DifferenceDatum -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+    else
     {
-        $DifferenceDatum = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+        if (Invoke-DatumHandler -InputObject $ReferenceDatum -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+        {
+            $ReferenceDatum = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+        }
+    }
+
+    if ($DifferenceDatum -is [array])
+    {
+        $datumItems = @()
+        foreach ($item in $DifferenceDatum)
+        {
+            if (Invoke-DatumHandler -InputObject $item -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+            {
+                $datumItems += ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+            }
+            else
+            {
+                $datumItems += $item
+            }
+        }
+        $DifferenceDatum = $datumItems
+    }
+    else
+    {
+        if (Invoke-DatumHandler -InputObject $DifferenceDatum -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+        {
+            $DifferenceDatum = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+        }
     }
 
     $referenceDatumType = Get-DatumType -DatumObject $ReferenceDatum
