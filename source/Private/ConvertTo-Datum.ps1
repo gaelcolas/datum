@@ -1,7 +1,7 @@
 function ConvertTo-Datum
 {
     param (
-        [Parameter(ValueFromPipeline)]
+        [Parameter(ValueFromPipeline = $true)]
         [object]
         $InputObject,
 
@@ -14,10 +14,6 @@ function ConvertTo-Datum
     process
     {
         $result = $null
-        if (-not $File -and $InputObject.__File)
-        {
-            $File = $InputObject.__File
-        }
 
         if ($null -eq $InputObject)
         {
@@ -26,19 +22,28 @@ function ConvertTo-Datum
 
         if ($InputObject -is [System.Collections.IDictionary])
         {
+            if (-not $file -and $InputObject.__File)
+            {
+                $file = $InputObject.__File
+            }
+
             $hashKeys = [string[]]$InputObject.Keys
             foreach ($key in $hashKeys)
             {
                 $InputObject[$key] = ConvertTo-Datum -InputObject $InputObject[$key] -DatumHandlers $DatumHandlers
             }
             # Making the Ordered Dict Case Insensitive
-            ([ordered]@{} + $InputObject)
+            ([ordered]@{} + $InputObject) | Add-Member -Name __File -MemberType NoteProperty -Value "$file" -PassThru -Force
         }
         elseif ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string])
         {
             $collection = @(
                 foreach ($object in $InputObject)
                 {
+                    if (-not $file -and $object.__File)
+                    {
+                        $file = $object.__File
+                    }
                     ConvertTo-Datum -InputObject $object -DatumHandlers $DatumHandlers
                 }
             )
@@ -47,11 +52,16 @@ function ConvertTo-Datum
         }
         elseif (($InputObject -is [DatumProvider]) -and $InputObject -isnot [pscredential])
         {
+            if (-not $file -and $InputObject.__File)
+            {
+                $file = $InputObject.__File
+            }
+
             $hash = [ordered]@{}
 
             foreach ($property in $InputObject.PSObject.Properties)
             {
-                $hash[$property.Name] = ConvertTo-Datum -InputObject $property.Value -DatumHandlers $DatumHandlers
+                $hash[$property.Name] = ConvertTo-Datum -InputObject $property.Value -DatumHandlers $DatumHandlers | Add-Member -Name __File -MemberType NoteProperty -Value $File.FullName -PassThru -Force
             }
 
             $hash
@@ -59,13 +69,18 @@ function ConvertTo-Datum
         # if there's a matching filter, process associated command and return result
         elseif ($DatumHandlers.Count -and (Invoke-DatumHandler -InputObject $InputObject -DatumHandlers $DatumHandlers -Result ([ref]$result)))
         {
+            if (-not $file -and $InputObject.__File)
+            {
+                $file = $InputObject.__File
+            }
+
             if (-not $result.__File -and $InputObject.__File)
             {
-                $result | Add-Member -Name __File -Value "$($InputObject.__File)" -MemberType NoteProperty -PassThru
+                $result | Add-Member -Name __File -Value "$($InputObject.__File)" -MemberType NoteProperty -PassThru -Force
             }
-            elseif (-not $result.__File -and $File)
+            elseif (-not $result.__File -and $file)
             {
-                $result | Add-Member -Name __File -Value "$($File)" -MemberType NoteProperty -PassThru
+                $result | Add-Member -Name __File -Value "$($file)" -MemberType NoteProperty -PassThru -Force
             }
             else
             {
@@ -74,9 +89,14 @@ function ConvertTo-Datum
         }
         else
         {
-            if ($File -and -not $InputObject.__File)
+            if (-not $file -and $InputObject.__File)
             {
-                $InputObject | Add-Member -Name __File -Value "$File" -MemberType NoteProperty -PassThru
+                $file = $InputObject.__File
+            }
+
+            if ($file -and -not $InputObject.__File)
+            {
+                $InputObject | Add-Member -Name __File -Value "$file" -MemberType NoteProperty -PassThru -Force
             }
             else
             {

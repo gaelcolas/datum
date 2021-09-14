@@ -1,7 +1,7 @@
 function Invoke-DatumHandler
 {
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [object]
         $InputObject,
 
@@ -13,6 +13,7 @@ function Invoke-DatumHandler
         [Parameter()]
         [ref]$Result
     )
+
     $return = $false
 
     foreach ($handler in $DatumHandlers.Keys)
@@ -50,18 +51,20 @@ function Invoke-DatumHandler
                             $actionParams."$paramName" = $var[0].Value
                         }
                     }
-                    $result.Value = (&$actionCommand @actionParams)
-                    if ($null -eq $result.Value)
+                    $internalResult = (&$actionCommand @actionParams)
+                    if ($null -eq $internalResult)
                     {
-                        $result.Value = [string]::Empty
+                        $Result.Value = [string]::Empty
                     }
+
+                    $Result.Value = $internalResult
                     return $true
                 }
             }
             catch
             {
                 Write-Warning "Error using Datum Handler $Handler, the error was: '$($_.Exception.Message)'. Returning InputObject ($InputObject)."
-                $result = $InputObject
+                $Result = $InputObject
                 return $false
             }
         }

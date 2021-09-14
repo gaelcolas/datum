@@ -1,7 +1,7 @@
 function Copy-Object
 {
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [object]
         $DeepCopyObject
     )

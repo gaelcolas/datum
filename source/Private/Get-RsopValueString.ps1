@@ -1,11 +1,11 @@
 function Get-RsopValueString
 {
-    param(
-        [Parameter(Mandatory)]
+    param (
+        [Parameter(Mandatory = $true)]
         [object]
         $InputString,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key,
 
@@ -15,6 +15,7 @@ function Get-RsopValueString
         [Parameter()]
         [switch]$IsArrayValue
     )
+
     $fileInfo = (Get-RelativeFileName -Path $InputString.__File)
 
     $i = 120
