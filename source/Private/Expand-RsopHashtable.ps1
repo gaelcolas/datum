@@ -11,7 +11,11 @@ function Expand-RsopHashtable
 
         [Parameter()]
         [int]
-        $Depth
+        $Depth,
+
+        [Parameter()]
+        [switch]
+        $NoSourceInformation
     )
 
     $Depth++
@@ -27,7 +31,7 @@ function Expand-RsopHashtable
         $keys = [string[]]$InputObject.Keys
         foreach ($key in $keys)
         {
-            $newObject.$key = Expand-RsopHashtable -InputObject $InputObject[$key] -Depth $Depth
+            $newObject.$key = Expand-RsopHashtable -InputObject $InputObject[$key] -Depth $Depth -NoSourceInformation:$NoSourceInformation
         }
 
         [ordered]@{} + $newObject
@@ -41,7 +45,7 @@ function Expand-RsopHashtable
         }
         $items = foreach ($item in $InputObject)
         {
-            Expand-RsopHashtable -InputObject $item -IsArrayValue:$doesUseYamlArraySyntax -Depth $Depth
+            Expand-RsopHashtable -InputObject $item -IsArrayValue:$doesUseYamlArraySyntax -Depth $Depth -NoSourceInformation:$NoSourceInformation
         }
         $items
     }
@@ -50,10 +54,10 @@ function Expand-RsopHashtable
         $cred = $InputObject.GetNetworkCredential()
         $cred = "$($cred.UserName)@$($cred.Domain)$(if($cred.Domain){':'})$($cred.Password)" | Add-Member -Name __File -MemberType NoteProperty -Value $InputObject.__File -PassThru
 
-        Get-RsopValueString -InputString $cred -Key $key -Depth $depth -IsArrayValue:$IsArrayValue
+        Get-RsopValueString -InputString $cred -Key $key -Depth $depth -IsArrayValue:$IsArrayValue -NoSourceInformation:$NoSourceInformation
     }
     else
     {
-        Get-RsopValueString -InputString $InputObject -Key $key -Depth $depth -IsArrayValue:$IsArrayValue
+        Get-RsopValueString -InputString $InputObject -Key $key -Depth $depth -IsArrayValue:$IsArrayValue -NoSourceInformation:$NoSourceInformation
     }
 }
