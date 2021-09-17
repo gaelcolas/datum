@@ -24,7 +24,11 @@ function Get-DatumRsop
 
         [Parameter()]
         [switch]
-        $IncludeSource
+        $IncludeSource,
+
+        [Parameter()]
+        [switch]
+        $RemoveSource
     )
 
     if (-not $script:rsopCache)
@@ -79,6 +83,10 @@ function Get-DatumRsop
         if ($IncludeSource)
         {
             Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0
+        }
+        elseif ($RemoveSource)
+        {
+            Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0 -NoSourceInformation
         }
         else
         {
