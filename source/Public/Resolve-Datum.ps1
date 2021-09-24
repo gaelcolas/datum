@@ -171,11 +171,13 @@ function Resolve-Datum
     # Get the strategy for this path, to be used for merging
     $startingMergeStrategy = Get-MergeStrategyFromPath -PropertyPath $PropertyPath -Strategies $Options
 
+    #Invoke datum handlers
+    $PathPrefixes = $PathPrefixes | ConvertTo-Datum -DatumHandlers $datum.__Definition.DatumHandlers
+
     # Walk every search path in listed order, and return datum when found at end of path
     foreach ($searchPrefix in $PathPrefixes)
     {
         #through the hierarchy
-
         $arraySb = [System.Collections.ArrayList]@()
         $currentSearch = [System.IO.Path]::Combine($searchPrefix, $PropertyPath)
         Write-Verbose -Message ''
