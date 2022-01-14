@@ -132,7 +132,7 @@ function New-DatumStructure
         {
             $module = Import-Module $storeProviderModule -Force -ErrorAction Stop -PassThru
         }
-        $moduleName = ($module | Select-Object -First 1).Name
+        $moduleName = ($module | Where-Object { $_.ExportedCommands.Keys -match 'New-Datum(\w+)Provider' }).Name
 
         $newProviderCmd = Get-Command ('{0}\New-Datum{1}Provider' -f $moduleName, $storeProviderName)
 
