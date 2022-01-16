@@ -28,9 +28,12 @@ function Get-RsopValueString
     {
         $fileInfo = (Get-RelativeFileName -Path $InputString.__File)
 
-        $i = if ($env:DatumRsopIndentation) {
+        $i = if ($env:DatumRsopIndentation)
+        {
             $env:DatumRsopIndentation
-        } else {
+        }
+        else
+        {
             120
         }
 
