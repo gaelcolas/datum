@@ -17,7 +17,7 @@ stages:
       - job: Package_Module
         displayName: 'Package Module'
         pool:
-          vmImage: 'ubuntu 16.04'
+          vmImage: 'ubuntu 18.04'
         steps:
           - task: GitVersion@5
             name: gitVersion
@@ -200,7 +200,7 @@ stages:
       - job: Deploy_Module
         displayName: 'Deploy Module'
         pool:
-          vmImage: 'ubuntu 16.04'
+          vmImage: 'ubuntu 18.04'
         steps:
           - task: DownloadBuildArtifacts@0
             displayName: 'Download Build Artifact'
