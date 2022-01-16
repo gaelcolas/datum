@@ -7,10 +7,9 @@
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 # OutputDirectory: ../output/Sampler
 CopyPaths:
-  # - en-US
+  - en-US
   - ScriptsToProcess
-  # - DSCResources
-  # - Modules
+
 Encoding: UTF8 # With BOM in WinPS, noBOM in PSCore.
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
@@ -39,7 +38,6 @@ BuildWorkflow:
   '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
     - test
-    # - hqrmtest
 
   build:
     - Clean

@@ -15,6 +15,8 @@
 
     Description       = 'Module to manage Hierarchical Configuration Data.'
 
+    PowerShellVersion = '5.1'
+
     RequiredModules   = @(
         'powershell-yaml'
     )

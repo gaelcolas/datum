@@ -46,15 +46,15 @@ function Resolve-Datum
 
     # Manage lookup options:
     <#
-    default_lookup_options	Lookup_options	options (argument)	Behaviour
+    default_lookup_options  Lookup_options  options (argument)  Behaviour
                 MostSpecific for ^.*
-    Present			default_lookup_options + most Specific if not ^.*
-        Present		lookup_options + Default to most Specific if not ^.*
-            Present	options + Default to Most Specific if not ^.*
-    Present	Present		Lookup_options + Default for ^.* if !Exists
-    Present		Present	options + Default for ^.* if !Exists
-        Present	Present	options override lookup options + Most Specific if !Exists
-    Present	Present	Present	options override lookup options + default for ^.*
+    Present         default_lookup_options + most Specific if not ^.*
+        Present     lookup_options + Default to most Specific if not ^.*
+            Present options + Default to Most Specific if not ^.*
+    Present Present     Lookup_options + Default for ^.* if !Exists
+    Present     Present options + Default for ^.* if !Exists
+        Present Present options override lookup options + Most Specific if !Exists
+    Present Present Present options override lookup options + default for ^.*
 
 
     +========================+================+====================+============================================================+
@@ -184,7 +184,10 @@ function Resolve-Datum
         Write-Verbose -Message " Lookup <$currentSearch> $($Node.Name)"
         #extract script block for execution into array, replace by substition strings {0},{1}...
         $newSearch = [regex]::Replace($currentSearch, $pattern, {
-                param($match)
+                param (
+                    [Parameter()]
+                    $match
+                )
                 $expr = $match.groups['sb'].value
                 $index = $arraySb.Add($expr)
                 "`$({$index})"
@@ -215,13 +218,13 @@ function Resolve-Datum
             }
             else
             {
-                $MergeParams = @{
+                $mergeParams = @{
                     StartingPath    = $PropertyPath
                     ReferenceDatum  = $mergeResult
                     DifferenceDatum = $datumFound
                     Strategies      = $Options
                 }
-                $mergeResult = Merge-Datum @MergeParams
+                $mergeResult = Merge-Datum @mergeParams
             }
         }
 
