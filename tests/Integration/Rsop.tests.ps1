@@ -18,6 +18,10 @@ Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
             AllNodes = $allNodes
             Datum    = $datum
         }
+
+        $rsopPath = Join-Path -Path $BuildModuleOutput -ChildPath RSOP
+        $rsopWithSourcePath = Join-Path -Path $BuildModuleOutput -ChildPath RsopWithSource
+        mkdir -Path $rsopPath, $rsopWithSourcePath -Force | Out-Null
     }
 
     Context 'Base-Type array merge behavior' {
@@ -64,6 +68,13 @@ Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
             param ($Node, $PropertyPath, $Value)
 
             $rsop = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node }
+            $nodeRsopPath = Join-Path -Path $rsopPath -ChildPath "$node.yml"
+            $rsop | ConvertTo-Yaml | Out-File -FilePath $nodeRsopPath
+
+            $rsopWithSource = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node } -IncludeSource
+            $nodeRsopWithSourcePath = Join-Path -Path $rsopWithSourcePath -ChildPath "$node.yml"
+            $rsopWithSource | ConvertTo-Yaml | Out-File -FilePath $nodeRsopWithSourcePath
+
             $cmd = [scriptblock]::Create("`$rsop.$PropertyPath")
             & $cmd | Sort-Object | Should -Be ($Value | Sort-Object)
         }
