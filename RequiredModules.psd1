@@ -7,7 +7,6 @@
         }
     }
 
-
     InvokeBuild                 = 'latest'
     PSScriptAnalyzer            = 'latest'
     Pester                      = '4.10.1'
@@ -19,4 +18,5 @@
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
     'Sampler.GitHubTasks'       = 'latest'
+
 }
