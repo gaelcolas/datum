@@ -4,5 +4,9 @@ function Clear-DatumCache
 
     param ()
 
-    $rsopCache.Clear()
+    if ($rsopCache)
+    {
+        $rsopCache.Clear()
+        Write-Debug -Message 'RSOP Cache cleared'
+    }
 }
