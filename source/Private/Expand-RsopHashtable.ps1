@@ -52,7 +52,7 @@ function Expand-RsopHashtable
     elseif ($InputObject -is [pscredential])
     {
         $cred = $InputObject.GetNetworkCredential()
-        $cred = "$($cred.UserName)@$($cred.Domain)$(if($cred.Domain){':'})$($cred.Password)" | Add-Member -Name __File -MemberType NoteProperty -Value $InputObject.__File -PassThru
+        $cred = "$($cred.UserName)@$($cred.Domain)$(if($cred.Domain){':'})$('*' * $cred.Password.Length)" | Add-Member -Name __File -MemberType NoteProperty -Value $InputObject.__File -PassThru
 
         Get-RsopValueString -InputString $cred -Key $key -Depth $depth -IsArrayValue:$IsArrayValue -NoSourceInformation:$NoSourceInformation
     }
