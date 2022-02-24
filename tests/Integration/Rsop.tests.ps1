@@ -78,6 +78,25 @@ Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
             $cmd = [scriptblock]::Create("`$rsop.$PropertyPath")
             & $cmd | Sort-Object | Should -Be ($Value | Sort-Object)
         }
+    }
+
+    Context 'Cache cmdlets' {
+
+        BeforeAll {
+            Clear-DatumRsopCache
+            Clear-DatumRsopCache
+        }
+
+        It "'Clear-DatumRsopCache' returns `$null" {
+            Get-DatumRsopCache | Should -Be $null
+        }
+
+        It "'Get-DatumRsopCache' returns the RSOP Cache" {
+            $rsop = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes
+            $rsopCache = Get-DatumRsopCache
+
+            $rsop.Count | Should -Be $rsopCache.Count
+        }
 
     }
 }
