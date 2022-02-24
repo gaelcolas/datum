@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added support for specifying the encoding (#87).
-- Added error handling to 'Get-FileProviderData.ps1'
+- Added error handling to 'Get-FileProviderData.ps1'.
+- Added functions for get and clear the Datum RSOP cache.
 
 ### Fixed
 
