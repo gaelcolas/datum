@@ -22,7 +22,7 @@ stages:
           - task: gitversion/setup@0
             displayName: 'Install GitTools'
             inputs:
-              versionSpec: '5.3.x'
+              versionSpec: '5.8.x'
           - task: gitversion/execute@0
             name: gitVersion
             displayName: 'Evaluate Next Version'
