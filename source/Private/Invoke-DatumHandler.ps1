@@ -64,7 +64,11 @@ function Invoke-DatumHandler
             catch
             {
                 $throwOnError = $true
-                [void][bool]::TryParse($env:DatumHandlerThrowsOnError, [ref]$throwOnError)
+
+                if (Get-Item -Path Env:\DatumHandlerThrowsOnError -ErrorAction SilentlyContinue)
+                {
+                    [void][bool]::TryParse($env:DatumHandlerThrowsOnError, [ref]$throwOnError)
+                }
 
                 if ($throwOnError)
                 {
