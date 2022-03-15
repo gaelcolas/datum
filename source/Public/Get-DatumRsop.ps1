@@ -57,10 +57,10 @@ function Get-DatumRsop
             Write-Verbose "Key not found in the cache: '$($node.Name)'. Creating RSOP..."
             $rsopNode = $node.Clone()
 
-            $Configurations = Resolve-NodeProperty -PropertyPath $CompositionKey -Node $node -DatumTree $Datum -DefaultValue @()
-            $rsopNode."$CompositionKey" = $Configurations
+            $configurations = Resolve-NodeProperty -PropertyPath $CompositionKey -Node $node -DatumTree $Datum -DefaultValue @()
+            $rsopNode."$CompositionKey" = $configurations
 
-            $Configurations.ForEach{
+            $configurations.ForEach{
                 $value = Resolve-NodeProperty -PropertyPath $_ -DefaultValue @{} -Node $node -DatumTree $Datum
                 $rsopNode."$_" = $value
             }
