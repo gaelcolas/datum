@@ -105,7 +105,7 @@ function New-DatumStructure
     foreach ($store in $DatumHierarchyDefinition.DatumStructure)
     {
         $storeParams = @{
-            Store    = (ConvertTo-Datum ([hashtable]$store).clone())
+            Store    = (ConvertTo-Datum ([hashtable]$store).Clone())
             Path     = $store.StoreOptions.Path
             Encoding = $Encoding
         }
@@ -132,6 +132,8 @@ function New-DatumStructure
         {
             $module = Import-Module $storeProviderModule -Force -ErrorAction Stop -PassThru
         }
+        $moduleName = ($module | Where-Object { $_.ExportedCommands.Keys -match 'New-Datum(\w+)Provider' }).Name
+        $moduleName = ($module | Where-Object { $_.ExportedCommands.Keys -match 'New-Datum(\w+)Provider' }).Name
         $moduleName = ($module | Where-Object { $_.ExportedCommands.Keys -match 'New-Datum(\w+)Provider' }).Name
 
         $newProviderCmd = Get-Command ('{0}\New-Datum{1}Provider' -f $moduleName, $storeProviderName)
