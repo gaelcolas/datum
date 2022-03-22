@@ -188,7 +188,8 @@ function Resolve-Datum
                     [Parameter()]
                     $match
                 )
-                $expr = $match.groups['sb'].value
+
+                $expr = $match.Groups['sb'].value
                 $index = $arraySb.Add($expr)
                 "`$({$index})"
             }, @('IgnoreCase', 'SingleLine', 'MultiLine'))
