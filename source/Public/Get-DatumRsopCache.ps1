@@ -4,12 +4,13 @@ function Get-DatumRsopCache
 
     param ()
 
-    if ($rsopCache.Count)
+    if ($script:rsopCache.Count)
     {
-        $rsopCache
+        $script:rsopCache
     }
     else
     {
+        $script:rsopCache = @{}
         Write-Verbose 'The Datum RSOP Cache is empty.'
     }
 }

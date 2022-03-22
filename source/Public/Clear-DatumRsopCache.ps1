@@ -4,9 +4,9 @@ function Clear-DatumRsopCache
 
     param ()
 
-    if ($rsopCache.Count)
+    if ($script:rsopCache.Count)
     {
-        $rsopCache.Clear()
+        $script:rsopCache.Clear()
         Write-Verbose -Message 'Datum RSOP Cache cleared'
     }
 }
