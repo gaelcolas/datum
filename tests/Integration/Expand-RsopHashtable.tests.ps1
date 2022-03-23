@@ -1,20 +1,21 @@
-$here = $PSScriptRoot
-
 Import-Module -Name datum -Force
 
 InModuleScope -ModuleName Datum {
+
+    $here = $PSScriptRoot
+    $projectPath = "$here\..\.." | Convert-Path
 
     Describe 'Expand-RsopHashtable' {
 
         $testCases = @(
             @{
                 InputObject         = @{
-                    Key1 = 'Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru
-                    Key2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru)
+                    Key1 = 'Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
+                    Key2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
                     Key3 = @(
                         @{
-                            SubKey1 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru)
-                            SubKey2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru)
+                            SubKey1 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
+                            SubKey2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
                         }
                     )
                 }
@@ -25,12 +26,12 @@ InModuleScope -ModuleName Datum {
             }
             @{
                 InputObject         = @{
-                    Key1 = 'Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru
-                    Key2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru)
+                    Key1 = 'Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
+                    Key2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
                     Key3 = @(
                         @{
-                            SubKey1 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru)
-                            SubKey2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru)
+                            SubKey1 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
+                            SubKey2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
                         }
                     )
                 }
@@ -57,7 +58,8 @@ InModuleScope -ModuleName Datum {
             {
                 if ($result.$key -isnot [array] -and $result.$key -isnot [System.Collections.IDictionary])
                 {
-                    if ($NoSourceInformation) {
+                    if ($NoSourceInformation)
+                    {
                         $result.$key | Should -Not -BeLike "*$RelativeFilePath"
                     }
                     else
@@ -67,8 +69,6 @@ InModuleScope -ModuleName Datum {
                 }
             }
         }
-
-
 
     }
 
