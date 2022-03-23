@@ -84,7 +84,6 @@ Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
 
         BeforeAll {
             Clear-DatumRsopCache
-            Clear-DatumRsopCache
         }
 
         It "'Clear-DatumRsopCache' returns `$null" {
