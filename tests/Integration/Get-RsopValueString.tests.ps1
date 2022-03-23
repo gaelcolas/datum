@@ -1,21 +1,22 @@
-$here = $PSScriptRoot
-
 Import-Module -Name datum -Force
 
 InModuleScope -ModuleName Datum {
+
+    $here = $PSScriptRoot
+    $projectPath = "$here\..\.." | Convert-Path
 
     Describe 'Get-RsopValueString' {
 
         $testCases = @(
             @{
-                InputString         = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru
+                InputString         = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
                 Depth               = 0
                 Key                 = 'SomeKey'
                 RelativeFilePath    = 'DscWorkshopConfigData\Datum'
                 NoSourceInformation = $false
             }
             @{
-                InputString         = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value .\assets\DscWorkshopConfigData\Datum.yml -PassThru
+                InputString         = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
                 Depth               = 0
                 Key                 = 'SomeKey'
                 RelativeFilePath    = 'DscWorkshopConfigData\Datum'
