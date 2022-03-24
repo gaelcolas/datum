@@ -116,12 +116,7 @@ function Invoke-DatumHandler
             }
             catch
             {
-                $throwOnError = $true
-
-                if (Get-Item -Path Env:\DatumHandlerThrowsOnError -ErrorAction SilentlyContinue)
-                {
-                    [void][bool]::TryParse($env:DatumHandlerThrowsOnError, [ref]$throwOnError)
-                }
+                $throwOnError = [bool]$datum.__Definition.DatumHandlersThrowOnError
 
                 if ($throwOnError)
                 {
@@ -129,7 +124,7 @@ function Invoke-DatumHandler
                 }
                 else
                 {
-                    Write-Warning "Error using Datum Handler $Handler, the error was: '$($_.Exception.Message)'. Returning InputObject ($InputObject)."
+                    Write-Warning "Error using Datum Handler '$Handler', the error was: '$($_.Exception.Message)'. Returning InputObject ($InputObject)."
                     $Result = $InputObject
                     return $false
                 }
