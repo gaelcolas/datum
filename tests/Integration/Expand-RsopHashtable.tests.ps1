@@ -9,7 +9,7 @@ InModuleScope -ModuleName Datum {
 
         $testCases = @(
             @{
-                InputObject         = @{
+                InputObject          = @{
                     Key1 = 'Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
                     Key2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
                     Key3 = @(
@@ -19,13 +19,13 @@ InModuleScope -ModuleName Datum {
                         }
                     )
                 }
-                IsArrayValue        = $false
-                NoSourceInformation = $false
-                Depth               = 8
-                RelativeFilePath    = 'DscWorkshopConfigData\Datum'
+                IsArrayValue         = $false
+                AddSourceInformation = $false
+                Depth                = 8
+                RelativeFilePath     = 'DscWorkshopConfigData\Datum'
             }
             @{
-                InputObject         = @{
+                InputObject          = @{
                     Key1 = 'Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
                     Key2 = ('Value1' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru)
                     Key3 = @(
@@ -35,36 +35,36 @@ InModuleScope -ModuleName Datum {
                         }
                     )
                 }
-                IsArrayValue        = $false
-                NoSourceInformation = $true
-                Depth               = 8
-                RelativeFilePath    = 'DscWorkshopConfigData\Datum'
+                IsArrayValue         = $false
+                AddSourceInformation = $true
+                Depth                = 8
+                RelativeFilePath     = 'DscWorkshopConfigData\Datum'
             }
         )
 
         It "'Expand-RsopHashtable' returns IDictionary objects'." -TestCases $testCases {
-            param ($InputObject, $IsArrayValue, $NoSourceInformation, $Depth)
+            param ($InputObject, $IsArrayValue, $AddSourceInformation, $Depth)
 
-            $result = Expand-RsopHashtable -InputObject $InputObject -Depth $Depth -IsArrayValue:$IsArrayValue -NoSourceInformation:$NoSourceInformation
+            $result = Expand-RsopHashtable -InputObject $InputObject -Depth $Depth -IsArrayValue:$IsArrayValue -AddSourceInformation:$AddSourceInformation
 
             $result | Should -BeOfType [System.Collections.IDictionary]
         }
 
-        It "Items in result end with RelativeFilePath if 'NoSourceInformation' is set to '<NoSourceInformation>'." -TestCases $testCases {
-            param ($InputObject, $IsArrayValue, $NoSourceInformation, $Depth, $RelativeFilePath)
+        It "Items in result end with RelativeFilePath if 'AddSourceInformation' is set to '<AddSourceInformation>'." -TestCases $testCases {
+            param ($InputObject, $IsArrayValue, $AddSourceInformation, $Depth, $RelativeFilePath)
 
-            $result = Expand-RsopHashtable -InputObject $InputObject -Depth $Depth -IsArrayValue:$IsArrayValue -NoSourceInformation:$NoSourceInformation
+            $result = Expand-RsopHashtable -InputObject $InputObject -Depth $Depth -IsArrayValue:$IsArrayValue -AddSourceInformation:$AddSourceInformation
             foreach ($key in $result.Keys)
             {
                 if ($result.$key -isnot [array] -and $result.$key -isnot [System.Collections.IDictionary])
                 {
-                    if ($NoSourceInformation)
+                    if ($AddSourceInformation)
                     {
-                        $result.$key | Should -Not -BeLike "*$RelativeFilePath"
+                        $result.$key | Should -BeLike "*$RelativeFilePath"
                     }
                     else
                     {
-                        $result.$key | Should -BeLike "*$RelativeFilePath"
+                        $result.$key | Should -Not -BeLike "*$RelativeFilePath"
                     }
                 }
             }
