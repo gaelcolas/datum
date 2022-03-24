@@ -17,10 +17,10 @@ function Get-RsopValueString
 
         [Parameter()]
         [switch]
-        $NoSourceInformation
+        $AddSourceInformation
     )
 
-    if ($NoSourceInformation)
+    if (-not $AddSourceInformation)
     {
         $InputString.psobject.BaseObject
     }

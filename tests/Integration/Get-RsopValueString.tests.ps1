@@ -9,27 +9,27 @@ InModuleScope -ModuleName Datum {
 
         $testCases = @(
             @{
-                InputString         = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
-                Depth               = 0
-                Key                 = 'SomeKey'
-                RelativeFilePath    = 'DscWorkshopConfigData\Datum'
-                NoSourceInformation = $false
+                InputString          = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
+                Depth                = 0
+                Key                  = 'SomeKey'
+                RelativeFilePath     = 'DscWorkshopConfigData\Datum'
+                AddSourceInformation = $false
             }
             @{
-                InputString         = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
-                Depth               = 0
-                Key                 = 'SomeKey'
-                RelativeFilePath    = 'DscWorkshopConfigData\Datum'
-                NoSourceInformation = $true
+                InputString          = 'Hello World' | Add-Member -Name __File -MemberType NoteProperty -Value $projectPath\tests\Integration\assets\DscWorkshopConfigData\Datum.yml -PassThru
+                Depth                = 0
+                Key                  = 'SomeKey'
+                RelativeFilePath     = 'DscWorkshopConfigData\Datum'
+                AddSourceInformation = $true
             }
         )
 
         It "Result string for '<InputString>' should match the expectations'." -TestCases $testCases {
-            param ($InputString, $Depth, $Key, $IsArrayValue, $NoSourceInformation, $RelativeFilePath)
+            param ($InputString, $Depth, $Key, $IsArrayValue, $AddSourceInformation, $RelativeFilePath)
 
-            $resultString = Get-RsopValueString -InputString $InputString -Key $Key -Depth $Depth -IsArrayValue:$IsArrayValue -NoSourceInformation:$NoSourceInformation
+            $resultString = Get-RsopValueString -InputString $InputString -Key $Key -Depth $Depth -IsArrayValue:$IsArrayValue -AddSourceInformation:$AddSourceInformation
             $resultString | Should -BeLike "$InputString*"
-            if (-not $NoSourceInformation)
+            if ($AddSourceInformation)
             {
                 $resultString | Should -BeLike "*$RelativeFilePath"
             }
