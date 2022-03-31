@@ -179,7 +179,7 @@ function Resolve-Datum
     {
         #through the hierarchy
         $arraySb = [System.Collections.ArrayList]@()
-        $currentSearch = [System.IO.Path]::Combine($searchPrefix, $PropertyPath)
+        $currentSearch = Join-Path -Path $searchPrefix -ChildPath $PropertyPath
         Write-Verbose -Message ''
         Write-Verbose -Message " Lookup <$currentSearch> $($Node.Name)"
         #extract script block for execution into array, replace by substition strings {0},{1}...
