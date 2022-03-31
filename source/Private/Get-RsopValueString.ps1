@@ -26,7 +26,7 @@ function Get-RsopValueString
     }
     else
     {
-        $fileInfo = (Get-RelativeFileName -Path $InputString.__File)
+        $fileInfo = (Get-DatumSourceFile -Path $InputString.__File)
 
         $i = if ($env:DatumRsopIndentation)
         {
