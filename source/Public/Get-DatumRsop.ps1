@@ -82,11 +82,11 @@ function Get-DatumRsop
 
         if ($IncludeSource)
         {
-            Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0
+            Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0 -AddSourceInformation
         }
         elseif ($RemoveSource)
         {
-            Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0 -AddSourceInformation
+            Expand-RsopHashtable -InputObject $script:rsopCache."$($node.Name)" -Depth 0
         }
         else
         {
