@@ -41,10 +41,11 @@ function Copy-Object
         PS C:\> $clonedObject = Copy-Object -DeepCopyObject $someObject
 
     .INPUTS
+        It takes any kind of object as input which will be serialized and deserialized to create a copy.
         [object]
 
     .OUTPUTS
-        [object]
+        [Deserialized.<object>]
 
     #>
 
