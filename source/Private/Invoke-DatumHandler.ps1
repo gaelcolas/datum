@@ -116,6 +116,8 @@ function Invoke-DatumHandler
             }
             catch
             {
+                #If true, datum handlers throwing errors will stop the whole compilation process. This is usually wanted to make sure
+                #that the datum handlers are working as expected and your data / RSOP does not contain invalid or incomplete data.
                 $throwOnError = [bool]$datum.__Definition.DatumHandlersThrowOnError
 
                 if ($throwOnError)
