@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Test-InvokeCommandFilter
   - Resolve-NodeProperty.ps1
   - New-DatumFileProvider.ps1
+- Added 'GitHubConfig' to build.yml
 
 ## [0.0.39] - 2020-09-29
 
