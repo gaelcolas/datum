@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - master
+      - main
   paths:
     exclude:
       - CHANGELOG.md
@@ -194,7 +194,7 @@ stages:
       and(
         succeeded(),
         or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         ),
         contains(variables['System.TeamFoundationCollectionUri'], 'SynEdgy')
@@ -203,7 +203,7 @@ stages:
       - job: Deploy_Module
         displayName: 'Deploy Module'
         pool:
-          vmImage: 'ubuntu 18.04'
+          vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadBuildArtifacts@0
             displayName: 'Download Build Artifact'
@@ -222,6 +222,8 @@ stages:
             env:
               GitHubToken: $(GitHubToken)
               GalleryApiToken: $(GalleryApiToken)
+              ReleaseBranch: main
+              MainGitBranch: main
           - task: PowerShell@2
             name: sendChangelogPR
             displayName: 'Send Changelog PR'
@@ -231,3 +233,5 @@ stages:
               pwsh: true
             env:
               GitHubToken: $(GitHubToken)
+              ReleaseBranch: main
+              MainGitBranch: main

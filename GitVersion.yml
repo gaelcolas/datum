@@ -1,5 +1,5 @@
 mode: ContinuousDelivery
-next-version: 0.38
+next-version: 0.40.0
 major-version-bump-message: '\s?(breaking|major|breaking\schange)'
 minor-version-bump-message: '(adds?|features?|minor)\b'
 patch-version-bump-message: '\s?(fix|patch)'
