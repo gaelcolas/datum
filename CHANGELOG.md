@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Resolve-NodeProperty.ps1
   - New-DatumFileProvider.ps1
 - Added 'GitHubConfig' to build.yml and updating main branch to main.
+- Considering environment variables when calling Datum handlers.
 
 ## [0.0.39] - 2020-09-29
 
