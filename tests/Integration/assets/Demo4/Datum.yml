@@ -1,0 +1,21 @@
+ResolutionPrecedence:
+  - '[x= { $Node.Role | Foreach-Object {"Roles\$_"} } =]'
+  - 'Roles\All'
+
+
+DatumHandlers:
+  Datum.InvokeCommand::InvokeCommand:
+    SkipDuringLoad: true # This does not seem to have any effect, was undocumented
+
+default_lookup_options:
+  strategy: deep
+
+lookup_options:
+  Disks:
+    merge_hash: deep
+    merge_basetype_array: Sum
+    merge_hash_array: UniqueKeyValTuples
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - Number

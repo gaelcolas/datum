@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed bug in which `$datum` was referenced instead of `$DatumTree` that led
+  to the inability to use handlers in Resolve-Datum. Also enables nodes to have
+  multiple roles.
+
 ## [0.40.1] - 2023-04-03
 
 ### Added

@@ -1,0 +1,7 @@
+Disks:
+  - Number: 3
+    DriveLetter: F
+    FS: NTFS
+  - Number: 4
+    DriveLetter: G
+    FS: ReFS

@@ -172,7 +172,7 @@ function Resolve-Datum
     $startingMergeStrategy = Get-MergeStrategyFromPath -PropertyPath $PropertyPath -Strategies $Options
 
     #Invoke datum handlers
-    $PathPrefixes = $PathPrefixes | ConvertTo-Datum -DatumHandlers $datum.__Definition.DatumHandlers
+    $PathPrefixes = $PathPrefixes | ConvertTo-Datum -DatumHandlers $DatumTree.__Definition.DatumHandlers
 
     # Walk every search path in listed order, and return datum when found at end of path
     foreach ($searchPrefix in $PathPrefixes)

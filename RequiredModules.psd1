@@ -18,5 +18,5 @@
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
     'Sampler.GitHubTasks'       = 'latest'
-
+    'Datum.InvokeCommand'       = 'latest'
 }
