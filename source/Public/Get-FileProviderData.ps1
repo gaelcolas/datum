@@ -41,13 +41,13 @@ function Get-FileProviderData
             }
             '.json'
             {
-                ConvertFrom-Json -InputObject (Get-Content -Path $Path -Encoding $Encoding -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                $customObject = ConvertFrom-Json -InputObject (Get-Content -Path $Path -Encoding $Encoding -Raw)
+
+                $hash = @{}
+                $customObject.PSObject.Properties | ForEach-Object { $hash[$_.Name] = $_.Value }
+                $hash | ConvertTo-Datum -DatumHandlers $DatumHandlers
             }
-            '.yml'
-            {
-                ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
-            }
-            '.yaml'
+            { $_ -in '.yml','.yaml' }
             {
                 ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
             }
