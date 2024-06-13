@@ -74,7 +74,7 @@ function ConvertTo-Datum
                 $file = $InputObject.__File
             }
 
-            if ($result)
+            if ($null -ne $result)
             {
                 if (-not $result.__File -and $InputObject.__File)
                 {
