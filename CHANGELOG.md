@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139)
+
 ## [0.40.1] - 2023-04-03
 
 ### Added
