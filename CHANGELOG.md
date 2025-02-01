@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139)
+- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139).
+- `Invoke-DatumHandler` did not inform about a module load error. If a filter module cannot
+  be loaded, now datum writes a warning as the error cannot be caught.
 
 ## [0.40.1] - 2023-04-03
 
