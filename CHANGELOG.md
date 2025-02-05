@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139)
+- Fixed PowerShell 7 compatibility of Copy-Object integration test
 
 ## [0.40.1] - 2023-04-03
 
