@@ -4,7 +4,7 @@ $here = $PSScriptRoot
 
 Remove-Module -Name datum
 
-Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
+Describe "RSOP tests based on 'MergeTestData' test data" {
     BeforeAll {
         Import-Module -Name datum
 
@@ -29,38 +29,99 @@ Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
         $testCases = @(
             @{
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.IpAddress'
-                Value        = '192.168.10.100'
-            }
-            @{
-                Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Gateway'
-                Value        = '192.168.10.50'
-            }
-            @{
-                Node         = 'DSCWeb02'
-                PropertyPath = 'NetworkIpConfigurationMerged.IpAddress'
-                Value        = '192.168.10.102'
-            }
-            @{
-                Node         = 'DSCWeb02'
-                PropertyPath = 'NetworkIpConfigurationMerged.Gateway'
-                Value        = '192.168.20.50'
-            }
-            @{
-                Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Value        = 'WindowsFeatures', 'FilesAndFolders', 'NetworkIpConfigurationMerged'
+                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures', 'FilesAndFolders'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Value        = 'WindowsFeatures', 'NetworkIpConfigurationMerged'
+                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'WindowsFeatures', 'NetworkIpConfigurationMerged', 'FilesAndFolders'
+                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolders', 'WindowsFeatures'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Destination'
+                Value        = '192.168.11.0/24', '192.168.22.0/24', '192.168.33.0/24', '192.168.10.0/24', '192.168.20.0/24', '192.168.30.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
+            }
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Destination'
+                Value        = '192.168.12.0/24', '192.168.23.0/24', '192.168.34.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
+            }
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Destination'
+                Value        = '192.168.12.0/24', '192.168.23.0/24', '192.168.34.0/24', '192.168.10.0/24', '192.168.20.0/24', '192.168.30.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'WindowsFeatures.Name'
+                Value        = '-Telnet-Client', 'File-Services'
+            }
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'WindowsFeatures.Name'
+                Value        = 'File-Services', '-Telnet-Client', 'Telnet-Server'
+            }
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'WindowsFeatures.Name'
+                Value        = 'File-Services', 'Web-Server', 'XPS-Viewer', '-Telnet-Client'
+            }
+        )
+
+        It "The value of Datum RSOP property '<PropertyPath>' for node '<Node>' should be '<Value>'." -TestCases $testCases {
+            param ($Node, $PropertyPath, $Value)
+
+            $rsop = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node }
+            $nodeRsopPath = Join-Path -Path $rsopPath -ChildPath "$node.yml"
+            $rsop | ConvertTo-Yaml | Out-File -FilePath $nodeRsopPath
+
+            $rsopWithSource = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node } -IncludeSource
+            $nodeRsopWithSourcePath = Join-Path -Path $rsopWithSourcePath -ChildPath "$node.yml"
+            $rsopWithSource | ConvertTo-Yaml | Out-File -FilePath $nodeRsopWithSourcePath
+
+            $cmd = [scriptblock]::Create("`$rsop.$PropertyPath")
+            & $cmd | Sort-Object | Should -Be ($Value | Sort-Object)
+        }
+    }
+
+    Context 'Hashtable array merge behavior' {
+
+        $testCases = @(
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.IpAddress'
+                Value        = '192.168.10.100'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                Value        = '192.168.10.50'
+            }
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.IpAddress'
+                Value        = '192.168.10.101'
+            }
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                Value        = $null
+            }
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.IpAddress'
+                Value        = '192.168.10.102'
+            }
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                Value        = '192.168.20.50'
             }
         )
 
