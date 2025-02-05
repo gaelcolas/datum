@@ -25,6 +25,22 @@ Describe 'Merge ' {
         $testCases = @(
             @{
                 Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
+                Count        = 9
+            }
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
+                Count        = 6
+            }
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
+                Count        = 9
+            }
+
+            @{
+                Node         = 'DSCFile01'
                 PropertyPath = 'WindowsFeatures\Name'
                 Count        = 2
             }
@@ -81,13 +97,29 @@ Describe 'Merge ' {
             }
             @{
                 Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
+                Value        = '192.168.11.0/24', '192.168.22.0/24', '192.168.33.0/24', '192.168.10.0/24', '192.168.20.0/24', '192.168.30.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
+            }
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
+                Value        = '192.168.12.0/24', '192.168.23.0/24', '192.168.34.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
+            }
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
+                Value        = '192.168.12.0/24', '192.168.23.0/24', '192.168.34.0/24', '192.168.10.0/24', '192.168.20.0/24', '192.168.30.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
+            }
+
+            @{
+                Node         = 'DSCFile01'
                 PropertyPath = 'WindowsFeatures\Name'
                 Value        = '-Telnet-Client', 'File-Services'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'WindowsFeatures\Name'
-                Value        = 'File-Services', 'Web-Server', '-Telnet-Client'
+                Value        = 'File-Services', '-Telnet-Client', 'Telnet-Server'
             }
             @{
                 Node         = 'DSCWeb02'
@@ -110,17 +142,17 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged'
-                Count        = 6
+                Count        = 3
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'NetworkIpConfigurationMerged'
-                Count        = 6
+                Count        = 2
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'NetworkIpConfigurationMerged'
-                Count        = 6
+                Count        = 3
             }
 
             @{
@@ -131,7 +163,7 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'NetworkIpConfigurationNonMerged'
-                Count        = 1
+                Count        = 2
             }
             @{
                 Node         = 'DSCWeb02'
@@ -153,33 +185,68 @@ Describe 'Merge ' {
         $testCases = @(
             @{
                 Node          = 'DSCFile01'
-                PropertyPath  = 'NetworkIpConfigurationMerged\Gateway'
-                ExpectedValue = '192.168.10.50'
+                PropertyPath  = 'NetworkIpConfigurationMerged'
+                Value         = 'ConfigureIPv6'
+                ExpectedValue = '-1'
             }
             @{
                 Node          = 'DSCWeb01'
-                PropertyPath  = 'NetworkIpConfigurationMerged\Gateway'
+                PropertyPath  = 'NetworkIpConfigurationMerged'
+                Value         = 'ConfigureIPv6'
+                ExpectedValue = 2
+            }
+            @{
+                Node          = 'DSCWeb02'
+                PropertyPath  = 'NetworkIpConfigurationMerged'
+                Value         = 'ConfigureIPv6'
+                ExpectedValue = '0'
+            }
+            @{
+                Node          = 'DSCFile01'
+                PropertyPath  = 'NetworkIpConfigurationMerged'
+                Value         = 'DisableNetBios'
+                ExpectedValue = $true
+            }
+            @{
+                Node          = 'DSCWeb01'
+                PropertyPath  = 'NetworkIpConfigurationMerged'
+                Value         = 'DisableNetBios'
                 ExpectedValue = $null
             }
             @{
                 Node          = 'DSCWeb02'
-                PropertyPath  = 'NetworkIpConfigurationMerged\Gateway'
+                PropertyPath  = 'NetworkIpConfigurationMerged'
+                Value         = 'DisableNetBios'
+                ExpectedValue = $false
+            }
+            @{
+                Node          = 'DSCFile01'
+                PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
+                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                ExpectedValue = '192.168.10.50'
+            }
+            @{
+                Node          = 'DSCWeb01'
+                PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
+                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                ExpectedValue = $null
+            }
+            @{
+                Node          = 'DSCWeb02'
+                PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
+                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
                 ExpectedValue = '192.168.20.50'
             }
         )
 
         It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -TestCases $testCases {
-            param ($Node, $PropertyPath, $ExpectedValue)
-
-            if ($Node -eq 'DSCWeb01')
-            {
-                Set-ItResult -Skipped -Because 'Bug in Datum kockout behaviour'
-            }
+            param ($Node, $PropertyPath, $Value, $ExpectedValue)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
-            (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n) | Should -Be $ExpectedValue
+            $result = Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n
+
+            $cmd = [scriptblock]::Create("`$result.$Value")
+            & $cmd | Should -Be $ExpectedValue
         }
     }
 }
-
-
