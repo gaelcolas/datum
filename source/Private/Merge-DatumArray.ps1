@@ -167,5 +167,5 @@ function Merge-DatumArray
         }
     }
 
-    $mergedArray
+    return (, $mergedArray)
 }
