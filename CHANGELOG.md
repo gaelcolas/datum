@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added Pester tests for credential handling.
 - Added knockout support for Basetype Arrays
+- Added cleanup of knockout items
 
 ### Fixed
 
