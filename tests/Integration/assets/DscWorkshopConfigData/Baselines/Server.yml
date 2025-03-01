@@ -1,0 +1,39 @@
+Configurations:
+  - ComputerSettings
+  - NetworkIpConfiguration
+  - WindowsEventLogs
+
+NetworkIpConfiguration:
+  Interfaces:
+    - InterfaceAlias: DscWorkshop 0
+      Prefix: 24
+      Gateway: 192.168.111.50
+      DnsServer:
+        - 192.168.111.10
+      DisableNetbios: true
+
+WindowsEventLogs:
+  Logs:
+  - LogName: System
+    LogMode: Circular
+    MaximumSizeInBytes: 20971520
+    IsEnabled: true
+  - LogName: Application
+    LogMode: Circular
+    MaximumSizeInBytes: 20971520
+    IsEnabled: true
+  - LogName: Security
+    LogMode: Circular
+    MaximumSizeInBytes: 134217728
+    IsEnabled: true
+  DependsOn: '[ComputerSettings]ComputerSettings'
+
+ComputerSettings:
+  DomainName: '[x={ $Datum.Global.Domain.DomainFqdn }=]'
+  JoinOU: '[x= "CN=Computers,$($Datum.Global.Domain.DomainDn)" =]'
+  Credential: '[x={ $Datum.Global.Domain.DomainJoinCredentials }=]'
+  TimeZone: Greenwich Standard Time
+
+DscTagging:
+  Layers:
+    - '[x={ Get-DatumSourceFile -Path $File } =]'
