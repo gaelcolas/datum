@@ -1,5 +1,5 @@
-NodeName: DSCWeb01
-Environment: Dev
+NodeName: '[x={ $Node.Name }=]'
+Environment: '[x={ $File.Directory.BaseName } =]'
 Role: WebServer
 Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
 Location: Singapore
