@@ -1,11 +1,18 @@
-NodeName: DSCWeb03
-Environment: Prod
+NodeName: '[x={ $Node.Name }=]'
+Environment: '[x={ $File.Directory.BaseName } =]'
 Role: WebServer
-Description: '[Command=(Import-Csv -Path $env:BHProjectPath\DscConfigData\ExternalData.csv -Delimiter ";" | Where-Object ComputerName -eq DSCWeb03).Description]'
+Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
 Location: Singapore
+Baseline: Server
+
+ComputerSettings:
+  Name: '[x={ $Node.NodeName }=]'
+  Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
 
 NetworkIpConfiguration:
-  IpAddress: 192.168.111.121
+  Interfaces:
+    - InterfaceAlias: DscWorkshop 0
+      IpAddress: 192.168.111.121
 
 PSDscAllowPlainTextPassword: True
 PSDscAllowDomainUser: True
@@ -13,4 +20,10 @@ PSDscAllowDomainUser: True
 LcmConfig:
   ConfigurationRepositoryWeb:
     Server:
-      ConfigurationNames: DSCWeb03
+      ConfigurationNames: '[x={ $Node.NodeName }=]'
+
+DscTagging:
+  Layers:
+    - '[x={ Get-DatumSourceFile -Path $File } =]'
+  NodeVersion: '[x={ $datum.Baselines.DscLcm.DscTagging.Version } =]'
+  NodeRole: '[x={ $Node.Role } =]'
