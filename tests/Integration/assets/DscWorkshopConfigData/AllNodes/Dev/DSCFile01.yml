@@ -1,5 +1,5 @@
-NodeName: DSCFil01
-Environment: '[x={ $File.Directory.BaseName } =]'
+NodeName: DSCFile01
+Environment: Dev
 Role: FileServer
 Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
 Location: Frankfurt
