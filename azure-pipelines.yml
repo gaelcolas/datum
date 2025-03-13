@@ -162,7 +162,7 @@ stages:
       - job: Test_Integration
         displayName: 'Integration'
         pool:
-          vmImage: 'windows-2019'
+          vmImage: windows-latest
         timeoutInMinutes: '0'
         steps:
           - task: DownloadBuildArtifacts@0
@@ -177,15 +177,15 @@ stages:
             displayName: 'Run Integration Test'
             inputs:
               filePath: './build.ps1'
-              arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
-              pwsh: false
+              arguments: -Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0
+              pwsh: true
           - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
+            displayName: Publish Test Results
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
-              testRunTitle: 'Integration (ubuntu-latest)'
+              testRunTitle: 'Integration (windows-latest)'
 
   - stage: Deploy
     dependsOn: Test
