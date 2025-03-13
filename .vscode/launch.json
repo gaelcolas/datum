@@ -13,6 +13,22 @@
             "cwd": "${workspaceRoot}/"
         },
         {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Launch Build -ResolveDependency",
+            "script": "${workspaceRoot}/Build.ps1",
+            "args": ["-ResolveDependency"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Launch Test",
+            "script": "${workspaceRoot}/Build.ps1",
+            "args": ["-Tasks test"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
             "name": "PowerShell Interactive Session",
             "type": "PowerShell",
             "request": "launch",

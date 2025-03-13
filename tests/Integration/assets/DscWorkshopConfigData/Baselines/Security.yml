@@ -1,0 +1,15 @@
+Configurations:
+  - SecurityBase
+  - WindowsFeatures
+
+WindowsFeatures:
+  Names:
+    - -Telnet-Client
+
+SecurityBase:
+  Role: Baseline
+  DependsOn: '[WindowsFeatures]WindowsFeatures'
+
+DscTagging:
+  Layers:
+    - '[x={ Get-DatumSourceFile -Path $File } =]'
