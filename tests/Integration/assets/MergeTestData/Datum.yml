@@ -21,3 +21,13 @@ lookup_options:
     merge_hash: deep
     merge_options:
       knockout_prefix: --
+  NetworkIpConfigurationMerged\Interfaces:
+    merge_hash_array: DeepTuple
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - InterfaceAlias
+  NetworkIpConfigurationMerged\Interfaces\Destination:
+    merge_basetype_array: Unique
+    merge_options:
+      knockout_prefix: --

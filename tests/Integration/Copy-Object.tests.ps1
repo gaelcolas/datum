@@ -33,7 +33,7 @@ InModuleScope -ModuleName Datum {
 
             $result = Copy-Object -DeepCopyObject $DeepCopyObject
 
-            ($DeepCopyObject | Get-Member -MemberType Properties).Count | Should -Be ($result | Get-Member -MemberType Properties).Count
+            ($DeepCopyObject | Get-Member -MemberType Properties -Force).Count | Should -Be ($result | Get-Member -MemberType Properties -Force).Count
         }
 
     }

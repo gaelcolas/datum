@@ -175,7 +175,7 @@ function Resolve-Datum
     $PathPrefixes = $PathPrefixes | ConvertTo-Datum -DatumHandlers $datum.__Definition.DatumHandlers
 
     # Walk every search path in listed order, and return datum when found at end of path
-    foreach ($searchPrefix in $PathPrefixes)
+    :pathPrefixLoop foreach ($searchPrefix in $PathPrefixes)
     {
         #through the hierarchy
         $arraySb = [System.Collections.ArrayList]@()
@@ -229,13 +229,19 @@ function Resolve-Datum
             }
         }
 
-        #if we've reached the Maximum Depth allowed, return current result and stop further execution
+        #if we've reached the Maximum Depth allowed, stop further execution
         if ($depth -eq $MaxDepth)
         {
             Write-Debug "  Max depth of $MaxDepth reached. Stopping."
-            , $mergeResult
-            return
+            break :pathPrefixLoop
         }
     }
-    , $mergeResult
+
+    #Remove all knockout values before returning
+    $cleanupParams = @{
+        StartingPath    = $PropertyPath
+        ReferenceDatum  = $mergeResult
+        Strategies      = $Options
+    }
+    return (, (Clear-DatumKnockout @cleanupParams))
 }

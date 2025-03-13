@@ -13,10 +13,14 @@ Configurations:
   - FilesAndFolders
 
 NetworkIpConfigurationMerged:
-  IpAddress: 192.168.10.102
+  Interfaces:
+    - InterfaceAlias: Ethernet
+      IpAddress: 192.168.10.102
 
 NetworkIpConfigurationNonMerged:
-  IpAddress: 192.168.10.102
+  Interfaces:
+    - InterfaceAlias: Ethernet
+      IpAddress: 192.168.10.102
 
 PSDscAllowPlainTextPassword: True
 PSDscAllowDomainUser: True
