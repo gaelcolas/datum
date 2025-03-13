@@ -8,7 +8,14 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
     BeforeAll {
         Import-Module -Name datum
 
-        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath '.\assets\DscWorkshopConfigData\Datum.yml' -Resolve)
+        $datumPath = Join-Path -Path $here -ChildPath '.\assets\DscWorkshopConfigData\Datum.yml' -Resolve
+        Write-Host "Loading datum from '$datumPath'"
+        $datum = New-DatumStructure -DefinitionFile $datum
+
+        Write-Host -------------------------------------
+        $datum.__Definition | ConvertTo-Json -Depth 6 | Write-Host -ForegroundColor Green
+        Write-Host -------------------------------------
+
         $allNodes = $datum.AllNodes.Dev.psobject.Properties | ForEach-Object {
             $node = $Datum.AllNodes.Dev.($_.Name)
             (@{} + $Node)
