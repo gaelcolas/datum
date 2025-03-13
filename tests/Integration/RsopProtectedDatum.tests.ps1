@@ -10,7 +10,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
 
         $datumPath = Join-Path -Path $here -ChildPath '.\assets\DscWorkshopConfigData\Datum.yml' -Resolve
         Write-Host "Loading datum from '$datumPath'"
-        $datum = New-DatumStructure -DefinitionFile $datum
+        $datum = New-DatumStructure -DefinitionFile $datumPath
 
         Write-Host -------------------------------------
         $datum.__Definition | ConvertTo-Json -Depth 6 | Write-Host -ForegroundColor Green
