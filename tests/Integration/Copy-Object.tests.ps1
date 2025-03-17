@@ -20,7 +20,24 @@ InModuleScope -ModuleName Datum {
             }
         )
 
-        It "TargetType of result object is '<TargetType>'" -TestCases $testCases {
+        $propertiesTestCases = @()
+        foreach ($testCase in $testCases)
+        {
+            $result = Copy-Object -DeepCopyObject $testCase.DeepCopyObject
+            $properties = $testCase.DeepCopyObject | Get-Member -MemberType Properties
+            foreach ($property in $properties)
+            {
+                $propertiesTestCases += @{
+                    DeepCopyObject      = $testCase.DeepCopyObject
+                    TargetObject        = $result
+                    Property            = $property.Name
+                    PropertySourceValue = $testCase.DeepCopyObject.$($property.Name)
+                    PropertyTargetValue = $result.$($property.Name)
+                }
+            }
+        }
+
+        It "TargetType of result object '<DeepCopyObject>' is '<TargetType>'" -TestCases $testCases {
             param ($DeepCopyObject, $SourceType, $TargetType)
 
             $result = Copy-Object -DeepCopyObject $DeepCopyObject
@@ -28,12 +45,21 @@ InModuleScope -ModuleName Datum {
             ($result | Get-Member).TypeName | Select-Object -Unique | Should -Be $TargetType
         }
 
-        It 'Source and cloned objecct have the same property count' -TestCases $testCases {
+        It "Source '<DeepCopyObject>' and cloned object have the same property count" -TestCases $testCases {
             param ($DeepCopyObject, $SourceType, $TargetType)
 
             $result = Copy-Object -DeepCopyObject $DeepCopyObject
 
-            ($DeepCopyObject | Get-Member -MemberType Properties).Count | Should -Be ($result | Get-Member -MemberType Properties).Count
+            ($result | Get-Member -MemberType Properties).Count | Should -BeGreaterThan ($DeepCopyObject | Get-Member -MemberType Properties).Count
+        }
+
+        It "Destination object has the property '<Property>' with value '<PropertySourceValue>'" -TestCases $propertiesTestCases {
+            param ($DeepCopyObject, $TargetObject, $Property, $PropertySourceValue, $PropertyTargetValue)
+
+            $PropertySourceValue = $PropertySourceValue -as [string]
+            $PropertyTargetValue = $PropertyTargetValue -as [string]
+
+            $PropertySourceValue | Should -Be $PropertyTargetValue
         }
 
     }
