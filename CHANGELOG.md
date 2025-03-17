@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139).
 - Fixed `Merge-DatumArray` does not return an array when merged array contains a single hashtable.
+- Fixed and extended tests for `Copy-Object`.
 
 ### Changed
 
