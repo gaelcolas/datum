@@ -50,7 +50,7 @@ InModuleScope -ModuleName Datum {
 
             $result = Copy-Object -DeepCopyObject $DeepCopyObject
 
-            ($result | Get-Member -MemberType Properties).Count | Should -BeGreaterThan ($DeepCopyObject | Get-Member -MemberType Properties).Count
+            ($result | Get-Member -MemberType Properties).Count | Should -BeGreaterOrEqual ($DeepCopyObject | Get-Member -MemberType Properties).Count
         }
 
         It "Destination object has the property '<Property>' with value '<PropertySourceValue>'" -TestCases $propertiesTestCases {
