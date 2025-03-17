@@ -11,6 +11,9 @@ trigger:
     exclude:
       - '*-*'
 
+variables:
+  Agent.Source.Git.ShallowFetchDepth: 0
+
 stages:
   - stage: Build
     jobs:
