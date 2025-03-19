@@ -38,21 +38,21 @@ function Global:Resolve-NodeProperty
     # Null result should return an exception, unless defined as Default value
     $nullAllowed = $false
 
-    $ResolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
+    $resolveDatumParams = ([hashtable]$PSBoundParameters).Clone()
     foreach ($removeKey in $PSBoundParameters.Keys.Where{ $_ -in @('DefaultValue', 'Node') })
     {
-        $ResolveDatumParams.Remove($removeKey)
+        $resolveDatumParams.Remove($removeKey)
     }
 
     # Translate the DSC specific Node into the 'Node' variable and Node name used by Resolve-Datum
     if ($Node)
     {
-        $ResolveDatumParams.Add('Variable', $Node)
-        $ResolveDatumParams.Add('VariableName', 'Node')
+        $resolveDatumParams.Add('Variable', $Node)
+        $resolveDatumParams.Add('VariableName', 'Node')
     }
 
     # Starting DSC Behaviour: Resolve-Datum || $DefaultValue || $null if specified as default || throw
-    if (($result = Resolve-Datum @ResolveDatumParams) -ne $null)
+    if (($result = Resolve-Datum @resolveDatumParams) -ne $null)
     {
         Write-Verbose "`tResult found for $PropertyPath"
     }

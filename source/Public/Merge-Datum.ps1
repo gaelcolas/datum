@@ -137,7 +137,7 @@ function Merge-Datum
                     #--> $ref + $diff -$kop
                     if ($knockoutPrefixMatcher = $strategy.merge_options.knockout_prefix)
                     {
-                        $knockoutPrefixMatcher = $knockoutPrefixMatcher.insert(0, '^')
+                        $knockoutPrefixMatcher = $knockoutPrefixMatcher.Insert(0, '^')
                         $knockedOutItems = foreach ($item in ($ReferenceDatum.Where{ $_ -match $knockoutPrefixMatcher }))
                         {
                             $item -replace $knockoutPrefixMatcher

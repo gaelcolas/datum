@@ -46,7 +46,7 @@ function Merge-Hashtable
     }
     else
     {
-        $knockoutPrefixMatcher = [regex]::Escape('--').insert(0, '^')
+        $knockoutPrefixMatcher = [regex]::Escape('--').Insert(0, '^')
     }
     Write-Debug -Message "`t  Knockout Prefix Matcher: $knockoutPrefixMatcher"
 
