@@ -81,12 +81,35 @@ function Clear-DatumKnockout
 
             if ($knockoutPrefixMatcher = $strategy.merge_options.knockout_prefix)
             {
-                $knockoutPrefixMatcher = $knockoutPrefixMatcher.insert(0, '^')
-                return (, ($ReferenceDatum.Where{ $_ -notmatch $knockoutPrefixMatcher }))
+                $knockoutBaseTypeValueIndexes = @()
+                $knockoutPrefixMatcher = $knockoutPrefixMatcher.Insert(0, '^')
+
+                $i = 0
+                foreach ($item in $ReferenceDatum)
+                {
+                    if ($item -match $knockoutPrefixMatcher)
+                    {
+                        $knockoutBaseTypeValueIndexes += $i
+                        $j = $i
+                        do
+                        {
+                            $j = ([System.Collections.ArrayList]$ReferenceDatum).IndexOf(($item -replace $knockoutPrefixMatcher, ''), $j + 1)
+                            if ($j -ne -1)
+                            {
+                                $knockoutBaseTypeValueIndexes += $j
+                            }
+                        } until ($j -eq -1)
+                    }
+                    $i++
+                }
+
+                $itemIndexes = (0..($ReferenceDatum.Count - 1)).Where{ $_ -notin $knockoutBaseTypeValueIndexes }
+
+                return (, ($ReferenceDatum[$itemIndexes]))
             }
             else
             {
-                return $ReferenceDatum
+                return , $ReferenceDatum
             }
         }
 
@@ -101,17 +124,26 @@ function Clear-DatumKnockout
             {
                 if ($tupleKeyNames = [string[]]$Strategy.merge_options.tuple_keys)
                 {
+                    $tupleKeyNames += $tupleKeyNames.ForEach{ $strategy.merge_options.knockout_prefix + $_ }
                     $knockoutItems = foreach ($refItem in $ReferenceDatum)
                     {
                         $refItemTupleKeys = $refItem.Keys.Where{ $_ -in $tupleKeyNames }
                         if ($refItemTupleKeys -match $knockoutPrefixMatcher)
                         {
                             $refItem
+                            $filterScript = @()
+                            foreach ($refItemTupleKey in $refItemTupleKeys)
+                            {
+                                $refItemTupleKeyWithoutKnockoutPrefix = $refItemTupleKey -replace $knockoutPrefixMatcher, ''
+                                $filterScript += "`$_.$refItemTupleKeyWithoutKnockoutPrefix -eq '$($refItem."$refItemTupleKey")'"
+                            }
+                            $filterScript = [scriptblock]::Create($filterScript -join ' -and ')
+                            $ReferenceDatum.Where{ &$filterScript }
                         }
                     }
                     foreach ($knockoutItem in $knockoutItems)
                     {
-                        $ReferenceDatum.Remove($knockoutItem)
+                        $ReferenceDatum = $ReferenceDatum -ne $knockoutItem
                     }
                 }
             }
