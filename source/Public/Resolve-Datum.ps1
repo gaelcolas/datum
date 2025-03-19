@@ -229,10 +229,10 @@ function Resolve-Datum
                     Strategies      = $Options
                 }
                 $mergeResult = Merge-Datum @params
-
-                $item = [System.Collections.DictionaryEntry]::new($PropertyPath, $mergeResult)
-                $allMergeResults.Push($item)
             }
+
+            $item = [System.Collections.DictionaryEntry]::new($PropertyPath, $mergeResult)
+            $allMergeResults.Push($item)
         }
 
         #if we've reached the Maximum Depth allowed, stop further execution
