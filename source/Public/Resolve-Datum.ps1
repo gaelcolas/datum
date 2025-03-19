@@ -174,6 +174,9 @@ function Resolve-Datum
     #Invoke datum handlers
     $PathPrefixes = $PathPrefixes | ConvertTo-Datum -DatumHandlers $datum.__Definition.DatumHandlers
 
+    $allMergeResults = [System.Collections.Stack]::new()
+    $Script:previousMergeResult = $null
+
     # Walk every search path in listed order, and return datum when found at end of path
     :pathPrefixLoop foreach ($searchPrefix in $PathPrefixes)
     {
@@ -219,13 +222,16 @@ function Resolve-Datum
             }
             else
             {
-                $mergeParams = @{
+                $params = @{
                     StartingPath    = $PropertyPath
                     ReferenceDatum  = $mergeResult
                     DifferenceDatum = $datumFound
                     Strategies      = $Options
                 }
-                $mergeResult = Merge-Datum @mergeParams
+                $mergeResult = Merge-Datum @params
+
+                $item = [System.Collections.DictionaryEntry]::new($PropertyPath, $mergeResult)
+                $allMergeResults.Push($item)
             }
         }
 
@@ -239,9 +245,40 @@ function Resolve-Datum
 
     #Remove all knockout values before returning
     $cleanupParams = @{
-        StartingPath    = $PropertyPath
-        ReferenceDatum  = $mergeResult
-        Strategies      = $Options
+        StartingPath   = $PropertyPath
+        ReferenceDatum = $mergeResult
+        Strategies     = $Options
     }
-    return (, (Clear-DatumKnockout @cleanupParams))
+
+    foreach ($mergeResult in $allMergeResults)
+    {
+        if ($null -eq $script:previousMergeResult -and $allMergeResults.Count -gt 1)
+        {
+            $script:previousMergeResult = $mergeResult.Value
+            continue
+        }
+
+        if ($null -ne $script:previousMergeResult)
+        {
+            $params = @{
+                StartingPath    = $mergeResult.Name
+                ReferenceDatum  = $previousMergeResult
+                DifferenceDatum = $mergeResult.Value
+                Strategies      = $Options
+            }
+            $previousMergeResult = Merge-Datum @params
+        }
+        else
+        {
+            $params = @{
+                StartingPath   = $mergeResult.Name
+                ReferenceDatum = $mergeResult.Value
+                Strategies     = $Options
+            }
+        }
+        $params.Remove('DifferenceDatum')
+        $previousMergeResult = Clear-DatumKnockout @params
+    }
+
+    return (, $previousMergeResult)
 }
