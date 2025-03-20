@@ -13,7 +13,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
         $datum = New-DatumStructure -DefinitionFile $datumPath
 
         Write-Host -------------------------------------
-        $datum.__Definition | ConvertTo-Json -Depth 6 | Write-Host -ForegroundColor Green
+        Write-Host "The protected data key is '$($datum.__Definition.DatumHandlers.'Datum.ProtectedData::ProtectedDatum'.CommandOptions.PlainTextPassword)'"
         Write-Host -------------------------------------
 
         $allNodes = $datum.AllNodes.Dev.psobject.Properties | ForEach-Object {
