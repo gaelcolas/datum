@@ -64,14 +64,14 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
 
     Context 'Accessing credentials with the wrong key' {
 
-        It "The property 'SomeNonWorkingCredential' is null or empty" {
+        It "The property 'SomeNonWorkingCredential' is a string like '[ENC*]'" {
             $node = $configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
 
             $rsop = Get-DatumRsop -Datum $datum -AllNodes $node
             $nodeRsopPath = Join-Path -Path $rsopPath -ChildPath "$node.yml" -ErrorAction Stop
             $rsop | ConvertTo-Yaml | Out-File -FilePath $nodeRsopPath
 
-            $rsop.SomeNonWorkingCredential | Should -BeNullOrEmpty
+            $rsop.SomeNonWorkingCredential | Should -Belike '`[ENC=*'
         }
     }
 }
