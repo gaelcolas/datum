@@ -7,7 +7,7 @@ ResolutionPrecedence:
   - Baselines\$($Node.Baseline)
   - Baselines\DscLcm
 
-DatumHandlersThrowOnError: true
+DatumHandlersThrowOnError: false
 DatumHandlers:
   Datum.ProtectedData::ProtectedDatum:
     CommandOptions:
