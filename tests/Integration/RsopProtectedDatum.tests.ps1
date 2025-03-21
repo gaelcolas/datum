@@ -68,14 +68,14 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
 
     Context 'Accessing credentials with the wrong key' {
 
-        It "The property 'SomeWorkingCredential' is a 'PSCredential' object" {
+        It "The property 'SomeNonWorkingCredential' is a 'PSCredential' object" {
             $node = $configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
 
             $rsop = Get-DatumRsop -Datum $datum -AllNodes $node
             $nodeRsopPath = Join-Path -Path $rsopPath -ChildPath "$node.yml"
             $rsop | ConvertTo-Yaml | Out-File -FilePath $nodeRsopPath
 
-            $rsop.SomeNonWorkingCredential | Should -BeNullOrEmpty
+            $rsop.SomeNonWorkingCredential | Should -BeLike '`[ENC=*'
         }
     }
 }
