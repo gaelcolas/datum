@@ -112,13 +112,6 @@ function Invoke-DatumHandler
                             $actionParams."$paramName" = $var[0].Value
                         }
                     }
-                    if ($InputObject -like '`[ENC*')
-                    {
-                        Write-Host ------------------------------------
-                        $actionParams | Out-String | Write-Host
-                        $InputObject | Write-Host
-                        Write-Host ------------------------------------
-                    }
 
                     $internalResult = (&$actionCommand @actionParams)
                     if ($null -eq $internalResult)

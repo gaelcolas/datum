@@ -12,10 +12,6 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
         Write-Host "Loading datum from '$datumPath'"
         $datum = New-DatumStructure -DefinitionFile $datumPath
 
-        Write-Host -------------------------------------
-        Write-Host "The protected data key is '$($datum.__Definition.DatumHandlers.'Datum.ProtectedData::ProtectedDatum'.CommandOptions.PlainTextPassword)'"
-        Write-Host -------------------------------------
-
         $allNodes = $datum.AllNodes.Dev.psobject.Properties | ForEach-Object {
             $node = $Datum.AllNodes.Dev.($_.Name)
             (@{} + $Node)
@@ -75,7 +71,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
             $nodeRsopPath = Join-Path -Path $rsopPath -ChildPath "$node.yml"
             $rsop | ConvertTo-Yaml | Out-File -FilePath $nodeRsopPath
 
-            $rsop.SomeNonWorkingCredential | Should -BeLike '`[ENC=*'
+            $rsop.SomeNonWorkingCredential | Should -BeNullOrEmpty
         }
     }
 }
