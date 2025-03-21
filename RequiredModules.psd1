@@ -19,4 +19,8 @@
     Sampler                     = 'latest'
     'Sampler.GitHubTasks'       = 'latest'
 
+    ProtectedData               = 'latest'
+    'Datum.ProtectedData'       = 'latest'
+    'Datum.InvokeCommand'       = 'latest'
+
 }
