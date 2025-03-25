@@ -4,7 +4,7 @@ $here = $PSScriptRoot
 
 Remove-Module -Name datum
 
-Describe "RSOP tests based on 'DscWorkshopConfigData' test data" {
+Describe "RSOP tests based on 'MergeTestData' test data" {
     BeforeAll {
         Import-Module -Name datum
 

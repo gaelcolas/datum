@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added Pester tests for credential handling.
+
 ### Fixed
 
 - Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139).
