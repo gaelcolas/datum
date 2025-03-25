@@ -2,6 +2,7 @@ using module datum
 
 $here = $PSScriptRoot
 
+$global:ErrorActionPreference = 'Stop' #This is the default in Azure pipelines, but not in local tests
 Remove-Module -Name datum
 
 Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
