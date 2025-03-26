@@ -1,7 +1,9 @@
 DscTagging:
-  Environment: Prod
+  Environment: '[x={ $Node.Environment } =]'
+  Layers:
+    - '[x={ Get-DatumSourceFile -Path $File } =]'
 
-FilesAndFolders:
+FileSystemObjects:
   Items:
-    - DestinationPath: C:\Test\Prod-Environment
+    - DestinationPath: '[x= "C:\Test\$($File.BaseName)-Environment" =]'
       Type: Directory

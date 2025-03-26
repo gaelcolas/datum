@@ -7,9 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added Pester tests for credential handling.
+- Added knockout support for basetype arrays.
+- Added cleanup of knockout items.
+
+### Changed
+
+- Adjusted integration tests for knockout of basetype array items and hashtables keys.
+- Updated build scripts to current version of Sampler (0.118.3-preview0001).
+- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139)
+- Fixed PowerShell 7 compatibility of Copy-Object integration test.
+
+### Changed
+
+- Adjusted integration tests for knockout of basetype array items and hashtables keys
+
 ### Fixed
 
-- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139)
+- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139).
+- Fixed `Merge-DatumArray` does not return an array when merged array contains a single hashtable.
+- Fixed and extended tests for `Copy-Object`.
+- Fixed PowerShell 7 compatibility of Copy-Object integration test.
 
 ## [0.40.1] - 2023-04-03
 

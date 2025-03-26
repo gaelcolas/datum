@@ -12,15 +12,22 @@ FilesAndFolders:
       Type: Directory
 
 NetworkIpConfigurationMerged:
-  Prefix: 24
-  Gateway: 192.168.10.50
-  DnsServer: 192.168.10.10
-  InterfaceAlias: Ethernet
-  DisableNetbios: True
+  ConfigureIPv6: -1
+  Interfaces:
+    - InterfaceAlias: Ethernet
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True
+      Destination:
+        - 192.168.11.0/24
+        - 192.168.22.0/24
+        - 192.168.33.0/24
 
 NetworkIpConfigurationNonMerged:
-  Prefix: 24
-  Gateway: 192.168.10.50
-  DnsServer: 192.168.10.10
-  InterfaceAlias: Ethernet
-  DisableNetbios: True
+  Interfaces:
+    - InterfaceAlias: Ethernet
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True

@@ -76,9 +76,17 @@ function Invoke-DatumHandler
         }
 
         $filterModule, $filterName = $handler -split '::'
-        if (-not (Get-Module $filterModule))
+        if (-not (Get-Module -Name $filterModule))
         {
-            Import-Module $filterModule -Force -ErrorAction Stop
+            try
+            {
+                Import-Module $filterModule -Force -ErrorAction Stop
+            }
+            catch
+            {
+                Write-Warning "The datum handler '$handler' could not be invoked because the module '$filterModule' could not be loaded, the result is very likely incomplete. Error: $_"
+                Write-Error "The datum handler '$handler' could not be invoked because the module '$filterModule' could not be loaded. Error: $_" -Exception $_.Exception
+            }
         }
 
         $filterCommand = Get-Command -ErrorAction SilentlyContinue ('{0}\Test-{1}Filter' -f $filterModule, $filterName)
@@ -104,6 +112,7 @@ function Invoke-DatumHandler
                             $actionParams."$paramName" = $var[0].Value
                         }
                     }
+
                     $internalResult = (&$actionCommand @actionParams)
                     if ($null -eq $internalResult)
                     {

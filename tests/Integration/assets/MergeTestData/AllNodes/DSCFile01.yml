@@ -7,10 +7,14 @@ Location: Frankfurt
 SomeData: '[Command=Get-Random]'
 
 NetworkIpConfigurationMerged:
-  IpAddress: 192.168.10.100
+  Interfaces:
+    - InterfaceAlias: Ethernet
+      IpAddress: 192.168.10.100
 
 NetworkIpConfigurationNonMerged:
-  IpAddress: 192.168.10.100
+  Interfaces:
+    - InterfaceAlias: Ethernet
+      IpAddress: 192.168.10.100
 
 PSDscAllowPlainTextPassword: True
 PSDscAllowDomainUser: True
