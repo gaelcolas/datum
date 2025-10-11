@@ -44,17 +44,17 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
             }
             @{
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Destination'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Destination'
                 Value        = '192.168.11.0/24', '192.168.22.0/24', '192.168.33.0/24', '192.168.10.0/24', '192.168.20.0/24', '192.168.30.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
             }
             @{
                 Node         = 'DSCWeb01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Destination'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Destination'
                 Value        = '192.168.12.0/24', '192.168.23.0/24', '192.168.34.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
             }
             @{
                 Node         = 'DSCWeb02'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Destination'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Destination'
                 Value        = '192.168.12.0/24', '192.168.23.0/24', '192.168.34.0/24', '192.168.10.0/24', '192.168.20.0/24', '192.168.30.0/24', '192.168.40.0/24', '192.168.50.0/24', '192.168.60.0/24'
             }
             @{
@@ -93,35 +93,74 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
     Context 'Hashtable array merge behavior' {
 
         $testCases = @(
+            #DSCFile01
             @{
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.IpAddress'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
                 Value        = '192.168.10.100'
             }
             @{
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 Value        = '192.168.10.50'
             }
+
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.IpAddress'
+                Value        = '192.168.20.100'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.Gateway'
+                Value        = '192.168.20.50'
+            }
+            @{
+                #Merging with dynamic values didn't occur as Datum.InvokeCommand is not loaded, hence 4 instead of 3 interfaces.
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
+                Value        = '4'
+            }
+
+            @{
+                #Access IP address defined on the node level, merging did not occur
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.IpAddress'
+                Value        = '192.168.30.100'
+            }
+            @{
+                # ScriptBlock will not be evaluated, 'Datum.InvokeCommand' not loaded. No merging occurred, IpAddress should be empty as taken from the baseline layer.
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "[x={ ""Ethernet 3"" }=]"}.IpAddress'
+                Value        = $null
+            }
+            @{
+                # ScriptBlock will not be evaluated, 'Datum.InvokeCommand' not loaded. Returning gateway defined on the baseline layer.
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "[x={ ""Ethernet 3"" }=]"}.Gateway'
+                Value        = '192.168.30.50'
+            }
+
+            #DSCWeb01
             @{
                 Node         = 'DSCWeb01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.IpAddress'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
                 Value        = '192.168.10.101'
             }
             @{
                 Node         = 'DSCWeb01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 Value        = $null
             }
             @{
                 Node         = 'DSCWeb02'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.IpAddress'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
                 Value        = '192.168.10.102'
             }
             @{
                 Node         = 'DSCWeb02'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
-                Value        = '192.168.20.50'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
+                Value        = '192.168.10.50'
             }
         )
 
