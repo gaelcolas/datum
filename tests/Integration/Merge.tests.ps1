@@ -222,20 +222,20 @@ Describe 'Merge ' {
             @{
                 Node          = 'DSCFile01'
                 PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
-                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 ExpectedValue = '192.168.10.50'
             }
             @{
                 Node          = 'DSCWeb01'
                 PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
-                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
+                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 ExpectedValue = $null
             }
             @{
                 Node          = 'DSCWeb02'
                 PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
-                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet"}.Gateway'
-                ExpectedValue = '192.168.20.50'
+                Value         = 'Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
+                ExpectedValue = '192.168.10.50'
             }
         )
 

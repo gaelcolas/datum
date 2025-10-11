@@ -16,7 +16,7 @@ NetworkIpConfigurationMerged:
       IpAddress: 192.168.30.100
       DnsServer:
         - 192.168.30.20
-        #- --192.168.30.99
+        - --192.168.30.99
 
 NetworkIpConfigurationNonMerged:
   Interfaces:
