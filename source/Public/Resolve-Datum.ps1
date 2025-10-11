@@ -224,8 +224,8 @@ function Resolve-Datum
             {
                 $params = @{
                     StartingPath    = $PropertyPath
-                    ReferenceDatum  = $mergeResult
-                    DifferenceDatum = $datumFound
+                    ReferenceDatum  = ConvertTo-Datum -InputObject $mergeResult -DatumHandlers $Datum.__Definition.DatumHandlers
+                    DifferenceDatum = ConvertTo-Datum -InputObject $datumFound -DatumHandlers $Datum.__Definition.DatumHandlers
                     Strategies      = $Options
                 }
                 $mergeResult = Merge-Datum @params
