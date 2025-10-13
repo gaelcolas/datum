@@ -1,0 +1,42 @@
+ResolutionPrecedence:
+  - AllNodes\$($Node.NodeName)
+  - Roles\$($Node.Role)
+  - Baselines\ServerBaseline
+
+DatumHandlersThrowOnError: true
+DatumHandlers:
+  Datum.InvokeCommand::InvokeCommand:
+    SkipDuringLoad: true
+
+default_lookup_options: MostSpecific
+
+lookup_options:
+  Configurations:
+    merge_basetype_array: Unique
+
+  WindowsFeatures:
+    merge_hash: deep
+
+  WindowsFeatures\Name:
+    merge_basetype_array: Unique
+    merge_options:
+      knockout_prefix: --
+
+  NetworkIpConfigurationMerged:
+    merge_hash: deep
+    merge_options:
+      knockout_prefix: --
+  NetworkIpConfigurationMerged\Interfaces:
+    merge_hash_array: DeepTuple
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - InterfaceAlias
+  NetworkIpConfigurationMerged\Interfaces\Destination:
+    merge_basetype_array: Unique
+    merge_options:
+      knockout_prefix: --
+  NetworkIpConfigurationMerged\Interfaces\DnsServer:
+    merge_basetype_array: Unique
+    merge_options:
+      knockout_prefix: --
