@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Adjusted integration tests for knockout of basetype array items and hashtables keys
+- Added more tests to cover hash table merging with datum handlers ([#155](https://github.com/gaelcolas/datum/issues/155)).
 
 ### Fixed
 
