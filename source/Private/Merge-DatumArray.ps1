@@ -85,9 +85,33 @@ function Merge-DatumArray
                         Write-Debug -Message "`t`t`t ..No PropertyName defined: Use ReferenceItem Keys"
                         $propertyNames = $referenceItem.Keys
                     }
+                    # make sure property values are converted before merge
+                    $result = $null
+                    foreach ($prop in $propertyNames)
+                    {
+                        if ($referenceItem.Contains($prop))
+                        {
+                            if (Invoke-DatumHandler -InputObject $referenceItem.$prop -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+                            {
+                                $referenceItem.$prop = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+                            }
+                        }
+                    }
                     $mergedItem = @{} + $referenceItem
                     $diffItemsToMerge = $DifferenceArray.Where{
                         $differenceItem = [ordered]@{} + $_
+                        # make sure property values are converted before merge
+                        $result = $null
+                        foreach ($prop in $propertyNames)
+                        {
+                            if ($differenceItem.Contains($prop))
+                            {
+                                if (Invoke-DatumHandler -InputObject $differenceItem.$prop -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+                                {
+                                    $differenceItem.$prop = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+                                }
+                            }
+                        }
                         # Search for DiffItem that has the same Property/Value pairs than RefItem
                         $compareHashParams = @{
                             ReferenceHashtable  = [ordered]@{} + $referenceItem
@@ -150,6 +174,18 @@ function Merge-DatumArray
                 $mergedArray = [System.Collections.ArrayList]::new()
                 $ReferenceArray | ForEach-Object {
                     $currentRefItem = $_
+                    # make sure property values are converted before merge
+                    $result = $null
+                    foreach ($prop in $propertyNames)
+                    {
+                        if ($currentRefItem.Contains($prop))
+                        {
+                            if (Invoke-DatumHandler -InputObject $currentRefItem.$prop -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+                            {
+                                $currentRefItem.$prop = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+                            }
+                        }
+                    }
                     if (-not ($mergedArray.Where{ -not (Compare-Hashtable -Property $propertyNames -ReferenceHashtable $currentRefItem -DifferenceHashtable $_ ) }))
                     {
                         $null = $mergedArray.Add(([ordered]@{} + $_))
@@ -158,6 +194,18 @@ function Merge-DatumArray
 
                 $DifferenceArray | ForEach-Object {
                     $currentDiffItem = $_
+                    # make sure property values are converted before merge
+                    $result = $null
+                    foreach ($prop in $propertyNames)
+                    {
+                        if ($currentDiffItem.Contains($prop))
+                        {
+                            if (Invoke-DatumHandler -InputObject $currentDiffItem.$prop -DatumHandlers $Datum.__Definition.DatumHandlers -Result ([ref]$result))
+                            {
+                                $currentDiffItem.$prop = ConvertTo-Datum -InputObject $result -DatumHandlers $Datum.__Definition.DatumHandlers
+                            }
+                        }
+                    }
                     if (-not ($mergedArray.Where{ -not (Compare-Hashtable -Property $propertyNames -ReferenceHashtable $currentDiffItem -DifferenceHashtable $_ ) }))
                     {
                         $null = $mergedArray.Add(([ordered]@{} + $_))
