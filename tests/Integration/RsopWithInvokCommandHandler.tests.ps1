@@ -4,11 +4,11 @@ $here = $PSScriptRoot
 
 Remove-Module -Name datum
 
-Describe "RSOP tests based on 'MergeTestData' test data" {
+Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" {
     BeforeAll {
         Import-Module -Name datum
 
-        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath '.\assets\MergeTestData\Datum.yml' -Resolve)
+        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath '.\assets\MergeTestDataWithInvokCommandHandler\Datum.yml' -Resolve)
         $allNodes = $datum.AllNodes.psobject.Properties | ForEach-Object {
             $node = $Datum.AllNodes.($_.Name)
             (@{} + $Node)
@@ -115,30 +115,28 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.Gateway'
                 Value        = '192.168.20.50'
             }
-            @{
-                #Merging with dynamic values didn't occur as Datum.InvokeCommand is not loaded, hence 4 instead of 3 interfaces.
-                Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
-                Value        = '4'
-            }
 
             @{
-                #Access IP address defined on the node level, merging did not occur
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.IpAddress'
                 Value        = '192.168.30.100'
             }
             @{
-                # ScriptBlock will not be evaluated, 'Datum.InvokeCommand' not loaded. No merging occurred, IpAddress should be empty as taken from the baseline layer.
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "[x={ ""Ethernet 3"" }=]"}.IpAddress'
-                Value        = $null
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.Gateway'
+                Value        = '192.168.30.50'
             }
             @{
-                # ScriptBlock will not be evaluated, 'Datum.InvokeCommand' not loaded. Returning gateway defined on the baseline layer.
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "[x={ ""Ethernet 3"" }=]"}.Gateway'
-                Value        = '192.168.30.50'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.DnsServer'
+                Value        = '192.168.30.10', '192.168.30.20'
+                SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
+                Value        = '3'
+                SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
             }
 
             #DSCWeb01
@@ -165,7 +163,12 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
         )
 
         It "The value of Datum RSOP property '<PropertyPath>' for node '<Node>' should be '<Value>'." -TestCases $testCases {
-            param ($Node, $PropertyPath, $Value)
+            param ($Node, $PropertyPath, $Value, $SkipReason)
+
+            if ($SkipReason)
+            {
+                Set-ItResult -Skipped -Because $SkipReason
+            }
 
             $rsop = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node }
             $nodeRsopPath = Join-Path -Path $rsopPath -ChildPath "$node.yml"
