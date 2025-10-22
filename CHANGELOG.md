@@ -19,11 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated build scripts to current version of Sampler (0.118.3-preview0001).
 - Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139)
 - Fixed PowerShell 7 compatibility of Copy-Object integration test.
-
-### Changed
-
-- Adjusted integration tests for knockout of basetype array items and hashtables keys
 - Added more tests to cover hash table merging with datum handlers ([#155](https://github.com/gaelcolas/datum/issues/155)).
+- Updated build scripts to Sampler 0.119.0-preview0005.
 
 ### Fixed
 
