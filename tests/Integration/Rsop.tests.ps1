@@ -131,7 +131,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
-                Value        = '192.168.20.50'
+                Value        = '192.168.10.50'
             }
         )
 

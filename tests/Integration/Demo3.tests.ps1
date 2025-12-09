@@ -14,7 +14,7 @@ BeforeDiscovery {
             (@{} + $Node)
         })
 
-    $configurationData = @{
+    $global:configurationData = @{
         AllNodes = $AllNodes
         datum    = $datum
     }
