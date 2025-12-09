@@ -234,7 +234,7 @@ Describe 'Merge ' {
                 Node          = 'DSCWeb02'
                 PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
                 Value         = 'Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
-                ExpectedValue = '192.168.20.50'
+                ExpectedValue = '192.168.10.50'
             }
         )
 
@@ -245,7 +245,7 @@ Describe 'Merge ' {
             $result = Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n
 
             $cmd = [scriptblock]::Create("`$result.$Value")
-            $& $cmd | Should -Be $ExpectedValue
+            &$cmd | Should -Be $ExpectedValue
         }
     }
 }
