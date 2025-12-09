@@ -21,7 +21,7 @@ BeforeDiscovery {
             (@{} + $Node)
         })
 
-    $ConfigurationData = @{
+    $global:configurationData = @{
         AllNodes = $AllNodes
         Datum    = $Datum
     }
@@ -54,7 +54,7 @@ Describe 'Test Datum overrides' {
             (@{} + $Node)
         })
 
-        $script:ConfigurationData = @{
+        $global:configurationData = @{
             AllNodes = $AllNodes
             Datum    = $Datum
         }

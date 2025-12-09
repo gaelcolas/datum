@@ -17,7 +17,7 @@ BeforeDiscovery {
         (@{} + $Node)
     }
 
-    $script:configurationData = @{
+    $global:configurationData = @{
         AllNodes = $allNodes
         Datum    = $datum
     }
@@ -46,7 +46,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
             (@{} + $Node)
         }
 
-        $script:configurationData = @{
+        $global:configurationData = @{
             AllNodes = $script:allNodes
             Datum    = $script:datum
         }
@@ -61,7 +61,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
     Context 'Accessing credentials with the correct key' {
 
         It "The property 'SomeWorkingCredential' is a 'PSCredential' object" {
-            $node = $script:configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
+            $node = $global:configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
 
             $rsop = Get-DatumRsop -Datum $script:datum -AllNodes $node
             $nodeRsopPath = Join-Path -Path $script:rsopPath -ChildPath "$node.yml"
@@ -71,7 +71,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
         }
 
         It "The username in 'SomeWorkingCredential' is 'contoso\install'" {
-            $node = $script:configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
+            $node = $global:configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
 
             $rsop = Get-DatumRsop -Datum $script:datum -AllNodes $node
             $nodeRsopPath = Join-Path -Path $script:rsopPath -ChildPath "$node.yml"
@@ -80,9 +80,9 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
             $rsop.SomeWorkingCredential.UserName | Should -Be 'contoso\install'
         }
 
-        foreach ($node in $script:configurationData.AllNodes) {
+        foreach ($node in $global:configurationData.AllNodes) {
             $script:rsop = Get-DatumRsop -Datum $script:datum -AllNodes $node
-            $nodeRsopPath = Join-Path -Path $script:rsopWithSourcePath -ChildPath "$node.yml"
+            $nodeRsopPath = Join-Path -Path $script:rsopWithSourcePath -ChildPath "$($node.NodeName).yml"
             $rsop | ConvertTo-Yaml | Out-File -FilePath $nodeRsopPath
 
             It "The domain join credentials for node '$($node.NodeName)' could be accessed" {
@@ -96,7 +96,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
     Context 'Accessing credentials with the wrong key' {
 
         It "The property 'SomeNonWorkingCredential' is a string like '[ENC*]'" {
-            $node = $script:configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
+            $node = $global:configurationData.AllNodes | Where-Object NodeName -EQ DSCFile01
 
             $rsop = Get-DatumRsop -Datum $script:datum -AllNodes $node
             $nodeRsopPath = Join-Path -Path $script:rsopPath -ChildPath "$node.yml" -ErrorAction Stop

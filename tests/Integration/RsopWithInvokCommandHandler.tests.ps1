@@ -113,7 +113,7 @@ Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" 
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.Gateway'
-                Value        = '192.168.20.50'
+                Value        = '192.168.10.50'
             }
 
             @{
