@@ -1,14 +1,13 @@
 using module datum
 
-$here = $PSScriptRoot
-
 Remove-Module -Name datum
 
 Describe 'Merge ' {
     BeforeAll {
+        $here = $PSScriptRoot
         Import-Module -Name datum
 
-        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath '.\assets\MergeTestData\Datum.yml' -Resolve)
+        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath 'assets\MergeTestData\Datum.yml')
         $allNodes = $datum.AllNodes.psobject.Properties | ForEach-Object {
             $node = $Datum.AllNodes.($_.Name)
             (@{} + $Node)
@@ -128,7 +127,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The value of Datum <PropertyPath> for node <Node> should be '<Value>'." -TestCases $testCases {
+        It "The value of Datum <PropertyPath> for node <Node> should be '<Value>'." -ForEach $testCases {
             param ($Node, $PropertyPath, $Value)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
@@ -172,7 +171,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The hashtable key count of Datum <PropertyPath> for node <Node> should be '<Count>'." -TestCases $testCases {
+        It "The hashtable key count of Datum <PropertyPath> for node <Node> should be '<Count>'." -ForEach $testCases {
             param ($Node, $PropertyPath, $Count)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
@@ -235,18 +234,18 @@ Describe 'Merge ' {
                 Node          = 'DSCWeb02'
                 PropertyPath  = 'NetworkIpConfigurationMerged\Interfaces'
                 Value         = 'Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
-                ExpectedValue = '192.168.10.50'
+                ExpectedValue = '192.168.20.50'
             }
         )
 
-        It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -TestCases $testCases {
+        It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -ForEach $testCases {
             param ($Node, $PropertyPath, $Value, $ExpectedValue)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
             $result = Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n
 
             $cmd = [scriptblock]::Create("`$result.$Value")
-            & $cmd | Should -Be $ExpectedValue
+            $& $cmd | Should -Be $ExpectedValue
         }
     }
 }
