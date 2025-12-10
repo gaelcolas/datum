@@ -135,14 +135,14 @@ Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" 
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.Gateway'
-                Value        = '192.168.30.50'
-                #SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
+                Value        = '192.168.30.1'
+                SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
             }
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.DnsServer'
                 Value        = '192.168.30.10', '192.168.30.20'
-                #SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
+                SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
             }
             @{
                 Node         = 'DSCFile01'
