@@ -21,7 +21,7 @@ Describe 'Merge ' {
 
     Context 'Base-Type array merge behavior' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
@@ -78,7 +78,7 @@ Describe 'Merge ' {
             (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n) | Should -HaveCount $Count
         }
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
@@ -127,7 +127,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The value of Datum <PropertyPath> for node <Node> should be '<Value>'." -ForEach $testCases {
+        It "The value of Datum <PropertyPath> for node <Node> should be '<Value>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Value)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
@@ -137,7 +137,7 @@ Describe 'Merge ' {
 
     Context 'Hashtable merge behavior' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged'
@@ -171,7 +171,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The hashtable key count of Datum <PropertyPath> for node <Node> should be '<Count>'." -ForEach $testCases {
+        It "The hashtable key count of Datum <PropertyPath> for node <Node> should be '<Count>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Count)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
@@ -181,7 +181,7 @@ Describe 'Merge ' {
 
     Context 'Merge Behavior by testing value content' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node          = 'DSCFile01'
                 PropertyPath  = 'NetworkIpConfigurationMerged'
@@ -238,7 +238,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -ForEach $testCases {
+        It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Value, $ExpectedValue)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node

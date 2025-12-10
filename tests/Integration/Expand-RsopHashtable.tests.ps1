@@ -5,7 +5,7 @@ $projectPath = "$here\..\.." | Convert-Path
 Describe 'Expand-RsopHashtable' {
     BeforeDiscovery {
         # Simple metadata for discovery
-        $testCases = @(
+        $script:testCases = @(
             @{
                 IsArrayValue         = $false
                 AddSourceInformation = $false
@@ -54,7 +54,7 @@ Describe 'Expand-RsopHashtable' {
         }
     }
 
-    It "'Expand-RsopHashtable' returns IDictionary objects'." -ForEach $testCases {
+    It "'Expand-RsopHashtable' returns IDictionary objects'." -ForEach $script:testCases {
         param ($IsArrayValue, $AddSourceInformation, $Depth, $RelativeFilePath)
 
         $inputObject = $script:testData[$AddSourceInformation]
@@ -72,7 +72,7 @@ Describe 'Expand-RsopHashtable' {
         $result | Should -BeOfType [System.Collections.IDictionary]
     }
 
-    It "Items in result end with RelativeFilePath if 'AddSourceInformation' is set to '<AddSourceInformation>'." -ForEach $testCases {
+    It "Items in result end with RelativeFilePath if 'AddSourceInformation' is set to '<AddSourceInformation>'." -ForEach $script:testCases {
         param ($IsArrayValue, $AddSourceInformation, $Depth, $RelativeFilePath)
 
         $inputObject = $script:testData[$AddSourceInformation]
