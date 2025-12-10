@@ -19,7 +19,7 @@ BeforeDiscovery {
         datum    = $datum
     }
 
-    $testCases = @(
+    $script:testCases = @(
         @{Node = 'Node1'; PropertyPath = 'Disks'; Count = 1 }
         @{Node = 'Node2'; PropertyPath = 'Disks'; Count = 3 }
     )
@@ -42,7 +42,7 @@ Describe 'Test datum overrides' {
 
     Context 'Most specific Merge behavior' {
 
-        It "The count of datum <PropertyPath> for Node <Node> should be '<Count>'." -ForEach $testCases {
+        It "The count of datum <PropertyPath> for Node <Node> should be '<Count>'." -ForEach $script:testCases {
             Param($Node, $PropertyPath, $Count)
 
             $myNode = $script:AllNodes.Where( { $_.Name -eq $Node })

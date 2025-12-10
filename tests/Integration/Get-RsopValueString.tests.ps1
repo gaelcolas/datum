@@ -26,7 +26,7 @@ BeforeDiscovery {
 }
     Describe 'Get-RsopValueString' {
 
-        It "Result string for '<InputString>' should match the expectations'." -ForEach $testCases {
+        It "Result string for '<InputString>' should match the expectations'." -ForEach $script:testCases {
             param ($InputString, $Depth, $Key, $IsArrayValue, $AddSourceInformation, $RelativeFilePath)
 
             $resultString = Get-RsopValueString -InputString $InputString -Key $Key -Depth $Depth -IsArrayValue:$IsArrayValue -AddSourceInformation:$AddSourceInformation

@@ -36,7 +36,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
 
     Context 'Base-Type array merge behavior' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
@@ -84,7 +84,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
             }
         )
 
-        It "The value of Datum RSOP property '<PropertyPath>' for node '<Node>' should be '<Value>'." -ForEach $testCases {
+        It "The value of Datum RSOP property '<PropertyPath>' for node '<Node>' should be '<Value>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Value)
 
             $rsop = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node }
@@ -102,7 +102,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
 
     Context 'Hashtable array merge behavior' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
@@ -135,7 +135,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
             }
         )
 
-        It "The value of Datum RSOP property '<PropertyPath>' for node '<Node>' should be '<Value>'." -ForEach $testCases {
+        It "The value of Datum RSOP property '<PropertyPath>' for node '<Node>' should be '<Value>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Value)
 
             $rsop = Get-DatumRsop -Datum $datum -AllNodes $configurationData.AllNodes -Filter { $_.NodeName -eq $Node }

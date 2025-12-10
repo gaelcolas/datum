@@ -58,14 +58,14 @@ Describe 'Copy-Object' {
         }
     }
 
-    It "TargetType of '<SourceType>' result is '<TargetType>'" -ForEach $testCaseMetadata {
+    It "TargetType of '<SourceType>' result is '<TargetType>'" -ForEach $script:testCaseMetadata {
         param ($Path, $SourceType, $TargetType)
 
         $testData = $script:testResults[$Path]
         ($testData.Result | Get-Member).TypeName | Select-Object -Unique | Should -Be $TargetType
     }
 
-    It "Source and cloned '<SourceType>' have same or more properties" -ForEach $testCaseMetadata {
+    It "Source and cloned '<SourceType>' have same or more properties" -ForEach $script:testCaseMetadata {
         param ($Path, $SourceType, $TargetType)
 
         $testData = $script:testResults[$Path]
