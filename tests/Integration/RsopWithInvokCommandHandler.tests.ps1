@@ -6,40 +6,10 @@ Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" 
     BeforeAll {
         $here = $PSScriptRoot
         Import-Module -Name datum -Force
-
         # Import Datum.InvokeCommand - CRITICAL for InvokeCommand handler support
         # Without this module, [x={...}=] handlers in YAML won't resolve
-        $invokeCmdModulePath = $null
-        $possiblePaths = @(
-            (Join-Path -Path $here -ChildPath '..\..\output\RequiredModules\Datum.InvokeCommand\0.3.0\Datum.InvokeCommand.psd1'),
-            (Join-Path -Path $here -ChildPath '..\..\output\RequiredModules\Datum.InvokeCommand'),
-            'Datum.InvokeCommand'
-        )
+        Import-Module -name Datum.InvokeCommand -Force
 
-        foreach ($path in $possiblePaths) {
-            if (Test-Path $path -ErrorAction SilentlyContinue) {
-                $invokeCmdModulePath = $path
-                break
-            }
-        }
-
-        if ($invokeCmdModulePath)
-        {
-            try
-            {
-                Import-Module -Name $invokeCmdModulePath -Force -ErrorAction Stop
-                Write-Verbose "Successfully imported Datum.InvokeCommand from: $invokeCmdModulePath" -Verbose
-            }
-            catch
-            {
-                throw "Failed to import Datum.InvokeCommand from '$invokeCmdModulePath': $_"
-            }
-        }
-        else
-        {
-            throw "Cannot find Datum.InvokeCommand module. Searched paths: $($possiblePaths -join ', ')"
-        }        # $here is set at file scope and should be available here
-        # Path should be: tests\Integration\assets\MergeTestDataWithInvokCommandHandler\Datum.yml
         $datumPath = Join-Path -Path $here -ChildPath 'assets\MergeTestDataWithInvokCommandHandler\Datum.yml'
         if (-not (Test-Path $datumPath)) {
             throw "Cannot find Datum.yml at: $datumPath (here = $here)"
@@ -166,13 +136,13 @@ Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" 
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.Gateway'
                 Value        = '192.168.30.50'
-                SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
+                #SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
             }
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.DnsServer'
                 Value        = '192.168.30.10', '192.168.30.20'
-                SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
+                #SkipReason   = 'There is a bug in the merge logic that causes this to fail.'
             }
             @{
                 Node         = 'DSCFile01'
