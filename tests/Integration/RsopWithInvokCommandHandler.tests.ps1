@@ -10,7 +10,7 @@ Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" 
         # Without this module, [x={...}=] handlers in YAML won't resolve
         Import-Module -name Datum.InvokeCommand -Force
 
-        $datumPath = Join-Path -Path $here -ChildPath 'assets\MergeTestDataWithInvokCommandHandler\Datum.yml'
+        $datumPath = Join-Path -Path $here -ChildPath 'assets\MergeTestDataWithInvokCommandHandler\Datum.yml' -Resolve
         if (-not (Test-Path $datumPath)) {
             throw "Cannot find Datum.yml at: $datumPath (here = $here)"
         }
@@ -112,8 +112,8 @@ Describe "RSOP tests based on 'MergeTestDataWithInvokCommandHandler' test data" 
             }
             @{
                 Node         = 'DSCFile01'
-                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.Gateway'
-                Value        = '192.168.20.50'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
+                Value        = '192.168.10.50'
             }
 
             @{

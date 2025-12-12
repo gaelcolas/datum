@@ -14,12 +14,12 @@ BeforeDiscovery {
 
     $script:allNodes = $datum.AllNodes.Dev.psobject.Properties | ForEach-Object {
         $node = $datum.AllNodes.Dev.($_.Name)
-        (@{} + $Node)
+        (@{} + $node)
     }
 
     $global:configurationData = @{
-        AllNodes = $allNodes
-        Datum    = $datum
+        AllNodes = $script:allNodes
+        Datum    = $script:datum
     }
 
     # Set build output path with fallback for direct Pester runs

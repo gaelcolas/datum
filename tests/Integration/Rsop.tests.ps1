@@ -103,6 +103,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
     Context 'Hashtable array merge behavior' {
 
         $script:testCases = @(
+            # DSCFile01 - Ethernet 1
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
@@ -113,6 +114,40 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 Value        = '192.168.10.50'
             }
+            # DSCFile01 - Ethernet 2
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.IpAddress'
+                Value        = '192.168.20.100'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}.Gateway'
+                Value        = '192.168.20.50'
+            }
+            # DSCFile01 - Ethernet 3
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.IpAddress'
+                Value        = '192.168.30.100'
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.Gateway'
+                Value        = $null
+            }
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 3"}.DnsServer'
+                Value        = '192.168.30.20'
+            }
+            # DSCFile01 - Interface count
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
+                Value        = 4
+            }
+            # DSCWeb01 - Ethernet 1
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
@@ -123,6 +158,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 Value        = $null
             }
+            # DSCWeb02 - Ethernet 1
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.IpAddress'
