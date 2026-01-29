@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adjusted `Merge-DatumArray` to convert tuple key values to datum before merging
 - Added more tests to cover hash table merging with datum handlers ([#155](https://github.com/gaelcolas/datum/issues/155)).
 - Updated build scripts to Sampler 0.119.0-preview0005.
+- Migrated all integration tests to Pester 5 syntax.
 
 ### Fixed
 

@@ -14,6 +14,7 @@ NetworkIpConfigurationMerged:
       IpAddress: 192.168.20.100
     - InterfaceAlias: Ethernet 3
       IpAddress: 192.168.30.100
+      Gateway: 192.168.30.1
       DnsServer:
         - 192.168.30.20
         - --192.168.30.99

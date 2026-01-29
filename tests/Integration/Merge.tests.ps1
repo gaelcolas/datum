@@ -1,14 +1,13 @@
 using module datum
 
-$here = $PSScriptRoot
-
 Remove-Module -Name datum
 
 Describe 'Merge ' {
     BeforeAll {
+        $here = $PSScriptRoot
         Import-Module -Name datum
 
-        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath '.\assets\MergeTestData\Datum.yml' -Resolve)
+        $datum = New-DatumStructure -DefinitionFile (Join-Path -Path $here -ChildPath 'assets\MergeTestData\Datum.yml')
         $allNodes = $datum.AllNodes.psobject.Properties | ForEach-Object {
             $node = $Datum.AllNodes.($_.Name)
             (@{} + $Node)
@@ -22,7 +21,7 @@ Describe 'Merge ' {
 
     Context 'Base-Type array merge behavior' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged\Interfaces\Destination'
@@ -79,7 +78,7 @@ Describe 'Merge ' {
             (Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n) | Should -HaveCount $Count
         }
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
@@ -128,7 +127,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The value of Datum <PropertyPath> for node <Node> should be '<Value>'." -TestCases $testCases {
+        It "The value of Datum <PropertyPath> for node <Node> should be '<Value>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Value)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
@@ -138,7 +137,7 @@ Describe 'Merge ' {
 
     Context 'Hashtable merge behavior' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'NetworkIpConfigurationMerged'
@@ -172,7 +171,7 @@ Describe 'Merge ' {
             }
         )
 
-        It "The hashtable key count of Datum <PropertyPath> for node <Node> should be '<Count>'." -TestCases $testCases {
+        It "The hashtable key count of Datum <PropertyPath> for node <Node> should be '<Count>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Count)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
@@ -182,7 +181,7 @@ Describe 'Merge ' {
 
     Context 'Merge Behavior by testing value content' {
 
-        $testCases = @(
+        $script:testCases = @(
             @{
                 Node          = 'DSCFile01'
                 PropertyPath  = 'NetworkIpConfigurationMerged'
@@ -239,14 +238,14 @@ Describe 'Merge ' {
             }
         )
 
-        It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -TestCases $testCases {
+        It "The value of Datum <PropertyPath> for node <Node> should be '<ExpectedValue>'." -ForEach $script:testCases {
             param ($Node, $PropertyPath, $Value, $ExpectedValue)
 
             $n = $AllNodes | Where-Object NodeName -EQ $Node
             $result = Resolve-NodeProperty -PropertyPath $PropertyPath -Node $n
 
             $cmd = [scriptblock]::Create("`$result.$Value")
-            & $cmd | Should -Be $ExpectedValue
+            &$cmd | Should -Be $ExpectedValue
         }
     }
 }
