@@ -5,6 +5,7 @@ trigger:
   paths:
     exclude:
     - CHANGELOG.md
+    - README.md
   tags:
     include:
     - "v*"

@@ -54,8 +54,7 @@ The idea follows the model developed by the Puppet, Chef and Ansible communities
 - [Chef Databags, Roles and attributes](https://docs.chef.io/policy.html) (thanks Steve for taking the time to explain!)
 - [Ansible Playbook](http://docs.ansible.com/ansible/latest/playbooks_intro.html) and [Roles](http://docs.ansible.com/ansible/latest/playbooks_reuse_roles.html) (Thanks Trond H. for the introduction!)
 
-Although not in v1 yet, Datum is currently used in Production to manage several hundreds of machines, and is actively maintained.
-A stable v1 release is expected for March 2018, while some concepts are thought through, and prototype code refactored.
+ADatum is currently used in Production to manage several hundreds of machines, and is actively maintained.
 
 ## 2. Getting Started & Concepts
 
