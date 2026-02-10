@@ -1,10 +1,13 @@
 # Datum
+https://synedgy.visualstudio.com/Datum/_build/results?buildId=2503
 
-[![Build Status](https://dev.azure.com/SynEdgy/Datum/_apis/build/status/SynEdgy.Datum?branchName=master)](https://dev.azure.com/SynEdgy/Datum/_build/latest?definitionId=5&branchName=master)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/SynEdgy/Datum/5/master)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/datum/5/master)](https://SynEdgy.visualstudio.com/datum/_test/analytics?definitionId=5&contextType=build)
-[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/datum?label=datum%20Preview)](https://www.powershellgallery.com/packages/datum/)
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/datum?label=datum)](https://www.powershellgallery.com/packages/datum/)
+[![Build Status](https://synedgy.visualstudio.com/Datum/_apis/build/status/gaelcolas.Datum?branchName=main)](https://synedgy.visualstudio.com/Datum/_build?definitionId=5&branchName=main)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/SynEdgy/Datum/5/main)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/Datum/5/main)](https://SynEdgy.visualstudio.com/Datum/_test/analytics?definitionId=5&contextType=build)
+
+![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/datum?include_prereleases&label=Datum%20preview)  
+![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/datum?label=Datum%20stable)
+
 
 > `A datum is a piece of information.`
 
