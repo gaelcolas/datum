@@ -1,5 +1,4 @@
 # Datum
-https://synedgy.visualstudio.com/Datum/_build/results?buildId=2503
 
 [![Build Status](https://synedgy.visualstudio.com/Datum/_apis/build/status/gaelcolas.Datum?branchName=main)](https://synedgy.visualstudio.com/Datum/_build?definitionId=5&branchName=main)
 ![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/SynEdgy/Datum/5/main)
@@ -13,12 +12,12 @@ https://synedgy.visualstudio.com/Datum/_build/results?buildId=2503
 
 **Datum** is a PowerShell module used to aggregate **DSC configuration data** from multiple sources allowing you to define generic information (Roles) and specific overrides (i.e. per Node, Location, Environment) without repeating yourself.
 
-To see it in action, I recommend looking at the full day workshop (reduced to 3.5 hours) by Raimund Andree and Jan-Hendrick Peters.
-The [video recording here](https://livestream.com/gaelcolas/events/8824779/videos/196854817), and the [DSC Workshop repository there](https://github.com/dsccommunity/DscWorkshop/).
+To see it in action, I recommend looking at [PSConfEU](https://psconf.eu) session by Raimund Andree.
+The [video recording here](https://www.youtube.com/watch?v=SyYuxmiEgZ4&pp=ygULRHNjV29ya3Nob3A%3D), and the [DSC Workshop repository there](https://github.com/dsccommunity/DscWorkshop/).
+
+[![Watch the video](https://img.youtube.com/vi/SyYuxmiEgZ4/maxresdefault.jpg)](https://youtu.be/SyYuxmiEgZ4)
 
 Datum is working with PowerShell 7.
-
-A new version is in the works, encouragement welcomed. :)
 
 ## Table of Content
 
@@ -770,7 +769,7 @@ If you omit the first key (`SoftwareBaseline`), and the Lookup is only doing a l
 However, if you do a lookup directly to the subkey, `Lookup 'SofwareBaseline\Packages'`, it'll now work (as it does not have to **'walk down'** the variable).
 
 #### Lookup Options
- 
+
 - Default
 - general
 - per lookup override
@@ -780,11 +779,9 @@ However, if you do a lookup directly to the subkey, `Lookup 'SofwareBaseline\Pac
 The data typically stored in Datum is usually defined by the Provider and underlying technology.
 For the Datum File Provider, and Yaml format, that would be mostly Text/strings, Integer, and Boolean, composed in dictionary (ordered, hashtable, or PSCustomObject), or collections.
 
-More complex objects, such as credentials can be stored or referenced by use of Data handler.
+More complex objects, such as credentials can be stored or referenced by use of Datum Handlers, such as `Datum.ProtectedData` (you can encrypt and serialise credentials or secrets into the Yaml).
 
-_(To be Continued)_
-
-------
+-------
 
 ## 5. Origins
 
