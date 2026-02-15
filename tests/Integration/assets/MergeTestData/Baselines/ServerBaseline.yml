@@ -1,6 +1,10 @@
 Configurations:
   - WindowsFeatures
   - NetworkIpConfigurationMerged
+  - LocalUsers
+  - RegistryValues
+  - SecurityOptions
+  - SummaryConfig
 
 WindowsFeatures:
   Name:
@@ -39,3 +43,42 @@ NetworkIpConfigurationMerged:
 
 SecurityBase:
   Role: Baseline
+
+LocalUsers:
+  Users:
+    - UserName: LocalAdmin
+      Ensure: Present
+      Disabled: false
+      PasswordChangeRequired: false
+      PasswordNeverExpires: false
+  DependsOn:
+    - '[SecurityOption]secPolOpt_Accounts_Rename_administrator_account::[SecurityOptions]SecurityOptions'
+
+RegistryValues:
+  Values:
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+      ValueName: Start
+      ValueData: 4
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+      ValueName: UserServiceFlags
+      ValueData: 0
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+
+SecurityOptions:
+  Policies:
+  - Name: Accounts_Rename_administrator_account
+    Accounts_Rename_administrator_account: LocalAdmin
+
+SummaryConfig:
+  SumItems:
+    - ItemName: Item1
+      ItemNumber: 1
+      Decription: Item1 with number 1
+    - ItemName: Item1
+      ItemNumber: 2
+      Decription: Item1 with number 2

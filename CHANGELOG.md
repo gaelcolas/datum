@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Adjusted integration tests for knockout of hashtable array items.
+- Adjusted integration tests for hashtable array merge behauvior 'Sum'
+
 ## [0.41.0] - 2026-02-03
 
 ### Added

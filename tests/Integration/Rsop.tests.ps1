@@ -40,17 +40,17 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures', 'FilesAndFolders'
+                Value        = 'FilesAndFolders', 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures'
+                Value        = 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolders', 'WindowsFeatures'
+                Value        = 'FilesAndFolders', 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCFile01'
@@ -147,6 +147,78 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
                 Value        = 4
             }
+            # DSCFile01 - LocalUsers - LocalAdmin
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'LocalUsers.Users.Where{$_.UserName -eq "LocalAdmin"}.Ensure'
+                Value        = 'Present'
+            }
+            # DSCFile01 - LocalUsers - Admin1
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'LocalUsers.Users.Where{$_.UserName -eq "Admin1"}.Ensure'
+                Value        = $null
+            }
+            # DSCFile01 - LocalUsers count
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'LocalUsers.Users.Count'
+                Value        = 1
+            }
+            # DSCFile01 - LocalUsers UserName's
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'LocalUsers.Users.UserName'
+                Value        = 'LocalAdmin'
+            }
+            # DSCFile01 - RegistryValues - DevicesPickerUserSvc - Start
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'RegistryValues.Values.Where{$_.Key -eq "HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc" -and $_.ValueName -eq "Start"}.Ensure'
+                Value        = $null
+            }
+            # DSCFile01 - RegistryValues - DevicesPickerUserSvc - UserServiceFlags
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'RegistryValues.Values.Where{$_.Key -eq "HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc" -and $_.ValueName -eq "UserServiceFlags"}.Ensure'
+                Value        = 'Present'
+            }
+            # DSCFile01 - RegistryValues count
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'RegistryValues.Values.Count'
+                Value        = 3
+            }
+            # DSCFile01 - RegistryValues UserName's
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'RegistryValues.Values.Key'
+                Value        = 'HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc', 'HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService', 'HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService'
+            }
+            # DSCFile01 - RegistryValues UserName's
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'RegistryValues.Values.ValueName'
+                Value        = 'UserServiceFlags', 'Start', 'UserServiceFlags'
+            }
+            # DSCFile01 - Accounts_Rename_administrator_account
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'SecurityOptions.Policies.Where{$_.Name -eq "Accounts_Rename_administrator_account"}.Accounts_Rename_administrator_account'
+                Value        = 'LocalAdmin'
+            }
+            # DSCFile01 - SummaryConfig count
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'SummaryConfig.SumItems.Count'
+                Value        = 3
+            }
+            # DSCFile01 - SummaryConfig ItemNumbers
+            @{
+                Node         = 'DSCFile01'
+                PropertyPath = 'SummaryConfig.SumItems.ItemNumber'
+                Value        = 1, 2, 3
+            }
             # DSCWeb01 - Ethernet 1
             @{
                 Node         = 'DSCWeb01'
@@ -158,6 +230,90 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 Value        = $null
             }
+            # DSCWeb01 - Interface count
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
+                Value        = 2
+            }
+            # DSCWeb01 - Ethernet 2
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}'
+                Value        = $null
+            }
+            # DSCWeb01 - LocalUsers - LocalAdmin
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'LocalUsers.Users.Where{$_.UserName -eq "LocalAdmin"}.Ensure'
+                Value        = $null
+            }
+            # DSCWeb01 - LocalUsers - Admin1
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'LocalUsers.Users.Where{$_.UserName -eq "Admin1"}.Ensure'
+                Value        = $null
+            }
+            # DSCWeb01 - LocalUsers count
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'LocalUsers.Users.Count'
+                Value        = 0
+            }
+            # DSCWeb01 - LocalUsers UserName's
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'LocalUsers.Users.UserName'
+                Value        = $null
+            }
+            # DSCWeb01 - RegistryValues - DevicesPickerUserSvc - Start
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'RegistryValues.Values.Where{$_.Key -eq "HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc" -and $_.ValueName -eq "Start"}.Ensure'
+                Value        = $null
+            }
+            # DSCWeb01 - RegistryValues - DevicesPickerUserSvc - UserServiceFlags
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'RegistryValues.Values.Where{$_.Key -eq "HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc" -and $_.ValueName -eq "UserServiceFlags"}.Ensure'
+                Value        = $null
+            }
+            # DSCWeb01 - RegistryValues count
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'RegistryValues.Values.Count'
+                Value        = 2
+            }
+            # DSCWeb01 - RegistryValues UserName's
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'RegistryValues.Values.Key'
+                Value        = 'HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService', 'HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService'
+            }
+            # DSCWeb01 - RegistryValues UserName's
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'RegistryValues.Values.ValueName'
+                Value        = 'Start', 'UserServiceFlags'
+            }
+            # DSCWeb01 - Accounts_Rename_administrator_account
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'SecurityOptions.Policies.Where{$_.Name -eq "Accounts_Rename_administrator_account"}.Accounts_Rename_administrator_account'
+                Value        = $null
+            }
+            # DSCWeb01 - SummaryConfig count
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'SummaryConfig.SumItems.Count'
+                Value        = 3
+            }
+            # DSCWeb01 - SummaryConfig ItemNumbers
+            @{
+                Node         = 'DSCWeb01'
+                PropertyPath = 'SummaryConfig.SumItems.ItemNumber'
+                Value        = 1, 2, 4
+            }
             # DSCWeb02 - Ethernet 1
             @{
                 Node         = 'DSCWeb02'
@@ -168,6 +324,90 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
                 Node         = 'DSCWeb02'
                 PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 1"}.Gateway'
                 Value        = '192.168.10.50'
+            }
+            # DSCWeb02 - Interface count
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Count'
+                Value        = 2
+            }
+            # DSCWeb02 - Ethernet 2
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'NetworkIpConfigurationMerged.Interfaces.Where{$_.InterfaceAlias -eq "Ethernet 2"}'
+                Value        = $null
+            }
+            # DSCWeb02 - LocalUsers - LocalAdmin
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'LocalUsers.Users.Where{$_.UserName -eq "LocalAdmin"}.Ensure'
+                Value        = 'Absent'
+            }
+            # DSCWeb02 - LocalUsers - Admin1
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'LocalUsers.Users.Where{$_.UserName -eq "Admin1"}.Ensure'
+                Value        = 'Present'
+            }
+            # DSCWeb02 - LocalUsers count
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'LocalUsers.Users.Count'
+                Value        = 2
+            }
+            # DSCWeb02 - LocalUsers UserName's
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'LocalUsers.Users.UserName'
+                Value        = 'LocalAdmin', 'Admin1'
+            }
+            # DSCWeb02 - RegistryValues - DevicesPickerUserSvc - Start
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'RegistryValues.Values.Where{$_.Key -eq "HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc" -and $_.ValueName -eq "Start"}.Ensure'
+                Value        = 'Absent'
+            }
+            # DSCWeb02 - RegistryValues - DevicesPickerUserSvc - UserServiceFlags
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'RegistryValues.Values.Where{$_.Key -eq "HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc" -and $_.ValueName -eq "UserServiceFlags"}.Ensure'
+                Value        =  $null
+            }
+            # DSCWeb02 - RegistryValues count
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'RegistryValues.Values.Count'
+                Value        = 3
+            }
+            # DSCWeb02 - RegistryValues UserName's
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'RegistryValues.Values.Key'
+                Value        = 'HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc', 'HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService', 'HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService'
+            }
+            # DSCWeb02 - RegistryValues UserName's
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'RegistryValues.Values.ValueName'
+                Value        = 'Start', 'Start', 'UserServiceFlags'
+            }
+            # DSCWeb02 - Accounts_Rename_administrator_account
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'SecurityOptions.Policies.Where{$_.Name -eq "Accounts_Rename_administrator_account"}.Accounts_Rename_administrator_account'
+                Value        = 'Admin1'
+            }
+            # DSCWeb02 - SummaryConfig count
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'SummaryConfig.SumItems.Count'
+                Value        = 2
+            }
+            # DSCWeb02 - SummaryConfig ItemNumbers
+            @{
+                Node         = 'DSCWeb02'
+                PropertyPath = 'SummaryConfig.SumItems.ItemNumber'
+                Value        = 1, 2
             }
         )
 
