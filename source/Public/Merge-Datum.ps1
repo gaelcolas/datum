@@ -189,10 +189,7 @@ function Merge-Datum
                 '^Sum'
                 {
                     #--> $ref + $diff
-                    (@($DifferenceArray) + @($ReferenceArray)).Foreach{
-                        $null = $MergedArray.Add(([ordered]@{} + $_))
-                    }
-                    return (, $MergedArray)
+                    return (, (Merge-DatumArray @MergeDatumArrayParams))
                 }
 
                 Default
