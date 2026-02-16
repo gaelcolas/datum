@@ -12,6 +12,18 @@ WindowsFeatures:
 Configurations:
   - FilesAndFolders
 
+LocalUsers:
+  Users:
+    - UserName: Admin1
+      Ensure: Present
+      Disabled: false
+      PasswordChangeRequired: false
+      PasswordNeverExpires: false
+    - UserName: LocalAdmin
+      Ensure: Absent
+  DependsOn:
+    - '[SecurityOption]secPolOpt_Accounts_Rename_administrator_account::[SecurityOptions]SecurityOptions'
+
 NetworkIpConfigurationMerged:
   Interfaces:
     - InterfaceAlias: Ethernet 1
@@ -21,6 +33,19 @@ NetworkIpConfigurationNonMerged:
   Interfaces:
     - InterfaceAlias: Ethernet 1
       IpAddress: 192.168.10.102
+
+RegistryValues:
+  Values:
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+      ValueName: Start
+      Ensure: Absent
+      Force: true
+
+SecurityOptions:
+  Policies:
+  - Name: Accounts_Rename_administrator_account
+    Accounts_Rename_administrator_account: Admin1
+
 
 PSDscAllowPlainTextPassword: True
 PSDscAllowDomainUser: True
