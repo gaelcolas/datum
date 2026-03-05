@@ -16,11 +16,13 @@ function Invoke-TestHandlerAction
         $Datum
     )
 
+    $jsonDepth = if ($Datum.__Definition.default_json_depth) { $Datum.__Definition.default_json_depth } else { 4 }
+
     @"
 Action: $handler
 Node: $($Node|fl *|Out-String)
 Params:
-$($PSBoundParameters | ConvertTo-Json)
+$($PSBoundParameters | ConvertTo-Json -Depth $jsonDepth -WarningAction SilentlyContinue)
 "@
 
 }

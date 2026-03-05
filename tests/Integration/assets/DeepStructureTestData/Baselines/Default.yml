@@ -1,0 +1,17 @@
+Configurations:
+  - DeepConfig
+
+DeepConfig:
+  Level1:
+    Level2a:
+      Level3a:
+        Level4a:
+          Setting1: baseDefault1
+          Setting3: baseDefault3
+      Level3b:
+        Items:
+          - baseItem1
+          - baseItem2
+    Level2b:
+      Description: baseDescription
+      ExtraSetting: baseExtra

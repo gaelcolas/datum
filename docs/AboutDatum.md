@@ -128,6 +128,14 @@ If RSOP results seem stale, the cache may contain old data.
 Use Clear-DatumRsopCache or pass -IgnoreCache to
 Get-DatumRsop.
 
+If you see `WARNING: Resulting JSON is truncated as
+serialization has exceeded the set depth` during merge
+operations, your data hierarchy exceeds the default
+`ConvertTo-Json` depth. Set `default_json_depth` in
+`Datum.yml` to a higher value (default: `4`). See
+[Datum.yml — default_json_depth](DatumYml.md#default_json_depth)
+for details.
+
 # See Also
 - [Merging Strategies](Merging.md)
 - [Datum Handlers](DatumHandlers.md)

@@ -38,6 +38,7 @@
 - [ ] Code coverage improvements (threshold currently set to 0 in build.yaml)
 
 ## Known Issues
+- ~~**GitHub issue #136**~~: FIXED — `ConvertTo-Json` depth now configurable via `default_json_depth` in Datum.yml (default 4). All 5 calls updated. `Invoke-TestHandlerAction` also uses `-WarningAction SilentlyContinue` (serializes entire `$Datum` tree). 8 tests in `tests/Integration/DeepStructure.tests.ps1` (all passing). Zero truncation warnings in full test suite.
 - GitHub issue #139: Fixed (unreleased) — `ConvertTo-Datum` null return for `False`
 - GitHub issue #155: Fixed (unreleased) — Hashtable array merge with datum handlers
 - GitHub issue #87: Fixed in v0.40.1 — Encoding support
@@ -56,9 +57,9 @@
 
 ## Project Health
 - **CI**: Azure DevOps Pipelines (build + test)
-- **Last build**: 2026-02-22 — **Build succeeded** (16 tasks, 0 errors, 0 warnings, 33s)
-- **Test results**: **158 passed, 0 failed, 3 skipped** (skipped due to known merge logic bug)
-- **Build version**: 0.41.0-docs0001 (GitVersion from feature/docs branch)
+- **Last build**: 2026-02-25 — **Build succeeded** (all tasks passed, 0 errors, 0 warnings)
+- **Test results**: **All passed, 0 failed, 3 skipped** (skipped due to known merge logic bug)
+- **Build version**: 0.41.0 (pre-release from feature branch)
 - **Test coverage**: Code coverage threshold set to 0 (disabled) in build.yaml
 - **ProtectedData warnings**: Expected — test credential encrypted with different key, handler gracefully returns raw string
 - **Active maintenance**: Last commit activity on main branch (README updates)

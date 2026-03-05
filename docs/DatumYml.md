@@ -49,6 +49,8 @@ ResolutionPrecedence:
 
 default_lookup_options: MostSpecific
 
+default_json_depth: 8
+
 lookup_options:
   Configurations: Unique
   NetworkConfig: hash
@@ -202,6 +204,22 @@ default_lookup_options:
 | `deep` | `MergeRecursively` | Recursively merge all nested structures |
 
 See [Merging Strategies](Merging.md) for complete documentation.
+
+---
+
+### default_json_depth
+
+Controls the depth passed to `ConvertTo-Json` when serializing objects in debug and verbose output. Prevents truncation warnings when working with deep data structures.
+
+```yaml
+default_json_depth: 8
+```
+
+| Type | Required | Default |
+|------|----------|---------|
+| integer | No | `4` |
+
+Without this setting, deeply nested structures (more than 4 levels) may produce `"Resulting JSON is truncated as serialization has exceeded the set depth"` warnings during merge operations. Increase this value if your data hierarchy has very deep nesting.
 
 ---
 
