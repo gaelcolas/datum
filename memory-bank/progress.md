@@ -24,6 +24,12 @@
 - [x] Build system update to Sampler 0.119.0-preview0005
 - [x] Merge-DatumArray: tuple key values converted to datum before merging
 
+## PR #154 Improvements (2026-02-25)
+- [x] Moved CHANGELOG entry from "Added" to "Changed" with expanded description
+- [x] Created JSON/YAML equivalence integration tests (33 tests)
+- [x] Test coverage: type equivalence, nested structures, datum handler processing, hierarchy access, caching
+- [x] JSON-specific error context in `Get-FileProviderData` (try/catch with clear error for .json files)
+
 ## Documentation Improvements (2026-02-23)
 - [x] Fixed AllNodes iteration code samples for nested directory layouts (README.md, RSOP.md, AboutDatum.md)
 - [x] Fixed `-IncludeSource` output examples (was fake `__source` YAML keys, now shows actual right-aligned annotations)
