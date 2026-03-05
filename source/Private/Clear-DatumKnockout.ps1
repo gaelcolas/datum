@@ -122,23 +122,15 @@ function Clear-DatumKnockout
 
             if ($knockoutPrefixMatcher = $strategy.merge_options.knockout_prefix)
             {
-                if ($tupleKeyNames = [string[]]$Strategy.merge_options.tuple_keys)
+                $knockoutPrefixMatcher = "^$knockoutPrefixMatcher"
+
+                if ($tupleKeyNames = [string[]]$strategy.merge_options.tuple_keys)
                 {
-                    $tupleKeyNames += $tupleKeyNames.ForEach{ $strategy.merge_options.knockout_prefix + $_ }
                     $knockoutItems = foreach ($refItem in $ReferenceDatum)
                     {
-                        $refItemTupleKeys = $refItem.Keys.Where{ $_ -in $tupleKeyNames }
-                        if ($refItemTupleKeys -match $knockoutPrefixMatcher)
+                        if ($refItem.Keys.Where{ $_ -in $tupleKeyNames -and $refItem[$_] -match $knockoutPrefixMatcher })
                         {
                             $refItem
-                            $filterScript = @()
-                            foreach ($refItemTupleKey in $refItemTupleKeys)
-                            {
-                                $refItemTupleKeyWithoutKnockoutPrefix = $refItemTupleKey -replace $knockoutPrefixMatcher, ''
-                                $filterScript += "`$_.$refItemTupleKeyWithoutKnockoutPrefix -eq '$($refItem."$refItemTupleKey")'"
-                            }
-                            $filterScript = [scriptblock]::Create($filterScript -join ' -and ')
-                            $ReferenceDatum.Where{ &$filterScript }
                         }
                     }
                     foreach ($knockoutItem in $knockoutItems)

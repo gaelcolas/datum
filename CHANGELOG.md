@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Datum.InvokeCommand` expressions (`[x= ... =]`). Entries that
   evaluate to `$null` or empty strings are now silently skipped
   instead of causing lookup errors.
+- Added knockout support for hashtable array items.
 
 ### Changed
 
@@ -65,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `$rsop.SomeKey.__source` pattern.
 - Documented `-IncludeSource`/`-RemoveSource` mutual exclusivity in
   RSOP.md and CmdletReference.md.
+- Fixed merging of hashtable array items using merge behaviour 'Sum'.
 
 ## [0.41.0] - 2026-02-03
 
