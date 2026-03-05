@@ -117,12 +117,12 @@ function Clear-DatumKnockout
         {
             if ($strategy.merge_hash_array -match '^MostSpecific$|^First')
             {
-                return $ReferenceDatum
+                return , $ReferenceDatum
             }
 
             if ($knockoutPrefixMatcher = $strategy.merge_options.knockout_prefix)
             {
-                $knockoutPrefixMatcher = "^$knockoutPrefixMatcher"
+                $knockoutPrefixMatcher = [regex]::Escape($Strategy.merge_options.knockout_prefix).Insert(0, '^')
 
                 if ($tupleKeyNames = [string[]]$strategy.merge_options.tuple_keys)
                 {
@@ -140,19 +140,19 @@ function Clear-DatumKnockout
                 }
             }
 
-            $cleanedArray = [System.Collections.ArrayList]::new()
-
-            foreach ($currentItem in $ReferenceDatum)
-            {
-                $cleanupItemParams = @{
-                    StartingPath   = $StartingPath
-                    ReferenceDatum = $currentItem
-                    Strategies     = $Strategies
+            $cleanedArray = @(
+                foreach ($currentItem in $ReferenceDatum)
+                {
+                    $cleanupItemParams = @{
+                        StartingPath   = $StartingPath
+                        ReferenceDatum = $currentItem
+                        Strategies     = $Strategies
+                    }
+                    Clear-DatumKnockout @cleanupItemParams
                 }
-                $null = $cleanedArray.Add((Clear-DatumKnockout @cleanupItemParams))
-            }
+            )
 
-            return (, $cleanedArray)
+            return , $cleanedArray
         }
 
         default
