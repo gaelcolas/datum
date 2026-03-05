@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add configurable `default_json_depth` setting in `Datum.yml` to
+  control `ConvertTo-Json` serialization depth (default: `4`)
+  ([#136](https://github.com/gaelcolas/datum/issues/136)).
+- Add integration tests for deep structure merge and truncation
+  warning detection
+  ([#136](https://github.com/gaelcolas/datum/issues/136)).
 - Added complete documentation system under `docs/` with index and
   seven reference guides:
   - `AboutDatum.md` — module overview, core concepts, and examples.
@@ -37,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix `ConvertTo-Json` truncation warnings for deep data structures
+  in `Merge-Datum`, `Merge-Hashtable`, and
+  `Invoke-TestHandlerAction`
+  ([#136](https://github.com/gaelcolas/datum/issues/136)).
 - Fixed AllNodes iteration code samples that failed with nested
   directory layouts (e.g. `AllNodes/Dev/DSCFile01.yml`).
 - Fixed `-IncludeSource` output examples to show actual right-aligned

@@ -25,6 +25,7 @@ The project has **unreleased changes** (tracked in CHANGELOG.md under [Unrelease
 - **Build result**: 191 passed, 0 failed, 3 skipped (pre-existing)
 
 ## Next Steps
+- ~~**Fix Issue #136**~~: DONE — depth now configurable via `default_json_depth` in Datum.yml (default 4), 8 tests, zero truncation warnings. Build verified, all tests passing. Ready for PR.
 - Release the accumulated unreleased changes as a new version
 - Fix the merge logic bug causing 3 skipped tests (Ethernet 3 Gateway/DnsServer/InterfaceCount for DSCFile01 in InvokeCommand handler context)
 - Consider additional test coverage for knockout scenarios

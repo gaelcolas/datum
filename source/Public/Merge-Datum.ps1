@@ -26,7 +26,8 @@ function Merge-Datum
     Write-Debug -Message "Merge-Datum -StartingPath <$StartingPath>"
     $strategy = Get-MergeStrategyFromPath -Strategies $Strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json)"
+    $jsonDepth = if ($Datum.__Definition.default_json_depth) { $Datum.__Definition.default_json_depth } else { 4 }
+    Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json -Depth $jsonDepth)"
 
     $result = $null
     if ($ReferenceDatum -is [array])

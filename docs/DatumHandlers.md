@@ -90,12 +90,19 @@ function Invoke-TestHandlerAction {
         $Test,       # from CommandOptions
         $Datum       # from Datum context
     )
-    # Returns diagnostic information about what was received
+    # Resolve json depth from Datum.yml (default: 4)
+    $jsonDepth = if ($Datum.__Definition.default_json_depth) {
+        $Datum.__Definition.default_json_depth
+    } else { 4 }
+
+    # Returns diagnostic information about what was received.
+    # -WarningAction SilentlyContinue prevents truncation warnings
+    # because $PSBoundParameters includes the entire $Datum tree.
     @"
     Action: $handler
     Node: $($Node | Format-List * | Out-String)
     Params:
-    $($PSBoundParameters | ConvertTo-Json)
+    $($PSBoundParameters | ConvertTo-Json -Depth $jsonDepth -WarningAction SilentlyContinue)
 "@
 }
 ```
