@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   installation guide, merge strategy reference, handler documentation,
   and public function catalogue.
 - Remove `SkipReason` from RSOP test cases due to resolved merge logic bug.
+- Adjusted integration tests for knockout of hashtable array items.
+- Adjusted integration tests for hashtable array merge behauvior 'Sum'.
 - Add integration test for conditional `ResolutionPrecedence` entry
   using an InvokeCommand expression that returns a path for some nodes
   and nothing for others.

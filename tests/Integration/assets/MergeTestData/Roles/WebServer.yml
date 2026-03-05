@@ -1,5 +1,7 @@
 Configurations:
   - WindowsFeatures
+  - NetworkIpConfigurationMerged
+  - LocalUsers
 
 WindowsFeatures:
   Name:
@@ -18,6 +20,7 @@ NetworkIpConfigurationMerged:
         - 192.168.12.0/24
         - 192.168.23.0/24
         - 192.168.34.0/24
+    - InterfaceAlias: --Ethernet 2
 
 NetworkIpConfigurationNonMerged:
   ConfigureIPv6: -1
@@ -27,3 +30,29 @@ NetworkIpConfigurationNonMerged:
       Gateway: 192.168.10.50
       DnsServer: 192.168.10.10
       DisableNetbios: True
+
+LocalUsers:
+  Users:
+    - UserName: --LocalAdmin
+  DependsOn:
+    - '--[SecurityOption]secPolOpt_Accounts_Rename_administrator_account::[SecurityOptions]SecurityOptions'
+
+RegistryValues:
+  Values:
+    - Key: --HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService
+      ValueName: Start
+      ValueData: 4
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService
+      ValueName: UserServiceFlags
+      ValueData: 0
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+
+SecurityOptions:
+  Policies:
+    - Name: --Accounts_Rename_administrator_account
