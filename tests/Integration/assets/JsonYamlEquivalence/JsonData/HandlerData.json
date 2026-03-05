@@ -1,0 +1,11 @@
+{
+    "HandlerValue": "[TEST=SomeParam]",
+    "NestedWithHandler": {
+        "RegularKey": "RegularValue",
+        "HandlerKey": "[TEST=AnotherParam]"
+    },
+    "ArrayWithHandler": [
+        "NormalItem",
+        "[TEST=ThirdParam]"
+    ]
+}

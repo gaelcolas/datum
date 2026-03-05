@@ -39,17 +39,23 @@ function Get-FileProviderData
             {
                 Import-PowerShellDataFile -Path $file | ConvertTo-Datum -DatumHandlers $DatumHandlers
             }
-            '.json'
+            { $_ -in @('.json', '.yml', '.yaml') }
             {
-                ConvertFrom-Json -InputObject (Get-Content -Path $Path -Encoding $Encoding -Raw) | ConvertTo-Datum -DatumHandlers $DatumHandlers
-            }
-            '.yml'
-            {
-                ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
-            }
-            '.yaml'
-            {
-                ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                try
+                {
+                    ConvertFrom-Yaml -Yaml (Get-Content -Path $Path -Encoding $Encoding -Raw) -Ordered | ConvertTo-Datum -DatumHandlers $DatumHandlers
+                }
+                catch
+                {
+                    if ($file.Extension -eq '.json')
+                    {
+                        Write-Error -Message "Failed to parse JSON file '$Path'. Verify the file contains valid JSON. Original error: $($_.Exception.Message)" -ErrorAction Stop
+                    }
+                    else
+                    {
+                        throw
+                    }
+                }
             }
             Default
             {

@@ -1,7 +1,7 @@
 # Active Context
 
-## Current State (as of 2026-02-23)
-The project is on the `feature/docs` branch (tracking `main`). Recent work has focused on **documentation quality** — auditing and fixing code samples in all docs, and correcting the `-IncludeSource`/`-RemoveSource` documentation for `Get-DatumRsop`.
+## Current State (as of 2026-02-25)
+The project is on the `main` branch. Recent work has focused on **PR #154 improvements** — making the `ConvertFrom-Yaml` consolidation for JSON files more comprehensive with proper CHANGELOG categorization and integration tests for JSON/YAML equivalence.
 
 ## Current Work Focus
 The project has **unreleased changes** (tracked in CHANGELOG.md under [Unreleased]) that include:
@@ -18,14 +18,11 @@ The project has **unreleased changes** (tracked in CHANGELOG.md under [Unrelease
 9. **Build system update** — Updated to Sampler 0.119.0-preview0005
 10. **Merge-DatumArray improvement** — Convert tuple key values to datum before merging
 
-## Recent Changes (Last Commits)
-- `99debf7` — Updating readme video
-- `b437d86` — Pester v4 to v5 migration for all tests
-- `96c4aac` — Merge-DatumArray: Convert tuple key values to datum before merging
-- `8229245` — Added more tests for hash table merging with datum handlers
-- `bbf4589` — Updated build scripts to Sampler 0.119.0-preview0005
-- `baa5626` — Reworked knockout code to consider hierarchy
-- `cad76e3` — Added cleanup of knockout items
+## Recent Changes (Last Session)
+- Moved CHANGELOG entry for PR #154 from `Added` to `Changed` with expanded description and PR link
+- Created `tests/Integration/GetFileProviderData.tests.ps1` — 33 new tests for JSON/YAML equivalence
+- Created test data in `tests/Integration/assets/JsonYamlEquivalence/` (JSON + YAML pairs)
+- **Build result**: 191 passed, 0 failed, 3 skipped (pre-existing)
 
 ## Next Steps
 - ~~**Fix Issue #136**~~: DONE — depth now configurable via `default_json_depth` in Datum.yml (default 4), 8 tests, zero truncation warnings. Build verified, all tests passing. Ready for PR.

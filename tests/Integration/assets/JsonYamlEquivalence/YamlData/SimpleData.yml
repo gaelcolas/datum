@@ -1,0 +1,17 @@
+SimpleString: hello
+SimpleInt: 42
+SimpleBool: true
+NestedHash:
+  Key1: Value1
+  Key2: Value2
+  DeeplyNested:
+    Level3Key: Level3Value
+SimpleArray:
+  - Item1
+  - Item2
+  - Item3
+ArrayOfHashes:
+  - Name: First
+    Value: 1
+  - Name: Second
+    Value: 2
