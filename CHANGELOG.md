@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Remove `SkipReason` from RSOP test cases due to resolved merge logic bug.
+
+## [0.41.0] - 2026-02-03
+
 ### Added
 
 - Add configurable `default_json_depth` setting in `Datum.yml` to
