@@ -34,6 +34,8 @@ function Merge-Hashtable
 
     Write-Debug -Message "`tMerge-Hashtable -ParentPath <$ParentPath>"
 
+    $jsonDepth = if ($Datum.__Definition.default_json_depth) { $Datum.__Definition.default_json_depth } else { 4 }
+
     # Removing Case Sensitivity while keeping ordering
     $ReferenceHashtable = [ordered]@{} + $ReferenceHashtable
     $DifferenceHashtable = [ordered]@{} + $DifferenceHashtable
@@ -117,7 +119,7 @@ function Merge-Hashtable
                         }
                         else
                         {
-                            Write-Debug -Message "`t`t ..Merging using Override Strategy $($childStrategy | ConvertTo-Json)"
+                            Write-Debug -Message "`t`t ..Merging using Override Strategy $($childStrategy | ConvertTo-Json -Depth $jsonDepth)"
                             $MergeDatumParam = @{
                                 StartingPath    = $childPath
                                 ReferenceDatum  = $ReferenceHashtable[$currentKey]
@@ -126,7 +128,7 @@ function Merge-Hashtable
                             }
                             $subMerge = Merge-Datum @MergeDatumParam
                         }
-                        Write-Debug -Message "`t  # Submerge $($submerge|ConvertTo-Json)."
+                        Write-Debug -Message "`t  # Submerge $($submerge | ConvertTo-Json -Depth $jsonDepth)."
                         $clonedReference[$currentKey] = $subMerge
                     }
                 }
@@ -139,7 +141,7 @@ function Merge-Hashtable
                 # Default used for hash_array, baseType_array
                 default
                 {
-                    Write-Debug -Message "`t  .. Merging Datums at current path $childPath`r`n$($Strategy | ConvertTo-Json)"
+                    Write-Debug -Message "`t  .. Merging Datums at current path $childPath`r`n$($Strategy | ConvertTo-Json -Depth $jsonDepth)"
                     $MergeDatumParams = @{
                         StartingPath    = $childPath
                         Strategies      = $ChildStrategies
