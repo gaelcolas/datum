@@ -87,6 +87,9 @@ function Resolve-Datum
 
     #>
 
+    # Ensure PropertyPath uses system specific directory separator
+    $PropertyPath = $PropertyPath -replace '[\/\\]', [System.IO.Path]::DirectorySeparatorChar
+
     Write-Debug -Message "Resolve-Datum -PropertyPath <$PropertyPath> -Node $($Node.Name)"
     # Make options an ordered case insensitive variable
     if ($Options)
@@ -144,6 +147,18 @@ function Resolve-Datum
     if (-not $Options)
     {
         $Options = $lookup_options
+    }
+
+    # Ensure options' PropertyPathes use system specific directory separator
+    $clonedOptions = @{} + $Options
+    foreach ($key in $clonedOptions.Keys)
+    {
+        $keyConverted = $key -replace '[\/\\]', [System.IO.Path]::DirectorySeparatorChar
+        if ($key -ne $keyConverted)
+        {
+            $Options.Add($keyConverted, $Options.$key)
+            $Options.Remove($key)
+        }
     }
 
     # Add default strategy for ^.* if not present, at the end
