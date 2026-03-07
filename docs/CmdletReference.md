@@ -101,6 +101,11 @@ Resolve-Datum -PropertyPath 'Configurations' -Variable $Node -DatumTree $Datum
 | `PathPrefixes` | `[string[]]` | No | `$DatumTree.__Definition.ResolutionPrecedence` | Resolution paths. Alias: `SearchPaths` |
 | `MaxDepth` | `[int]` | No | From definition or `-1` | Maximum merge recursion depth |
 
+> **Note:** `PathPrefixes` are processed through configured datum
+> handlers before lookup begins. Entries that resolve to `$null` or
+> empty/whitespace strings (e.g. conditional `[x= ... =]` expressions)
+> are automatically removed from the search list.
+
 **Output:** `[System.Array]` — The resolved value(s).
 
 ---

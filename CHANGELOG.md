@@ -7,9 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support conditional `ResolutionPrecedence` entries using
+  `Datum.InvokeCommand` expressions (`[x= ... =]`). Entries that
+  evaluate to `$null` or empty strings are now silently skipped
+  instead of causing lookup errors.
+
 ### Changed
 
 - Remove `SkipReason` from RSOP test cases due to resolved merge logic bug.
+- Add integration test for conditional `ResolutionPrecedence` entry
+  using an InvokeCommand expression that returns a path for some nodes
+  and nothing for others.
 
 ## [0.41.0] - 2026-02-03
 
