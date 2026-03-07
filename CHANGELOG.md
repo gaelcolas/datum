@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add integration test for conditional `ResolutionPrecedence` entry
   using an InvokeCommand expression that returns a path for some nodes
   and nothing for others.
+- Updated build pipeline to also test against Linux and MacOS
 
 ### Fixed
 
