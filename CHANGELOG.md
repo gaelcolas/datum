@@ -64,7 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documented `-IncludeSource`/`-RemoveSource` mutual exclusivity in
   RSOP.md and CmdletReference.md.
 - Fixed merge issues when using PowerShell on Linux and `\` as 
-  directory\property under `ResolutionPrecedence` and `lookup_options
+  directory\property under `ResolutionPrecedence` and `lookup_options.
+- Fixed issues running integration tests with PowerShell on Linux.
 
 ## [0.41.0] - 2026-02-03
 
