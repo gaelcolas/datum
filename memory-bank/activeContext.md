@@ -1,28 +1,22 @@
 # Active Context
 
-## Current State (as of 2026-02-25)
-The project is on the `main` branch. Recent work has focused on **PR #154 improvements** — making the `ConvertFrom-Yaml` consolidation for JSON files more comprehensive with proper CHANGELOG categorization and integration tests for JSON/YAML equivalence.
+## Current State (as of 2026-03-07)
+The project is on the `feature/docs` branch. Recent work has focused on adding support for **conditional ResolutionPrecedence entries** using `Datum.InvokeCommand` expressions.
 
 ## Current Work Focus
 The project has **unreleased changes** (tracked in CHANGELOG.md under [Unreleased]) that include:
 
 ### Unreleased Features & Fixes
-1. **Knockout support for basetype arrays** — New feature allowing items to be removed from inherited arrays
-2. **Cleanup of knockout items** — Post-merge cleanup of knockout markers
-3. **Pester tests for credential handling** — New test coverage
-4. **ConvertTo-Datum fix** — Fixed returning `` when DatumHandler returns `False` (#139)
-5. **Merge-DatumArray fix** — Fixed not returning array when merged array contains single hashtable
-6. **Hashtable array merge fix** — Fixed items not merging when using datum handler for tuple keys (#155)
-7. **Copy-Object fixes** — Fixed and extended tests, PowerShell 7 compatibility
-8. **Pester 5 migration** — All integration tests migrated to Pester 5 syntax
-9. **Build system update** — Updated to Sampler 0.119.0-preview0005
-10. **Merge-DatumArray improvement** — Convert tuple key values to datum before merging
+1. **Conditional ResolutionPrecedence entries** — `Resolve-Datum` now filters out null/empty/whitespace path prefixes after datum handler invocation, enabling conditional `[x= ... =]` expressions in `ResolutionPrecedence` that can return nothing for certain nodes.
+2. **Integration test for conditional precedence** — Added InvokeCommand expression to test `Datum.yml` that conditionally includes a path only for non-file-server nodes.
+3. **SkipReason removal** — Removed `SkipReason` from RSOP test cases due to resolved merge logic bug.
 
 ## Recent Changes (Last Session)
-- Moved CHANGELOG entry for PR #154 from `Added` to `Changed` with expanded description and PR link
-- Created `tests/Integration/GetFileProviderData.tests.ps1` — 33 new tests for JSON/YAML equivalence
-- Created test data in `tests/Integration/assets/JsonYamlEquivalence/` (JSON + YAML pairs)
-- **Build result**: 191 passed, 0 failed, 3 skipped (pre-existing)
+- Added `Where-Object { -not [string]::IsNullOrWhiteSpace($_) }` filter in `Resolve-Datum.ps1` after `ConvertTo-Datum` handler processing of `$PathPrefixes`
+- Added conditional InvokeCommand expression to `tests/Integration/assets/DscWorkshopConfigData/Datum.yml`
+- Updated CHANGELOG.md with Added and Changed entries under [Unreleased]
+- Added "Conditional Entries with InvokeCommand" section to `docs/DatumYml.md`
+- Added PathPrefixes filtering note to `docs/CmdletReference.md`
 
 ## Next Steps
 - ~~**Fix Issue #136**~~: DONE — depth now configurable via `default_json_depth` in Datum.yml (default 4), 8 tests, zero truncation warnings. Build verified, all tests passing. Ready for PR.

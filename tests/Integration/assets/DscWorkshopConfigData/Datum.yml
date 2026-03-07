@@ -6,6 +6,17 @@ ResolutionPrecedence:
   - Baselines\Security
   - Baselines\$($Node.Baseline)
   - Baselines\DscLcm
+  - |
+    '[x= {
+      if ($node.Name -notlike "*file*")
+      {
+        'Somevalue'
+      }
+      else
+      {
+        #nothing
+      }
+    } =]'
 
 DatumHandlersThrowOnError: false
 DatumHandlers:

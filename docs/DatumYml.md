@@ -156,6 +156,40 @@ Any property of the node hashtable can be referenced.
 
 > **Tip:** `$Node.Name` is the file name of the node data file (set automatically by the FileProvider). `$Node.NodeName` is typically set inside the data file itself, often using `'[x={ $Node.Name }=]'` via InvokeCommand to derive it from the file name.
 
+#### Conditional Entries with InvokeCommand
+
+Resolution paths are processed through configured datum handlers
+**before** lookup begins.  This means you can use
+`Datum.InvokeCommand` expressions (`[x= ... =]`) to include a path
+only when a condition is met:
+
+```yaml
+ResolutionPrecedence:
+  - AllNodes\$($Node.Environment)\$($Node.NodeName)
+  - Environment\$($Node.Environment)
+  - Roles\$($Node.Role)
+  - Baselines\Security
+  - |
+    '[x= {
+      if ($Node.Name -notlike "*file*")
+      {
+        "Somevalue"
+      }
+      else
+      {
+        # returns $null — entry is skipped
+      }
+    } =]'
+```
+
+When the expression returns `$null` or an empty string, the entry
+is silently removed from the search list for that node. This keeps
+the lookup clean without requiring separate precedence lists per
+node type.
+
+> **Note:** The multi-line YAML block-scalar syntax (`|`) is required
+> so the `[x= ... =]` marker spans multiple lines correctly.
+
 #### Path Format
 
 - Use **backslash** (`\`) as the path separator
