@@ -17,6 +17,15 @@ lookup_options:
     merge_options:
       knockout_prefix: --
 
+  LocalUsers:
+    merge_hash: deep
+  LocalUsers\Users:
+    merge_hash_array: DeepTuple
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - UserName
+
   NetworkIpConfigurationMerged:
     merge_hash: deep
     merge_options:
@@ -31,3 +40,27 @@ lookup_options:
     merge_basetype_array: Unique
     merge_options:
       knockout_prefix: --
+
+  RegistryValues:
+    merge_hash: deep
+  RegistryValues\Values:
+    merge_hash_array: UniqueKeyValTuples
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - Key
+        - ValueName
+
+  SecurityOptions:
+    merge_hash: deep
+  SecurityOptions\Policies:
+    merge_hash_array: UniqueKeyValTuples
+    merge_options:
+      knockout_prefix: --
+      tuple_keys:
+        - Name
+
+  SummaryConfig:
+    merge_hash: deep
+  SummaryConfig\SumItems:
+    merge_hash_array: Sum

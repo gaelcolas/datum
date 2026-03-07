@@ -44,3 +44,9 @@ LcmConfig:
   ConfigurationRepositoryWeb:
     Server:
       ConfigurationNames: DSCWeb01
+
+SummaryConfig:
+  SumItems:
+    - ItemName: Item1
+      ItemNumber: 4
+      Decription: Item1 with number 4
