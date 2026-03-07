@@ -7,7 +7,7 @@ Remove-Module -Name datum
 BeforeDiscovery {
     Import-Module -Name datum
 
-    $script:datum = New-DatumStructure -DefinitionFile (Join-Path $here '.\assets\Demo3\datum.yml' -Resolve)
+    $script:datum = New-DatumStructure -DefinitionFile (Join-Path $here '.\assets\Demo3\Datum.yml' -Resolve)
 
     $script:AllNodes = @($datum.AllNodes.psobject.Properties | ForEach-Object {
             $Node = $datum.AllNodes.($_.Name)
@@ -33,7 +33,7 @@ Describe 'Test datum overrides' {
         }
         Import-Module -Name datum -Force
 
-        $script:datum = New-DatumStructure -DefinitionFile (Join-Path $PSScriptRoot '.\assets\Demo3\datum.yml' -Resolve)
+        $script:datum = New-DatumStructure -DefinitionFile (Join-Path $PSScriptRoot '.\assets\Demo3\Datum.yml' -Resolve)
         $script:AllNodes = @($script:datum.AllNodes.psobject.Properties | ForEach-Object {
             $Node = $script:datum.AllNodes.($_.Name)
             (@{} + $Node)
