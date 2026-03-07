@@ -31,7 +31,7 @@ Describe "RSOP tests based on 'MergeTestData' test data" {
 
         $rsopPath = Join-Path -Path $BuildModuleOutput -ChildPath RSOP
         $rsopWithSourcePath = Join-Path -Path $BuildModuleOutput -ChildPath RsopWithSource
-        mkdir -Path $rsopPath, $rsopWithSourcePath -Force | Out-Null
+        New-Item -ItemType Directory -Path $rsopPath, $rsopWithSourcePath -Force | Out-Null
     }
 
     Context 'Base-Type array merge behavior' {
