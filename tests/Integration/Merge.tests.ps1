@@ -53,21 +53,20 @@ Describe 'Merge ' {
                 PropertyPath = 'WindowsFeatures\Name'
                 Count        = 4
             }
-
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Count        = 3
+                Count        = 7
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Count        = 2
+                Count        = 6
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Count        = 3
+                Count        = 7
             }
         )
 
@@ -82,17 +81,17 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures', 'FilesAndFolders'
+                Value        = 'FilesAndFolders', 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures'
+                Value        = 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolders', 'WindowsFeatures'
+                Value        = 'FilesAndFolders', 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCFile01'

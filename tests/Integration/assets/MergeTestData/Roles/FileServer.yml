@@ -31,3 +31,30 @@ NetworkIpConfigurationNonMerged:
       Gateway: 192.168.10.50
       DnsServer: 192.168.10.10
       DisableNetbios: True
+
+RegistryValues:
+  Values:
+    - Key: --HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+      ValueName: --Start
+      ValueData: 4
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService
+      ValueName: Start
+      ValueData: 4
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\CaptureService
+      ValueName: UserServiceFlags
+      ValueData: 0
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+
+SummaryConfig:
+  SumItems:
+    - ItemName: Item1
+      ItemNumber: 3
+      Decription: Item1 with number 3

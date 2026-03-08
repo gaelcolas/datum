@@ -117,28 +117,20 @@ function Clear-DatumKnockout
         {
             if ($strategy.merge_hash_array -match '^MostSpecific$|^First')
             {
-                return $ReferenceDatum
+                return , $ReferenceDatum
             }
 
             if ($knockoutPrefixMatcher = $strategy.merge_options.knockout_prefix)
             {
-                if ($tupleKeyNames = [string[]]$Strategy.merge_options.tuple_keys)
+                $knockoutPrefixMatcher = [regex]::Escape($Strategy.merge_options.knockout_prefix).Insert(0, '^')
+
+                if ($tupleKeyNames = [string[]]$strategy.merge_options.tuple_keys)
                 {
-                    $tupleKeyNames += $tupleKeyNames.ForEach{ $strategy.merge_options.knockout_prefix + $_ }
                     $knockoutItems = foreach ($refItem in $ReferenceDatum)
                     {
-                        $refItemTupleKeys = $refItem.Keys.Where{ $_ -in $tupleKeyNames }
-                        if ($refItemTupleKeys -match $knockoutPrefixMatcher)
+                        if ($refItem.Keys.Where{ $_ -in $tupleKeyNames -and $refItem[$_] -match $knockoutPrefixMatcher })
                         {
                             $refItem
-                            $filterScript = @()
-                            foreach ($refItemTupleKey in $refItemTupleKeys)
-                            {
-                                $refItemTupleKeyWithoutKnockoutPrefix = $refItemTupleKey -replace $knockoutPrefixMatcher, ''
-                                $filterScript += "`$_.$refItemTupleKeyWithoutKnockoutPrefix -eq '$($refItem."$refItemTupleKey")'"
-                            }
-                            $filterScript = [scriptblock]::Create($filterScript -join ' -and ')
-                            $ReferenceDatum.Where{ &$filterScript }
                         }
                     }
                     foreach ($knockoutItem in $knockoutItems)
@@ -148,19 +140,19 @@ function Clear-DatumKnockout
                 }
             }
 
-            $cleanedArray = [System.Collections.ArrayList]::new()
-
-            foreach ($currentItem in $ReferenceDatum)
-            {
-                $cleanupItemParams = @{
-                    StartingPath   = $StartingPath
-                    ReferenceDatum = $currentItem
-                    Strategies     = $Strategies
+            $cleanedArray = @(
+                foreach ($currentItem in $ReferenceDatum)
+                {
+                    $cleanupItemParams = @{
+                        StartingPath   = $StartingPath
+                        ReferenceDatum = $currentItem
+                        Strategies     = $Strategies
+                    }
+                    Clear-DatumKnockout @cleanupItemParams
                 }
-                $null = $cleanedArray.Add((Clear-DatumKnockout @cleanupItemParams))
-            }
+            )
 
-            return (, $cleanedArray)
+            return , $cleanedArray
         }
 
         default
