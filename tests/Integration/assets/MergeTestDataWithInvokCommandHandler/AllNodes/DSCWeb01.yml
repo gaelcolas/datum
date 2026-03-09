@@ -1,0 +1,46 @@
+NodeName: DSCWeb01
+Environment: Dev
+Role: WebServer
+Description: '[Command=(Import-Csv -Path $env:BHProjectPath\DscConfigData\ExternalData.csv -Delimiter ";" | Where-Object ComputerName -eq DSCWeb01).Description]'
+Location: Singapore
+SomeData: '[Command=Get-Random]'
+
+NetworkIpConfigurationMerged:
+  ConfigureIPv6: 2
+  --DisableNetBios: null
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      IpAddress: 192.168.10.101
+      --Gateway: null
+      Destination:
+        - --192.168.10.0/24
+        - --192.168.20.0/24
+        - --192.168.30.0/24
+
+WindowsFeatures:
+  Name:
+    - --Web-Server
+    - Telnet-Server
+
+NetworkIpConfigurationNonMerged:
+  DisableNetBios: true
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      IpAddress: 192.168.10.101
+      Destination:
+        - 192.168.92.0/24
+        - 192.168.93.0/24
+        - 192.168.94.0/24
+    - InterfaceAlias: Ethernet 2
+      Destination:
+        - 192.168.102.0/24
+        - 192.168.103.0/24
+        - 192.168.104.0/24
+
+PSDscAllowPlainTextPassword: True
+PSDscAllowDomainUser: True
+
+LcmConfig:
+  ConfigurationRepositoryWeb:
+    Server:
+      ConfigurationNames: DSCWeb01

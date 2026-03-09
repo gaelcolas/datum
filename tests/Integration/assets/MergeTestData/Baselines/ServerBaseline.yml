@@ -1,10 +1,84 @@
 Configurations:
   - WindowsFeatures
   - NetworkIpConfigurationMerged
+  - LocalUsers
+  - RegistryValues
+  - SecurityOptions
+  - SummaryConfig
 
 WindowsFeatures:
   Name:
     - -Telnet-Client
 
+NetworkIpConfigurationMerged:
+  ConfigureIPv6: 0
+  DisableNetBios: true
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True
+      Destination:
+        - 192.168.10.0/24
+        - 192.168.20.0/24
+        - 192.168.30.0/24
+        - 192.168.40.0/24
+        - 192.168.50.0/24
+        - 192.168.60.0/24
+    - InterfaceAlias: Ethernet 2
+      Prefix: 24
+      Gateway: 192.168.20.50
+      DnsServer:
+        - 192.168.20.10
+        - 192.168.20.11
+      DisableNetbios: true
+    - InterfaceAlias: '[x={ "Ethernet 3" }=]'
+      Prefix: 24
+      Gateway: 192.168.30.50
+      DnsServer:
+        - 192.168.30.10
+        - 192.168.30.99
+      DisableNetbios: true
+
 SecurityBase:
   Role: Baseline
+
+LocalUsers:
+  Users:
+    - UserName: LocalAdmin
+      Ensure: Present
+      Disabled: false
+      PasswordChangeRequired: false
+      PasswordNeverExpires: false
+  DependsOn:
+    - '[SecurityOption]secPolOpt_Accounts_Rename_administrator_account::[SecurityOptions]SecurityOptions'
+
+RegistryValues:
+  Values:
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+      ValueName: Start
+      ValueData: 4
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+    - Key: HKLM:\SYSTEM\CurrentControlSet\Services\DevicesPickerUserSvc
+      ValueName: UserServiceFlags
+      ValueData: 0
+      ValueType: Dword
+      Ensure: Present
+      Force: true
+
+SecurityOptions:
+  Policies:
+  - Name: Accounts_Rename_administrator_account
+    Accounts_Rename_administrator_account: LocalAdmin
+
+SummaryConfig:
+  SumItems:
+    - ItemName: Item1
+      ItemNumber: 1
+      Decription: Item1 with number 1
+    - ItemName: Item1
+      ItemNumber: 2
+      Decription: Item1 with number 2

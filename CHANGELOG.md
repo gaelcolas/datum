@@ -7,7 +7,100 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Fix Resolve-NodeProperty default values.
+- Fix `Resolve-NodeProperty` default values.
+
+### Added
+
+- Add configurable `default_json_depth` setting in `Datum.yml` to
+  control `ConvertTo-Json` serialization depth (default: `4`)
+  ([#136](https://github.com/gaelcolas/datum/issues/136)).
+- Add integration tests for deep structure merge and truncation
+  warning detection
+  ([#136](https://github.com/gaelcolas/datum/issues/136)).
+- Added complete documentation system under `docs/` with index and
+  seven reference guides:
+  - `AboutDatum.md` — module overview, core concepts, and examples.
+  - `CmdletReference.md` — full parameter reference for all public
+    functions.
+  - `DatumYml.md` — `Datum.yml` configuration reference (stores,
+    resolution precedence, merge defaults, handlers).
+  - `Merging.md` — merge strategies, data types, knockout prefix,
+    and per-key configuration.
+  - `DatumHandlers.md` — handler system, ProtectedData, InvokeCommand,
+    and custom handler authoring.
+  - `RSOP.md` — RSOP computation, filtering, source tracking, caching,
+    and troubleshooting.
+  - `CodeLayers.md` — conceptual guide to layering DSC code with Roles
+    and Configurations backed by Datum data.
+- Documented `$env:DatumRsopIndentation` environment variable in
+  RSOP.md.
+- Added AllNodes iteration examples for both flat and nested directory
+  layouts in README.md, RSOP.md, and AboutDatum.md.
+- Support conditional `ResolutionPrecedence` entries using
+  `Datum.InvokeCommand` expressions (`[x= ... =]`). Entries that
+  evaluate to `$null` or empty strings are now silently skipped
+  instead of causing lookup errors.
+- Added knockout support for hashtable array items.
+
+### Changed
+
+- Rewrote README.md with structured sections, table of contents,
+  installation guide, merge strategy reference, handler documentation,
+  and public function catalogue.
+- Remove `SkipReason` from RSOP test cases due to resolved merge logic bug.
+- Adjusted integration tests for knockout of hashtable array items.
+- Adjusted integration tests for hashtable array merge behauvior 'Sum'.
+- Add integration test for conditional `ResolutionPrecedence` entry
+  using an InvokeCommand expression that returns a path for some nodes
+  and nothing for others.
+
+### Fixed
+
+- Fix `ConvertTo-Json` truncation warnings for deep data structures
+  in `Merge-Datum`, `Merge-Hashtable`, and
+  `Invoke-TestHandlerAction`
+  ([#136](https://github.com/gaelcolas/datum/issues/136)).
+- Fixed AllNodes iteration code samples that failed with nested
+  directory layouts (e.g. `AllNodes/Dev/DSCFile01.yml`).
+- Fixed `-IncludeSource` output examples to show actual right-aligned
+  annotations instead of fake `__source` YAML keys.
+- Fixed troubleshooting section referencing nonexistent
+  `$rsop.SomeKey.__source` pattern.
+- Documented `-IncludeSource`/`-RemoveSource` mutual exclusivity in
+  RSOP.md and CmdletReference.md.
+- Fixed merging of hashtable array items using merge behaviour 'Sum'.
+
+## [0.41.0] - 2026-02-03
+
+### Added
+
+- Added Pester tests for credential handling.
+- Added knockout support for basetype arrays.
+- Added cleanup of knockout items.
+
+### Changed
+
+- Use `powershell-yaml` module for JSON file handling — JSON files are
+  now parsed via `ConvertFrom-Yaml` (JSON is valid YAML 1.2), producing
+  `OrderedDictionary` objects that receive full recursive `ConvertTo-Datum`
+  processing including datum handler invocation
+  ([#154](https://github.com/gaelcolas/datum/pull/154)).
+- Improved error messages when parsing invalid JSON files — errors now
+  reference the JSON file path instead of showing a confusing YAML
+  parser error ([#154](https://github.com/gaelcolas/datum/pull/154)).
+- Adjusted integration tests for knockout of basetype array items and hashtables keys.
+- Adjusted `Merge-DatumArray` to convert tuple key values to datum before merging
+- Added more tests to cover hash table merging with datum handlers ([#155](https://github.com/gaelcolas/datum/issues/155)).
+- Updated build scripts to Sampler 0.119.0-preview0005.
+- Migrated all integration tests to Pester 5 syntax.
+
+### Fixed
+
+- Fixed `ConvertTo-Datum` always returns `$null` when DatumHandler returns `$false` (#139).
+- Fixed `Merge-DatumArray` does not return an array when merged array contains a single hashtable.
+- Fixed hashtable array items are not merged when using datum handler for tuple keys (#155).
+- Fixed and extended tests for `Copy-Object`.
+- Fixed PowerShell 7 compatibility of Copy-Object integration test.
 
 ## [0.40.1] - 2023-04-03
 

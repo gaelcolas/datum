@@ -1,0 +1,18 @@
+NodeName: TestNode01
+
+Configurations:
+  - DeepConfig
+
+DeepConfig:
+  Level1:
+    Level2a:
+      Level3a:
+        Level4a:
+          Setting1: nodeValue1
+          Setting2: nodeValue2
+      Level3b:
+        Items:
+          - item1
+          - item2
+    Level2b:
+      Description: nodeDescription

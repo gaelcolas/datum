@@ -9,7 +9,7 @@
 
     InvokeBuild                 = 'latest'
     PSScriptAnalyzer            = 'latest'
-    Pester                      = '4.10.1'
+    Pester                      = 'latest'
     'DscResource.Test'          = 'latest'
     'DscResource.AnalyzerRules' = 'latest'
     #'DscResource.Common'        = 'latest'
@@ -18,5 +18,9 @@
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
     'Sampler.GitHubTasks'       = 'latest'
+
+    ProtectedData               = 'latest'
+    'Datum.ProtectedData'       = 'latest'
+    'Datum.InvokeCommand'       = 'latest'
 
 }

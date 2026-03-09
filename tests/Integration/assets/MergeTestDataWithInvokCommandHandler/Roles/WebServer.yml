@@ -1,0 +1,29 @@
+Configurations:
+  - WindowsFeatures
+
+WindowsFeatures:
+  Name:
+    - File-Services
+    - Web-Server
+
+NetworkIpConfigurationMerged:
+  DisableNetBios: false
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True
+      Destination:
+        - 192.168.12.0/24
+        - 192.168.23.0/24
+        - 192.168.34.0/24
+
+NetworkIpConfigurationNonMerged:
+  ConfigureIPv6: -1
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True

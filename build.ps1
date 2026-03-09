@@ -1,6 +1,6 @@
 <#
     .DESCRIPTION
-        Bootstrap and build script for PowerShell module pipeline
+        Bootstrap and build script for PowerShell module CI/CD pipeline.
 
     .PARAMETER Tasks
         The task or tasks to run. The default value is '.' (runs the default task).
@@ -10,7 +10,7 @@
         The default value is '' (empty string).
 
     .PARAMETER BuildConfig
-        Not yet written.
+        Path to a file with configuration. Supported extensions : psd1, yaml, yml, json, jsonc.
 
     .PARAMETER OutputDirectory
         Specifies the folder to build the artefact into. The default value is 'output'.
@@ -22,12 +22,15 @@
     .PARAMETER RequiredModulesDirectory
         Can be a path (relative to $PSScriptRoot or absolute) to tell Resolve-Dependency
         and PSDepend where to save the required modules. It is also possible to use
-        'CurrentUser' och 'AllUsers' to install missing dependencies. You can override
+        'CurrentUser' or 'AllUsers' to install missing dependencies. You can override
         the value for PSDepend in the Build.psd1 build manifest. The default value is
         'output/RequiredModules'.
 
     .PARAMETER PesterScript
-        Not yet written.
+        One or more paths that will override the Pester configuration in build
+        configuration file when running the build task Invoke_Pester_Tests.
+
+        If running Pester 5 test, use the alias PesterPath to be future-proof.
 
     .PARAMETER PesterTag
         Filter which tags to run when invoking Pester tests. This is used in the
@@ -46,14 +49,28 @@
         used in the DscResource.Test.build.ps1 tasks.
 
     .PARAMETER ResolveDependency
-        Not yet written.
+        Resolve missing dependencies.
 
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
 
     .PARAMETER AutoRestore
-        Not yet written.
+        Specifies to restore the required modules by running build.ps1 with ResolveDependency switch and empty task `noop`.
+
+    .PARAMETER UseModuleFast
+        Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
+        faster.
+
+    .PARAMETER UsePSResourceGet
+        Specifies to use PSResourceGet instead of PowerShellGet to resolve dependencies
+        faster. This can also be configured in Resolve-Dependency.psd1.
+
+    .PARAMETER UsePowerShellGetCompatibilityModule
+        Specifies to use the compatibility module PowerShellGet. This parameter
+        only works then the method of downloading dependencies is PSResourceGet.
+        This can also be configured in Resolve-Dependency.psd1.
 #>
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'Suppressing this rule because how $PSDependTarget is assigned to splatting variable $resolveDependencyParams.')]
 [CmdletBinding()]
 param
 (
@@ -85,6 +102,8 @@ param
     $RequiredModulesDirectory = $(Join-Path 'output' 'RequiredModules'),
 
     [Parameter()]
+    # This alias is to prepare for the rename of this parameter to PesterPath when Pester 4 support is removed
+    [Alias('PesterPath')]
     [System.Object[]]
     $PesterScript,
 
@@ -116,7 +135,19 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $AutoRestore
+    $AutoRestore,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UseModuleFast,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UsePSResourceGet,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UsePowerShellGetCompatibilityModule
 )
 
 <#
@@ -127,7 +158,6 @@ param
 
 process
 {
-
     if ($MyInvocation.ScriptName -notLike '*Invoke-Build.ps1')
     {
         # Only run the process block through InvokeBuild (look at the Begin block at the bottom of this script).
@@ -139,7 +169,7 @@ process
 
     try
     {
-        Write-Host -Object '[build] Parsing defined tasks' -ForegroundColor Magenta
+        Write-Host -Object "[build] Parsing defined tasks" -ForeGroundColor Magenta
 
         # Load the default BuildInfo if the parameter BuildInfo is not set.
         if (-not $PSBoundParameters.ContainsKey('BuildInfo'))
@@ -173,7 +203,7 @@ process
                             ConvertFrom-Yaml -Yaml (Get-Content -Raw $configFile)
                         }
 
-                        # Native Support for JSON and JSONC (by Removing comments)
+                        # Support for JSON and JSONC (by Removing comments) when module PowerShell-Yaml is available
                         '\.[json|jsonc]'
                         {
                             $jsonFile = Get-Content -Raw -Path $configFile
@@ -220,6 +250,38 @@ process
         }
 
         <#
+            Add BuildModuleOutput to PSModule Path environment variable.
+            Moved here (not in begin block) because build file can contains BuiltSubModuleDirectory value.
+        #>
+        if ($BuiltModuleSubdirectory)
+        {
+            if (-not (Split-Path -IsAbsolute -Path $BuiltModuleSubdirectory))
+            {
+                $BuildModuleOutput = Join-Path -Path $OutputDirectory -ChildPath $BuiltModuleSubdirectory
+            }
+            else
+            {
+                $BuildModuleOutput = $BuiltModuleSubdirectory
+            }
+        } # test if BuiltModuleSubDirectory set in build config file
+        elseif ($BuildInfo.ContainsKey('BuiltModuleSubDirectory'))
+        {
+            $BuildModuleOutput = Join-Path -Path $OutputDirectory -ChildPath $BuildInfo['BuiltModuleSubdirectory']
+        }
+        else
+        {
+            $BuildModuleOutput = $OutputDirectory
+        }
+
+        # Pre-pending $BuildModuleOutput folder to PSModulePath to resolve built module from this folder.
+        if ($powerShellModulePaths -notcontains $BuildModuleOutput)
+        {
+            Write-Host -Object "[build] Pre-pending '$BuildModuleOutput' folder to PSModulePath" -ForegroundColor Green
+
+            $env:PSModulePath = $BuildModuleOutput + [System.IO.Path]::PathSeparator + $env:PSModulePath
+        }
+
+        <#
             Import Tasks from modules via their exported aliases when defined in Build Manifest.
             https://github.com/nightroman/Invoke-Build/tree/master/Tasks/Import#example-2-import-from-a-module-with-tasks
         #>
@@ -235,14 +297,17 @@ process
 
                     foreach ($TaskToExport in $BuildInfo['ModuleBuildTasks'].($module))
                     {
-                        $loadedModule.ExportedAliases.GetEnumerator().Where{
-                            Write-Host -Object "`t Loading $($_.Key)..." -ForegroundColor DarkGray
-
+                        $aliasTasks = $loadedModule.ExportedAliases.GetEnumerator().Where{
                             # Using -like to support wildcard.
                             $_.Key -like $TaskToExport
-                        }.ForEach{
+                        }
+
+                        foreach ($aliasTask in $aliasTasks)
+                        {
+                            Write-Host -Object "`t Loading $($aliasTask.Key)..." -ForegroundColor DarkGray
+
                             # Dot-sourcing the Tasks via their exported aliases.
-                            . (Get-Alias $_.Key)
+                            . (Get-Alias $aliasTask.Key)
                         }
                     }
                 }
@@ -256,12 +321,13 @@ process
         }
 
         # Loading Build Tasks defined in the .build/ folder (will override the ones imported above if same task name).
-        Get-ChildItem -Path '.build/' -Recurse -Include '*.ps1' -ErrorAction Ignore |
-            ForEach-Object {
-                "Importing file $($_.BaseName)" | Write-Verbose
+        $taskFiles = Get-ChildItem -Path '.build/' -Recurse -Include '*.ps1' -ErrorAction Ignore
+        foreach ($taskFile in $taskFiles)
+        {
+            "Importing file $($taskFile.BaseName)" | Write-Verbose
 
-                . $_.FullName
-            }
+            . $taskFile.FullName
+        }
 
         # Synopsis: Empty task, useful to test the bootstrap process.
         task noop { }
@@ -290,8 +356,7 @@ process
             task $workflow $workflowItem
         }
 
-        Write-Host -Object "[build] Executing requested workflow: $($Tasks -join ', ')" -ForegroundColor Magenta
-
+        Write-Host -Object "[build] Executing requested workflow: $($Tasks -join ', ')" -ForeGroundColor Magenta
     }
     finally
     {
@@ -299,7 +364,7 @@ process
     }
 }
 
-Begin
+begin
 {
     # Find build config if not specified.
     if (-not $BuildConfig)
@@ -329,7 +394,7 @@ Begin
 
     if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1')
     {
-        Write-Host -Object '[pre-build] Starting Build Init' -ForegroundColor Green
+        Write-Host -Object "[pre-build] Starting Build Init" -ForegroundColor Green
 
         Push-Location $PSScriptRoot -StackName 'BuildModule'
     }
@@ -339,7 +404,11 @@ Begin
         # Installing modules instead of saving them.
         Write-Host -Object "[pre-build] Required Modules will be installed to the PowerShell module path that is used for $RequiredModulesDirectory." -ForegroundColor Green
 
-        # Tell Resolve-Dependency to use provided scope as the -PSDependTarget if not overridden in Build.psd1.
+        <#
+            The variable $PSDependTarget will be used below when building the splatting
+            variable before calling Resolve-Dependency.ps1, unless overridden in the
+            file Resolve-Dependency.psd1.
+        #>
         $PSDependTarget = $RequiredModulesDirectory
     }
     else
@@ -399,37 +468,18 @@ Begin
             }
         }
 
-        if ($BuiltModuleSubdirectory)
-        {
-            if (-not (Split-Path -IsAbsolute -Path $BuiltModuleSubdirectory))
-            {
-                $BuildModuleOutput = Join-Path -Path $OutputDirectory -ChildPath $BuiltModuleSubdirectory
-            }
-            else
-            {
-                $BuildModuleOutput = $BuiltModuleSubdirectory
-            }
-        }
-        else
-        {
-            $BuildModuleOutput = $OutputDirectory
-        }
-
-        # Pre-pending $BuildModuleOutput folder to PSModulePath to resolve built module from this folder.
-        if ($powerShellModulePaths -notcontains $BuildModuleOutput)
-        {
-            Write-Host -Object "[pre-build] Pre-pending '$BuildModuleOutput' folder to PSModulePath" -ForegroundColor Green
-
-            $env:PSModulePath = $BuildModuleOutput + [System.IO.Path]::PathSeparator + $env:PSModulePath
-        }
-
-        # Tell Resolve-Dependency to use $requiredModulesPath as -PSDependTarget if not overridden in Build.psd1.
+        <#
+            The variable $PSDependTarget will be used below when building the splatting
+            variable before calling Resolve-Dependency.ps1, unless overridden in the
+            file Resolve-Dependency.psd1.
+        #>
         $PSDependTarget = $requiredModulesPath
     }
 
     if ($ResolveDependency)
     {
-        Write-Host -Object '[pre-build] Resolving dependencies.' -ForegroundColor Green
+        Write-Host -Object "[pre-build] Resolving dependencies using preferred method." -ForegroundColor Green
+
         $resolveDependencyParams = @{ }
 
         # If BuildConfig is a Yaml file, bootstrap powershell-yaml via ResolveDependency.
@@ -445,9 +495,9 @@ Begin
             # The parameter has been explicitly used for calling the .build.ps1
             if ($MyInvocation.BoundParameters.ContainsKey($cmdParameter))
             {
-                $paramValue = $MyInvocation.BoundParameters.ContainsKey($cmdParameter)
+                $paramValue = $MyInvocation.BoundParameters.Item($cmdParameter)
 
-                Write-Debug " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
+                Write-Debug -Message " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
 
                 $resolveDependencyParams.Add($cmdParameter, $paramValue)
             }
@@ -458,30 +508,30 @@ Begin
 
                 if ($paramValue)
                 {
-                    Write-Debug " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
+                    Write-Debug -Message " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
 
                     $resolveDependencyParams.Add($cmdParameter, $paramValue)
                 }
             }
         }
 
-        Write-Host -Object '[pre-build] Starting bootstrap process.' -ForegroundColor Green
+        Write-Host -Object "[pre-build] Starting bootstrap process." -ForegroundColor Green
 
         .\Resolve-Dependency.ps1 @resolveDependencyParams
     }
 
     if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1')
     {
-        Write-Verbose -Message 'Bootstrap completed. Handing back to InvokeBuild.'
+        Write-Verbose -Message "Bootstrap completed. Handing back to InvokeBuild."
 
         if ($PSBoundParameters.ContainsKey('ResolveDependency'))
         {
-            Write-Verbose -Message 'Dependency already resolved. Removing task.'
+            Write-Verbose -Message "Dependency already resolved. Removing task."
 
             $null = $PSBoundParameters.Remove('ResolveDependency')
         }
 
-        Write-Host -Object '[build] Starting build with InvokeBuild.' -ForegroundColor Green
+        Write-Host -Object "[build] Starting build with InvokeBuild." -ForegroundColor Green
 
         Invoke-Build @PSBoundParameters -Task $Tasks -File $MyInvocation.MyCommand.Path
 

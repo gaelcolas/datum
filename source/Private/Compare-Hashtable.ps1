@@ -30,7 +30,7 @@ function Compare-Hashtable
                 if ((Compare-Hashtable -ReferenceHashtable $ReferenceHashtable[$propertyName] -DifferenceHashtable $DifferenceHashtable[$propertyName]))
                 {
                     Write-Debug -Message "  Skipping $propertyName...."
-                    # If Compae returns something, they're not the same
+                    # If compare returns something, they're not the same
                     continue
                 }
             }

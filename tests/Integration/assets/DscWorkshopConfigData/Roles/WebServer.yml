@@ -1,11 +1,11 @@
 Configurations:
   - WindowsServices
   - RegistryValues
-  - FilesAndFolders
+  - FileSystemObjects
   - WebApplicationPools
   - WebApplications
 
-FilesAndFolders:
+FileSystemObjects:
   Items:
     - DestinationPath: C:\Inetpub\TestApp1
       Type: Directory
@@ -14,11 +14,11 @@ FilesAndFolders:
     - DestinationPath: C:\Inetpub\TestApp1\default.html
       Type: File
       Contents: This is TestApp1
-      DependsOn: '[File]C\Inetpub\TestApp1'
+      DependsOn: '[FileSystemObject]FileSystemObject_C__Inetpub_TestApp1'
     - DestinationPath: C:\Inetpub\TestApp2\default.html
       Type: File
       Contents: This is TestApp2
-      DependsOn: '[File]C\Inetpub\TestApp2'
+      DependsOn: '[FileSystemObject]FileSystemObject_C__Inetpub_TestApp2'
 
 WebApplicationPools:
   Items:
@@ -30,6 +30,10 @@ WebApplicationPools:
       Ensure: Present
       IdentityType: ApplicationPoolIdentity
       State: Started
+      DependsOn: '[WebAppPool]TestAppPool1'
+  DependsOn:
+    - '[FileSystemObjects]FileSystemObjects'
+    - '[WindowsFeatures]WindowsFeatures'
 
 WebApplications:
   Items:
@@ -43,6 +47,8 @@ WebApplications:
       WebAppPool: TestAppPool2
       Website: Default Web Site
       Ensure: Present
+      DependsOn: '[WebApplication]webapp_TestApp1'
+  DependsOn: '[WebApplicationPools]WebApplicationPools'
 
 RegistryValues:
   Values:
@@ -52,14 +58,15 @@ RegistryValues:
       ValueType: String
       Ensure: Present
       Force: true
+  DependsOn: '[WebApplications]WebApplications'
 
 SecurityBase:
   Role: WebServer
 
 WindowsFeatures:
-  Name:
-    - +Web-Server
-    - -WoW64-Support
+  Names:
+  - +Web-Server
+  - -WoW64-Support
 
 WindowsServices:
   Services:
@@ -67,3 +74,7 @@ WindowsServices:
       DisplayName: Dummy Service on Web Servers
       StartupType: Automatic
       Path: C:\DummyService.exe
+  DependsOn: '[RegistryValues]RegistryValues'
+DscTagging:
+  Layers:
+    - '[x={ Get-DatumSourceFile -Path $File } =]'

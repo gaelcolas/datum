@@ -1,0 +1,33 @@
+Configurations:
+  - WindowsFeatures
+  - FilesAndFolders
+
+WindowsFeatures:
+  Name:
+    - File-Services
+
+FilesAndFolders:
+  Items:
+    - DestinationPath: C:\Test
+      Type: Directory
+
+NetworkIpConfigurationMerged:
+  ConfigureIPv6: -1
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True
+      Destination:
+        - 192.168.11.0/24
+        - 192.168.22.0/24
+        - 192.168.33.0/24
+
+NetworkIpConfigurationNonMerged:
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True

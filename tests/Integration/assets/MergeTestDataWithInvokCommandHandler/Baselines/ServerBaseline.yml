@@ -1,0 +1,41 @@
+Configurations:
+  - WindowsFeatures
+  - NetworkIpConfigurationMerged
+
+WindowsFeatures:
+  Name:
+    - -Telnet-Client
+
+NetworkIpConfigurationMerged:
+  ConfigureIPv6: 0
+  DisableNetBios: true
+  Interfaces:
+    - InterfaceAlias: Ethernet 1
+      Prefix: 24
+      Gateway: 192.168.10.50
+      DnsServer: 192.168.10.10
+      DisableNetbios: True
+      Destination:
+        - 192.168.10.0/24
+        - 192.168.20.0/24
+        - 192.168.30.0/24
+        - 192.168.40.0/24
+        - 192.168.50.0/24
+        - 192.168.60.0/24
+    - InterfaceAlias: Ethernet 2
+      Prefix: 24
+      Gateway: 192.168.20.50
+      DnsServer:
+        - 192.168.20.10
+        - 192.168.20.11
+      DisableNetbios: true
+    - InterfaceAlias: '[x={ "Ethernet 3" }=]'
+      Prefix: 24
+      Gateway: 192.168.30.50
+      DnsServer:
+        - 192.168.30.10
+        - 192.168.30.99
+      DisableNetbios: true
+
+SecurityBase:
+  Role: Baseline

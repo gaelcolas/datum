@@ -26,7 +26,8 @@ function Merge-Datum
     Write-Debug -Message "Merge-Datum -StartingPath <$StartingPath>"
     $strategy = Get-MergeStrategyFromPath -Strategies $Strategies -PropertyPath $startingPath -Verbose
 
-    Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json)"
+    $jsonDepth = if ($Datum.__Definition.default_json_depth) { $Datum.__Definition.default_json_depth } else { 4 }
+    Write-Verbose -Message "   Merge Strategy: @$($strategy | ConvertTo-Json -Depth $jsonDepth)"
 
     $result = $null
     if ($ReferenceDatum -is [array])
@@ -129,31 +130,24 @@ function Merge-Datum
 
                 '^Unique'
                 {
-                    if ($regexPattern = $strategy.merge_options.knockout_prefix)
-                    {
-                        $regexPattern = $regexPattern.insert(0, '^')
-                        $result = @(($ReferenceDatum + $DifferenceDatum).Where{ $_ -notmatch $regexPattern } | Select-Object -Unique)
-                        , $result
-                    }
-                    else
-                    {
-                        $result = @(($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique)
-                        , $result
-                    }
-
+                    return (, (($ReferenceDatum + $DifferenceDatum) | Select-Object -Unique))
                 }
 
                 '^Sum|^Add'
                 {
                     #--> $ref + $diff -$kop
-                    if ($regexPattern = $strategy.merge_options.knockout_prefix)
+                    if ($knockoutPrefixMatcher = $strategy.merge_options.knockout_prefix)
                     {
-                        $regexPattern = $regexPattern.insert(0, '^')
-                        , (($ReferenceDatum + $DifferenceDatum).Where{ $_ -notMatch $regexPattern })
+                        $knockoutPrefixMatcher = $knockoutPrefixMatcher.Insert(0, '^')
+                        $knockedOutItems = foreach ($item in ($ReferenceDatum.Where{ $_ -match $knockoutPrefixMatcher }))
+                        {
+                            $item -replace $knockoutPrefixMatcher
+                        }
+                        return (, (($ReferenceDatum + $DifferenceDatum).Where{ $_ -notin $knockedOutItems }))
                     }
                     else
                     {
-                        , ($ReferenceDatum + $DifferenceDatum)
+                        return (, ($ReferenceDatum + $DifferenceDatum))
                     }
                 }
 
@@ -184,27 +178,24 @@ function Merge-Datum
                 '^UniqueKeyValTuples'
                 {
                     #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is not already int output
-                    , (Merge-DatumArray @MergeDatumArrayParams)
+                    return (, (Merge-DatumArray @MergeDatumArrayParams))
                 }
 
                 '^DeepTuple|^DeepItemMergeByTuples'
                 {
                     #--> $ref + $diff | ? % key in Tuple_Keys -> $ref[Key] -eq $diff[key] is merged up
-                    , (Merge-DatumArray @MergeDatumArrayParams)
+                    return (, (Merge-DatumArray @MergeDatumArrayParams))
                 }
 
                 '^Sum'
                 {
                     #--> $ref + $diff
-                    (@($DifferenceArray) + @($ReferenceArray)).Foreach{
-                        $null = $MergedArray.Add(([ordered]@{} + $_))
-                    }
-                    , $MergedArray
+                    return (, (Merge-DatumArray @MergeDatumArrayParams))
                 }
 
                 Default
                 {
-                    return , $ReferenceDatum
+                    return (, $ReferenceDatum)
                 }
             }
         }
