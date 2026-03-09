@@ -247,4 +247,26 @@ Describe 'Merge ' {
             &$cmd | Should -Be $ExpectedValue
         }
     }
+
+    Context 'Resolve-NodeProperty default parameter values' {
+
+        It 'Should resolve DatumTree from $ConfigurationData.Datum when not passed explicitly' {
+            # $global:configurationData is set in BeforeAll; calling without -DatumTree should use it
+            $n = $AllNodes | Where-Object NodeName -EQ 'DSCFile01'
+            $result = Resolve-NodeProperty -PropertyPath 'Configurations' -Node $n
+            $result | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Should resolve $Node from the caller scope when not passed explicitly' {
+            # Set $Node in this scope; the parameter default '$Node = $Node' should pick it up
+            $Node = $AllNodes | Where-Object NodeName -EQ 'DSCFile01'
+            $result = Resolve-NodeProperty -PropertyPath 'Configurations'
+            $result | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Should resolve a Node name string via $ConfigurationData.AllNodes' {
+            $result = Resolve-NodeProperty -PropertyPath 'Configurations' -Node 'DSCFile01'
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
 }
