@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Fix `Resolve-NodeProperty` default values.
-
 ### Added
 
 - Add configurable `default_json_depth` setting in `Datum.yml` to
@@ -69,6 +67,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documented `-IncludeSource`/`-RemoveSource` mutual exclusivity in
   RSOP.md and CmdletReference.md.
 - Fixed merging of hashtable array items using merge behaviour 'Sum'.
+- Fixed `Resolve-NodeProperty` default values not resolving `$Node` and
+  `$ConfigurationData.Datum` from the caller's scope
+  ([#138](https://github.com/gaelcolas/datum/pull/138)).
 
 ## [0.41.0] - 2026-02-03
 
