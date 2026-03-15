@@ -156,9 +156,9 @@ function Resolve-Datum
         $optKeyConverted = $optKey -replace '[\/\\]', [System.IO.Path]::DirectorySeparatorChar
         if ($optKey -ne $optKeyConverted)
         {
-            if ($Options.Contains($keyConverted))
+            if ($Options.Contains($optKeyConverted))
             {
-                throw "The lookup options contain duplicate path '$($keyConverted)' using different property separators ('\' and'/'). This is not allowed."
+                throw "The lookup options contain duplicate path '$($optKeyConverted)' using different property separators ('\' and'/'). This is not allowed."
             }
             $Options.Add($optKeyConverted, $Options[$optKey])
             $Options.Remove($optKey)
