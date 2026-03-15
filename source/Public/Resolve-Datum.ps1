@@ -149,15 +149,19 @@ function Resolve-Datum
         $Options = $lookup_options
     }
 
-    # Ensure options' PropertyPathes use system specific directory separator
+    # Ensure options' PropertyPaths use system specific directory separator
     $clonedOptions = @{} + $Options
-    foreach ($key in $clonedOptions.Keys)
+    foreach ($optKey in $clonedOptions.Keys)
     {
-        $keyConverted = $key -replace '[\/\\]', [System.IO.Path]::DirectorySeparatorChar
-        if ($key -ne $keyConverted)
+        $optKeyConverted = $optKey -replace '[\/\\]', [System.IO.Path]::DirectorySeparatorChar
+        if ($optKey -ne $optKeyConverted)
         {
-            $Options.Add($keyConverted, $Options.$key)
-            $Options.Remove($key)
+            if ($Options.Contains($keyConverted))
+            {
+                throw "The lookup options contain duplicate path '$($keyConverted)' using different property separators ('\' and'/'). This is not allowed."
+            }
+            $Options.Add($optKeyConverted, $Options[$optKey])
+            $Options.Remove($optKey)
         }
     }
 

@@ -26,7 +26,7 @@ BeforeDiscovery {
     $buildOutput = if ($BuildModuleOutput) { $BuildModuleOutput } else { "$here\..\..\output" }
     $script:rsopPath = Join-Path -Path $buildOutput -ChildPath RSOP
     $script:rsopWithSourcePath = Join-Path -Path $buildOutput -ChildPath RsopWithSource
-    New-Item -ItemType Directory -Path $rsopPath, $rsopWithSourcePath -Force | Out-Null
+    New-Item -ItemType Directory -Path $script:rsopPath, $script:rsopWithSourcePath -Force | Out-Null
 }
 
 Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
