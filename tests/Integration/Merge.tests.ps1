@@ -53,21 +53,20 @@ Describe 'Merge ' {
                 PropertyPath = 'WindowsFeatures\Name'
                 Count        = 4
             }
-
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Count        = 3
+                Count        = 7
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Count        = 2
+                Count        = 6
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Count        = 3
+                Count        = 7
             }
         )
 
@@ -82,17 +81,17 @@ Describe 'Merge ' {
             @{
                 Node         = 'DSCFile01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures', 'FilesAndFolders'
+                Value        = 'FilesAndFolders', 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb01'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'WindowsFeatures'
+                Value        = 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCWeb02'
                 PropertyPath = 'Configurations'
-                Value        = 'NetworkIpConfigurationMerged', 'FilesAndFolders', 'WindowsFeatures'
+                Value        = 'FilesAndFolders', 'LocalUsers', 'NetworkIpConfigurationMerged', 'RegistryValues', 'SecurityOptions', 'SummaryConfig', 'WindowsFeatures'
             }
             @{
                 Node         = 'DSCFile01'
@@ -246,6 +245,28 @@ Describe 'Merge ' {
 
             $cmd = [scriptblock]::Create("`$result.$Value")
             &$cmd | Should -Be $ExpectedValue
+        }
+    }
+
+    Context 'Resolve-NodeProperty default parameter values' {
+
+        It 'Should resolve DatumTree from $ConfigurationData.Datum when not passed explicitly' {
+            # $global:configurationData is set in BeforeAll; calling without -DatumTree should use it
+            $n = $AllNodes | Where-Object NodeName -EQ 'DSCFile01'
+            $result = Resolve-NodeProperty -PropertyPath 'Configurations' -Node $n
+            $result | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Should resolve $Node from the caller scope when not passed explicitly' {
+            # Set $Node in this scope; the parameter default '$Node = $Node' should pick it up
+            $Node = $AllNodes | Where-Object NodeName -EQ 'DSCFile01'
+            $result = Resolve-NodeProperty -PropertyPath 'Configurations'
+            $result | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Should resolve a Node name string via $ConfigurationData.AllNodes' {
+            $result = Resolve-NodeProperty -PropertyPath 'Configurations' -Node 'DSCFile01'
+            $result | Should -Not -BeNullOrEmpty
         }
     }
 }

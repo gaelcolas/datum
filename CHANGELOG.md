@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Remove `SkipReason` from RSOP test cases due to resolved merge logic bug.
-
-## [0.41.0] - 2026-02-03
-
 ### Added
 
 - Add configurable `default_json_depth` setting in `Datum.yml` to
@@ -40,12 +34,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   RSOP.md.
 - Added AllNodes iteration examples for both flat and nested directory
   layouts in README.md, RSOP.md, and AboutDatum.md.
+- Support conditional `ResolutionPrecedence` entries using
+  `Datum.InvokeCommand` expressions (`[x= ... =]`). Entries that
+  evaluate to `$null` or empty strings are now silently skipped
+  instead of causing lookup errors.
+- Added knockout support for hashtable array items.
 
 ### Changed
 
 - Rewrote README.md with structured sections, table of contents,
   installation guide, merge strategy reference, handler documentation,
   and public function catalogue.
+- Remove `SkipReason` from RSOP test cases due to resolved merge logic bug.
+- Adjusted integration tests for knockout of hashtable array items.
+- Adjusted integration tests for hashtable array merge behauvior 'Sum'.
+- Add integration test for conditional `ResolutionPrecedence` entry
+  using an InvokeCommand expression that returns a path for some nodes
+  and nothing for others.
 
 ### Fixed
 
@@ -61,6 +66,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `$rsop.SomeKey.__source` pattern.
 - Documented `-IncludeSource`/`-RemoveSource` mutual exclusivity in
   RSOP.md and CmdletReference.md.
+- Fixed merging of hashtable array items using merge behaviour 'Sum'.
+- Fixed `Resolve-NodeProperty` default values not resolving `$Node` and
+  `$ConfigurationData.Datum` from the caller's scope
+  ([#138](https://github.com/gaelcolas/datum/pull/138)).
 
 ## [0.41.0] - 2026-02-03
 

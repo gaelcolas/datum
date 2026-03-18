@@ -13,12 +13,12 @@ function Global:Resolve-NodeProperty
         $DefaultValue,
 
         [Parameter(Position = 3)]
-        $Node = $ExecutionContext.InvokeCommand.InvokeScript('$Node'),
+        $Node = $Node,
 
         [Parameter()]
         [Alias('DatumStructure')]
         [object]
-        $DatumTree = $ExecutionContext.InvokeCommand.InvokeScript('$ConfigurationData.Datum'),
+        $DatumTree = $ConfigurationData.Datum,
 
         [Parameter()]
         [string[]]

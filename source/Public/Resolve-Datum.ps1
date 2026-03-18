@@ -173,6 +173,7 @@ function Resolve-Datum
 
     #Invoke datum handlers
     $PathPrefixes = $PathPrefixes | ConvertTo-Datum -DatumHandlers $datum.__Definition.DatumHandlers
+    $PathPrefixes = $PathPrefixes | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 
     $allMergeResults = [System.Collections.Stack]::new()
     $Script:previousMergeResult = $null
