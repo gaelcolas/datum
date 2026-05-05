@@ -26,7 +26,7 @@ BeforeDiscovery {
     $buildOutput = if ($BuildModuleOutput) { $BuildModuleOutput } else { "$here\..\..\output" }
     $script:rsopPath = Join-Path -Path $buildOutput -ChildPath RSOP
     $script:rsopWithSourcePath = Join-Path -Path $buildOutput -ChildPath RsopWithSource
-    mkdir -Path $rsopPath, $rsopWithSourcePath -Force | Out-Null
+    New-Item -ItemType Directory -Path $script:rsopPath, $script:rsopWithSourcePath -Force | Out-Null
 }
 
 Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
@@ -55,7 +55,7 @@ Describe "Datum Handler tests based on 'DscWorkshopConfigData' test data" {
         $buildOutput = if ($BuildModuleOutput) { $BuildModuleOutput } else { "$PSScriptRoot\..\..\output" }
         $script:rsopPath = Join-Path -Path $buildOutput -ChildPath RSOP
         $script:rsopWithSourcePath = Join-Path -Path $buildOutput -ChildPath RsopWithSource
-        mkdir -Path $script:rsopPath, $script:rsopWithSourcePath -Force | Out-Null
+        New-Item -ItemType Directory -Path $script:rsopPath, $script:rsopWithSourcePath -Force | Out-Null
     }
 
     Context 'Accessing credentials with the correct key' {
