@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add integration test for conditional `ResolutionPrecedence` entry
   using an InvokeCommand expression that returns a path for some nodes
   and nothing for others.
+- Updated build pipeline to also test against Linux and MacOS
 
 ### Fixed
 
@@ -70,6 +71,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `Resolve-NodeProperty` default values not resolving `$Node` and
   `$ConfigurationData.Datum` from the caller's scope
   ([#138](https://github.com/gaelcolas/datum/pull/138)).
+- Fixed merge issues when using PowerShell on Linux with `\` as a
+  property separator under `ResolutionPrecedence` and
+  `lookup_options`.
+- Fixed issues running integration tests with PowerShell on Linux.
 
 ## [0.41.0] - 2026-02-03
 
