@@ -81,6 +81,25 @@ function Merge-Datum
     $referenceDatumType = Get-DatumType -DatumObject $ReferenceDatum
     $differenceDatumType = Get-DatumType -DatumObject $DifferenceDatum
 
+    # An empty array is type-compatible with both 'baseType_array' and 'hash_array' --
+    # it has no elements whose member type could conflict. Coerce the empty side to
+    # the populated side's type so authors can use [] as a valid clear-override (and
+    # templates can carry [] for not-yet-populated lists) without triggering a
+    # spurious type-mismatch warning. See issue #173.
+    if ($referenceDatumType -ne $differenceDatumType -and
+        $referenceDatumType  -in 'baseType_array', 'hash_array' -and
+        $differenceDatumType -in 'baseType_array', 'hash_array')
+    {
+        if (@($ReferenceDatum).Count -eq 0)
+        {
+            $referenceDatumType = $differenceDatumType
+        }
+        elseif (@($DifferenceDatum).Count -eq 0)
+        {
+            $differenceDatumType = $referenceDatumType
+        }
+    }
+
     if ($referenceDatumType -ne $differenceDatumType)
     {
         Write-Warning -Message "Cannot merge different types in path '$StartingPath' REF:[$referenceDatumType] | DIFF:[$differenceDatumType]$($DifferenceDatum.GetType()) , returning most specific Datum."
