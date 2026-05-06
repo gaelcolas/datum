@@ -75,6 +75,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   property separator under `ResolutionPrecedence` and
   `lookup_options`.
 - Fixed issues running integration tests with PowerShell on Linux.
+- Fixed spurious `Cannot merge different types` warning in `Merge-Datum`
+  when an empty array (`@()`) meets a populated `hash_array` on the
+  other side. An empty array is now treated as type-compatible with
+  the populated side (`baseType_array` or `hash_array`) so authors can
+  use `[]` as a clear-override or carry empty placeholder lists in
+  templates without false warnings. Genuine type mismatches (e.g.
+  `baseType_array` vs `hash_array` with content on both sides, or
+  `hashtable` vs `hash_array`) still warn as before
+  ([#173](https://github.com/gaelcolas/datum/issues/173)).
+- Added regression tests under `tests/Unit/Public/Merge-Datum.tests.ps1`
+  covering the empty-array merge cases and guarding against silencing
+  legitimate type-mismatch warnings.
 
 ## [0.41.0] - 2026-02-03
 
